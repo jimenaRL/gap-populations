@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import Ridge
 
-from some4demexp.inout import \
+from gap.inout import \
     load_ide_embeddings, \
     save_att_embeddings
 

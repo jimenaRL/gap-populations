@@ -3,10 +3,10 @@ import yaml
 import logging
 from argparse import ArgumentParser
 
-from some4demdb import SQLite
-from some4demexp.ideological_embedding import create_ideological_embedding
-from some4demexp.attitudinal_embedding import create_attitudinal_embedding
-from some4demexp.inout import \
+from gap.sqlite import SQLite
+from gap.ideological_embedding import create_ideological_embedding
+from gap.attitudinal_embedding import create_attitudinal_embedding
+from gap.inout import \
     get_ide_ndims, \
     set_output_folder, \
     set_output_folder_emb, \
@@ -25,7 +25,7 @@ surveys = args.surveys.split(',')
 country = args.country
 
 # 0. Get things setted
-logfile = f'logs/{country}.log'
+logfile = f'{country}.log'
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     level=logging.DEBUG,

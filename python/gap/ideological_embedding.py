@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 
 from linate import IdeologicalEmbedding
-from some4demexp.graph import graphToAdjencyMatrix
-from some4demexp.inout import \
+from gap.graph import graphToAdjencyMatrix
+from gap.inout import \
     load_experiment_data, \
     save_ide_embeddings, \
     save_experiment_data
