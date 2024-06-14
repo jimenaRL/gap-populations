@@ -90,7 +90,7 @@ def save_att_embeddings(att_source, att_targets, folder, logger):
     logger.info(mssg)
 
 
-def load_att_embeddings(folder):
+def load_att_embeddings(folder, logger):
 
     logger.info(f"Attitudinal embeddings load from folder {folder}.")
 

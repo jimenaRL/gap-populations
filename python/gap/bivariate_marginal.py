@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import matplotlib.patheffects as PathEffects
 
-from some4demexp.conf import \
+from gap.conf import \
     ATTDICT, \
     CHES2019DEFAULTATTVIZ, \
     GPS2019DEFAULTATTVIZ, \

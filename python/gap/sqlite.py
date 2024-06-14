@@ -8,18 +8,26 @@ from copy import deepcopy
 
 class SQLite:
 
-    def __init__(self, db_path, tables, pp_params, logger, country):
+    def __init__(
+        self,
+        db_path,
+        tables,
+        sources_min_followers,
+        sources_min_outdegree,
+        logger,
+        country):
 
         self.country = country
         self.DB = os.path.abspath(db_path)
         self.TABLES = tables
-        self.pp_params = pp_params
+        self.NB_MIN_FOLLOWERS =  sources_min_followers
+        self.MIN_OUTDEGREE = sources_min_outdegree
         self.logger = logger
 
     def ppSubstitution(self, string_):
         return Template(string_).substitute(
-            sources_min_followers=self.pp_params['sources_min_followers'],
-            sources_min_outdegree=self.pp_params['sources_min_outdegree']
+            sources_min_followers=self.NB_MIN_FOLLOWERS,
+            sources_min_outdegree=self.MIN_OUTDEGREE
         )
 
     def checkTableExists(self, name):
@@ -329,8 +337,8 @@ class SQLite:
     def checkLLMAnnotationTableExists(self, issue):
         table = Template(self.TABLES['llm_answers']['name']).substitute(
             issue=issue,
-            sources_min_followers=self.pp_params['sources_min_followers'],
-            sources_min_outdegree=self.pp_params['sources_min_outdegree']
+            sources_min_followers=self.NB_MIN_FOLLOWERS,
+            sources_min_outdegree=self.MIN_OUTDEGREE
         )
         return self.checkTableExists(table)
 
@@ -371,8 +379,8 @@ class SQLite:
     def getLLMAnnotation(self, issue, limit=-1):
         table = Template(self.TABLES['llm_answers']['name']).substitute(
             issue=issue,
-            sources_min_followers=self.pp_params['sources_min_followers'],
-            sources_min_outdegree=self.pp_params['sources_min_outdegree'])
+            sources_min_followers=self.NB_MIN_FOLLOWERS,
+            sources_min_outdegree=self.MIN_OUTDEGREE)
         columns = [
             Template(c).substitute(issue=issue)
                for c in self.TABLES['llm_answers']['columns']]
