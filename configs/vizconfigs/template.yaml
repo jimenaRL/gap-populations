@@ -1,0 +1,34 @@
+attitudinal:
+  att1_vs_att2:
+    cbar_rect:
+    - 0.15
+    - 0.6
+    - 0.02
+    - 0.3
+    legend_loc: lower center
+    limits:
+    - -2
+    - 12
+    nudges:
+      party:
+      - 0
+      - 0
+ideological:
+  cbar_rect:
+  - 0.15
+  - 0.35
+  - 0.03
+  - 0.45
+  legend_loc: upper right
+  limits:
+    x:
+    - -2
+    - 4
+    y:
+    - -2
+    - 4
+  nudges:
+    party:
+    - 0
+    - 0
+palette: null

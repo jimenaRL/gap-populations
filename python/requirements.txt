@@ -1,0 +1,10 @@
+pandas==1.1.5
+PyYAML==6.0
+scikit-learn==1.3.0
+scipy==1.11.1
+seaborn==0.11.2
+prince==0.7.1
+linate==0.4
+openpyxl
+tqdm
+linguars==0.3.2

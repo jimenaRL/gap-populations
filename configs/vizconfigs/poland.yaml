@@ -1,0 +1,114 @@
+attitudinal:
+  gps2019:
+    -
+  ches2019:
+    antielite_salience_vs_environment: &id001
+      cbar_rect:
+      - 0.15
+      - 0.6
+      - 0.02
+      - 0.3
+      legend_loc: lower center
+      limits:
+      - -2
+      - 12
+      nudges:
+        Konfederacja:
+        - 0
+        - 0
+        'K’15':
+        - 0
+        - 0
+        Razem:
+        - 0
+        - 0
+        '.N':
+        - 0
+        - 0
+        PO:
+        - 0
+        - 0
+        PSL:
+        - 0
+        - 0
+        PiS:
+        - 0
+        - 0
+        SLD:
+        - 0
+        - 0
+        Wiosna:
+        - 0
+        - 0
+    antielite_salience_vs_eu_position: *id001
+    antielite_salience_vs_galtan: *id001
+    antielite_salience_vs_immigrate_policy: *id001
+    eu_position_vs_environment: *id001
+    eu_position_vs_galtan: *id001
+    eu_position_vs_immigrate_policy: *id001
+    galtan_vs_environment: *id001
+    immigrate_policy_vs_environment: *id001
+    immigrate_policy_vs_galtan: *id001
+    lrecon_vs_antielite_salience: *id001
+    lrecon_vs_environment: *id001
+    lrecon_vs_eu_position: *id001
+    lrecon_vs_galtan: *id001
+    lrecon_vs_immigrate_policy: *id001
+    lrgen_vs_antielite_salience: *id001
+    lrgen_vs_environment: *id001
+    lrgen_vs_eu_position: *id001
+    lrgen_vs_galtan: *id001
+    lrgen_vs_immigrate_policy: *id001
+    lrgen_vs_lrecon: *id001
+ideological:
+  cbar_rect:
+  - 0.175
+  - 0.35
+  - 0.03
+  - 0.45
+  legend_loc: lower left
+  limits:
+    x:
+    - -2.5
+    - 2
+    y:
+    - -2.5
+    - 2
+  nudges:
+    Konfederacja:
+    - 0.1
+    - 0.1
+    'K’15':
+    - 0.1
+    - 0.1
+    Razem:
+    - -0.2
+    - -0.5
+    '.N':
+    - 0.2
+    - -0.2
+    PO:
+    - 0
+    - 0.3
+    PSL:
+    - 0.1
+    - 0.1
+    PiS:
+    - 0.1
+    - 0.1
+    SLD:
+    - -0.8
+    - 0
+    Wiosna:
+    - -1.1
+    - -0.2
+palette:
+  Konfederacja: red
+  'K’15': tab:green
+  Razem: magenta
+  '.N': orangered
+  PO: tab:purple
+  PSL: cornflowerblue
+  PiS: tab:pink
+  SLD: mediumvioletred
+  Wiosna: gold

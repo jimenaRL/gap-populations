@@ -1,0 +1,156 @@
+attitudinal:
+  gps2019:
+    -
+  ches2019:
+    antielite_salience_vs_environment: &id001
+      cbar_rect:
+      - 0.15
+      - 0.6
+      - 0.02
+      - 0.3
+      legend_loc: lower center
+      limits:
+      - -2
+      - 12
+      nudges:
+        '50+':
+        - 0
+        - 0
+        CDA:
+        - 0
+        - 0
+        CU:
+        - 0
+        - 0
+        D66:
+        - 0
+        - 0
+        DENK:
+        - 0
+        - 0
+        FVD:
+        - 0
+        - 0
+        GL:
+        - 0
+        - 0
+        PVV:
+        - 0
+        - 0
+        PvdD:
+        - 0
+        - 0
+        PvdA:
+        - 0
+        - 0
+        SGP:
+        - 0
+        - 0
+        SP:
+        - 0
+        - 0
+        VVD:
+        - 0
+        - 0
+    antielite_salience_vs_eu_position: *id001
+    antielite_salience_vs_galtan: *id001
+    antielite_salience_vs_immigrate_policy: *id001
+    att1_vs_att2:
+      cbar_rect:
+      - 0.15
+      - 0.6
+      - 0.02
+      - 0.3
+      legend_loc: lower center
+      limits:
+      - -2
+      - 12
+      nudges:
+        party:
+        - 0
+        - 0
+    eu_position_vs_environment: *id001
+    eu_position_vs_galtan: *id001
+    eu_position_vs_immigrate_policy: *id001
+    galtan_vs_environment: *id001
+    immigrate_policy_vs_environment: *id001
+    immigrate_policy_vs_galtan: *id001
+    lrecon_vs_antielite_salience: *id001
+    lrecon_vs_environment: *id001
+    lrecon_vs_eu_position: *id001
+    lrecon_vs_galtan: *id001
+    lrecon_vs_immigrate_policy: *id001
+    lrgen_vs_antielite_salience: *id001
+    lrgen_vs_environment: *id001
+    lrgen_vs_eu_position: *id001
+    lrgen_vs_galtan: *id001
+    lrgen_vs_immigrate_policy: *id001
+    lrgen_vs_lrecon: *id001
+ideological:
+  cbar_rect:
+  - 0.15
+  - 0.35
+  - 0.03
+  - 0.45
+  legend_loc: upper right
+  limits:
+    x:
+    - -2.5
+    - 3
+    y:
+    - -2
+    - 4
+  nudges:
+    '50+':
+    - 0
+    - 0
+    CDA:
+    - 0
+    - 0
+    CU:
+    - 0
+    - 0
+    D66:
+    - 0
+    - 0
+    DENK:
+    - 0
+    - 0
+    FVD:
+    - 0
+    - 0
+    GL:
+    - 0
+    - 0
+    PVV:
+    - 0
+    - 0
+    PvdD:
+    - 0
+    - 0
+    PvdA:
+    - 0
+    - 0
+    SGP:
+    - 0
+    - 0
+    SP:
+    - 0
+    - 0
+    VVD:
+    - 0
+    - 0
+palette:
+  '50+': navy
+  CDA: mediumvioletred
+  CU: tab:blue
+  D66: cornflowerblue
+  DENK: gold
+  FVD: magenta
+  GL: tab:green
+  PVV: black
+  PvdD: tab:brown
+  PvdA: tab:purple
+  SGP: orangered
+  SP: red
+  VVD: tab:pink

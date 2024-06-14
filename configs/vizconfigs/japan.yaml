@@ -1,0 +1,58 @@
+ideological:
+  cbar_rect:
+  - 0.15
+  - 0.35
+  - 0.03
+  - 0.45
+  legend_loc: upper right
+  limits:
+    x:
+    - -1
+    - 1
+    y:
+    - -1.5
+    - 2.5
+  nudges:
+    JIP:
+     - -0.1
+     - 0.2
+    CDP:
+     - 0.2
+     - 0
+    LDP:
+     - 0.1
+     - 0
+    KM:
+     - 0
+     - 0
+    JCP:
+     - 0.1
+     - 0.1
+    SDP:
+     - -0.3
+     - 0
+    DPFP:
+     - 0.1
+     - 0.1
+    Reiwa Shinsengumi:
+     - 0.2
+     - -0.1
+    Seijika Joshi 48 Party:
+     - -0.7
+     - 0
+    Okinawa Social Mass Party:
+     - 0.15
+     - 0.05
+
+
+palette:
+  JIP: cornflowerblue
+  CDP: navy
+  LDP: tab:green
+  KM: gold
+  JCP: red
+  SDP: magenta
+  DPFP: darkgreen
+  Reiwa Shinsengumi: tab:pink
+  Seijika Joshi 48 Party: tab:brown
+  Okinawa Social Mass Party: orangered
