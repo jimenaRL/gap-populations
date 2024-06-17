@@ -1,6 +1,7 @@
 .python-version
 *.db
 wip/*
+exports/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

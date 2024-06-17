@@ -8,3 +8,4 @@ linate==0.4
 openpyxl
 tqdm
 linguars==0.3.2
+imblearn==0.0

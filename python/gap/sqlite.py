@@ -358,8 +358,10 @@ class SQLite:
 
     def getKeywordsLabels(self, limit=-1):
 
-        table = self.TABLES['keywords_labels']['name']
-        columns = self.TABLES['keywords_labels']['columns']
+        table = Template(self.TABLES['keywords']['name']).substitute(
+            sources_min_followers=self.NB_MIN_FOLLOWERS,
+            sources_min_outdegree=self.MIN_OUTDEGREE)
+        columns = self.TABLES['keywords']['columns']
         query = f"SELECT {','.join(columns)} FROM {table}"
         if limit > 0:
             query += f" LIMIT {limit}"

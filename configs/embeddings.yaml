@@ -114,3 +114,25 @@ tables:
     partial_columns:
       - party
       - party_id
+  keywords:
+    name: 'keywords_labels_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    columns:
+      - pseudo_id
+      - Conservative
+      - Corruption
+      - Elites
+      - Entrepreneur
+      - Environment
+      - Europe
+      - Immigration
+      - International
+      - Left
+      - Liberal
+      - LifeStyle
+      - Patriot
+      - People
+      - Politicians
+      - Populism
+      - Right
+      - StartUp
+      - Traditional

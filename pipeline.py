@@ -8,6 +8,7 @@ from gap.ideological_embedding import create_ideological_embedding
 from gap.attitudinal_embedding import create_attitudinal_embedding
 from gap.visualizations.create_ide_viz import plot_ideological_embedding
 from gap.visualizations.create_att_viz import plot_attitudinal_embedding
+from gap.validation.logistic_regression import make_validations
 from gap.inout import \
     get_ide_ndims, \
     set_output_folder, \
@@ -46,7 +47,6 @@ vizconfig = f"configs/vizconfigs/{country}.yaml"
 with open(vizconfig, "r", encoding='utf-8') as fh:
     vizparams = yaml.load(fh, Loader=yaml.SafeLoader)
 
-
 NB_MIN_FOLLOWERS = params['sources_min_followers']
 MIN_OUTDEGREE = params['sources_min_outdegree']
 
@@ -58,7 +58,7 @@ SQLITE = SQLite(
     logger=logger,
     country=country)
 
-# 0. Get ideological embedding space dimension
+# 0. Get ideological embedding space dimension and folder paths
 ideN = max([
     get_ide_ndims(SQLITE.getPartiesMapping([survey]), survey)
     for survey in surveys])
@@ -116,17 +116,28 @@ for survey in surveys:
     #     att_folder,
     #     logger)
 
-    plot_attitudinal_embedding(
-        SQLITE,
-        NB_MIN_FOLLOWERS,
-        MIN_OUTDEGREE,
-        ATTDIMS,
-        country,
-        ideN,
-        survey,
-        folder,
-        emb_folder,
-        att_folder,
-        vizparams,
-        show,
-        logger)
+    # plot_attitudinal_embedding(
+    #     SQLITE,
+    #     NB_MIN_FOLLOWERS,
+    #     MIN_OUTDEGREE,
+    #     ATTDIMS,
+    #     country,
+    #     ideN,
+    #     survey,
+    #     folder,
+    #     emb_folder,
+    #     att_folder,
+    #     vizparams,
+    #     show,
+    #     logger)
+
+# 3. Make validations
+
+make_validations(
+    SQLITE,
+    187,
+    survey,
+    att_folder,
+    True,
+    True,
+    logger)
