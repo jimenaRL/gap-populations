@@ -393,7 +393,9 @@ class SQLite:
         return pd.DataFrame(res, columns=columns)
 
     def getLLMLabels(self, limit=-1):
-        table = self.TABLES['llm_labels']['name']
+        table = Template(self.TABLES['llm_labels']['name']).substitute(
+            sources_min_followers=self.NB_MIN_FOLLOWERS,
+            sources_min_outdegree=self.MIN_OUTDEGREE)
         columns = self.TABLES['llm_labels']['columns']
         query = f"SELECT {','.join(columns)} FROM {table}"
         res = self.retrieve(query)

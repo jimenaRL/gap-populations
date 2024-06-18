@@ -46,6 +46,7 @@ plt.rc('font', family='sans-serif', size=fs)
 def make_validations(
     SQLITE,
     SEED,
+    country,
     survey,
     att_folder,
     plot,
@@ -59,6 +60,8 @@ def make_validations(
     # Loading data #
     ################
 
+    att_sources, att_targets = load_att_embeddings(att_folder, logger)
+
     # get A strategy labels
     keywords_labels = SQLITE.getKeywordsLabels()
     keywords_data = keywords_labels.merge(
@@ -69,7 +72,7 @@ def make_validations(
         .drop(columns=['pseudo_id'])
 
     # get C strategy labels
-    llm_labels = SQLITE.getLLMLabels('user')
+    llm_labels = SQLITE.getLLMLabels()
     llm_data = llm_labels.merge(
         att_sources,
         left_on='pseudo_id',
@@ -78,7 +81,7 @@ def make_validations(
         .drop(columns=['pseudo_id'])
 
     strategy_data = {
-        'A': keywords_data,
+        # 'A': keywords_data,
         'C': llm_data
     }
 
@@ -89,23 +92,23 @@ def make_validations(
         itertools.product(strategy_data.keys(), LOGISTICREGRESSIONS)):
 
         #  FOR DEBUGGING
-        # if not (lrdata['group1'] == 'right' and lrdata['group2'] == 'left'):
+        if not (lrdata['group1'] == 'right' and lrdata['group2'] == 'left'):
         # if not (lrdata['group1'] == 'liberal' and lrdata['group2'] == 'conservative'):
         # if not (lrdata['group1'] == 'eurosceptic' and lrdata['group2'] == 'pro_european'):
-        #     continue
+            continue
 
         egroups = {
-            1:  f"{strategy}_{lrdata['group1']}",
-            2:  f"{strategy}_{lrdata['group2']}",
+            1:  f"{lrdata['group1']}",
+            2:  f"{lrdata['group2']}",
         }
 
         # check that label is present for estrategy
         # for instance there is no 'climate denialist' for the A strategy
         if not egroups[1] in strategy_data[strategy]:
-            print(f"{egroups[1]} is missing from {strategy} strategy data.")
+            logger.info(f"{egroups[1]} is missing from {strategy} strategy data.")
             continue
         if not egroups[2] in strategy_data[strategy]:
-            print(f"{egroups[2]} is missing from {strategy} strategy data.")
+            logger.info(f"{egroups[2]} is missing from {strategy} strategy data.")
             continue
 
         data = {
@@ -113,11 +116,11 @@ def make_validations(
             2: strategy_data[strategy].query(f"{egroups[2]}=='1' & {egroups[1]}!='1'")
         }
 
+        logger.info(f"{country}: there are {len(data[1])} users labeled {egroups[1]} in data.")
+        logger.info(f"{country}: there are {len(data[2])} users labeled {egroups[2]} in data.")
         if len(data[1]) == 0:
-            print(f"{country}: there is no users labeled {egroups[1]} in data.")
             continue
         if len(data[2]) == 0:
-            print(f"{country}: there is no users labeled {egroups[2]} in data.")
             continue
 
         for attdim in lrdata[survey]:
@@ -195,16 +198,12 @@ def make_validations(
             os.makedirs(os.path.join(lrfolder, 'json'), exist_ok=True)
             result_path = os.path.join(
                 lrfolder, 'json', f"strategy{su}_{attdim}_{label1}_{label2}.json")
-            result_path_exp = os.path.join(
-                f"exports/deliverableD21/validations/{country}",
-                f"strategy{su}_{attdim}_{label1}_{label2}.json")
+
             with open(result_path, 'w') as file:
-                json.dump(record, file)
-            with open(result_path_exp, 'w') as file:
                 json.dump(record, file)
 
             # add results data
-            # print(record)
+            print(record)
             records.append(record)
 
             # plot
@@ -279,17 +278,14 @@ def make_validations(
                 plt.tight_layout()
 
                 #saving
+                os.makedirs(os.path.join(lrfolder, 'png'), exist_ok=True)
+                os.makedirs(os.path.join(lrfolder, 'pdf'), exist_ok=True)
                 figname = f'lr_{country}_{strategy}_strategy_{attdim}_'
                 figname += f'{egroups[1]}_vs_{egroups[2]}'
                 path_png = os.path.join(lrfolder, 'png', figname+'.png')
                 plt.savefig(path_png, dpi=300)
                 path_pdf = os.path.join(att_folder, 'logistic_regression', 'pdf', figname+'.pdf')
                 plt.savefig(path_pdf, dpi=300)
-
-                path_pdf_exp = os.path.join(
-                    f"exports/deliverableD21/validations/{country}",
-                    f"strategy{su}_{attdim}_{label1}_{label2}.pdf")
-                plt.savefig(path_pdf_exp, dpi=300)
 
                 if show:
                     plt.show()
