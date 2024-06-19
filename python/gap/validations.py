@@ -1,6 +1,7 @@
 import os
 import yaml
 import json
+import logging
 import itertools
 from tqdm import tqdm
 
@@ -13,16 +14,11 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.pipeline import make_pipeline
 from sklearn.model_selection import cross_validate
 
-import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from matplotlib.patches import FancyArrowPatch
-from mpl_toolkits.mplot3d import proj3d
-import matplotlib.ticker as mtick
-import matplotlib.patheffects as PathEffects
 
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 from gap.inout import \
     set_output_folder,  \
@@ -92,10 +88,10 @@ def make_validations(
         itertools.product(strategy_data.keys(), LOGISTICREGRESSIONS)):
 
         #  FOR DEBUGGING
-        if not (lrdata['group1'] == 'right' and lrdata['group2'] == 'left'):
+        # if not (lrdata['group1'] == 'right' and lrdata['group2'] == 'left'):
         # if not (lrdata['group1'] == 'liberal' and lrdata['group2'] == 'conservative'):
         # if not (lrdata['group1'] == 'eurosceptic' and lrdata['group2'] == 'pro_european'):
-            continue
+            # continue
 
         egroups = {
             1:  f"{lrdata['group1']}",
@@ -152,7 +148,7 @@ def make_validations(
 
             nb_splits = 10
             if not len(X) > nb_splits:
-                print(f"Too low sample number ({len(X)}), ignoring {lrdata}.")
+                logger.info(f"Too low sample number ({len(X)}), ignoring {lrdata}.")
                 continue
 
             cv_results = cross_validate(
@@ -203,7 +199,6 @@ def make_validations(
                 json.dump(record, file)
 
             # add results data
-            print(record)
             records.append(record)
 
             # plot
@@ -236,7 +231,9 @@ def make_validations(
                     Line2D([0], [0], color='white', lw=1, alpha=1, label='cuttof'),
                 ]
 
+
                 fig = plt.figure(figsize=(5,  3.3))
+
                 ax = fig.add_subplot(1,  1,  1)
 
                 # left/blue
@@ -292,14 +289,14 @@ def make_validations(
 
                 plt.close()
 
-    print(f"Figures saved at {lrfolder}")
+    logger.info(f"Figures saved at {lrfolder}")
 
     records = pd.DataFrame(records).sort_values(by='f1', ascending=False)
 
     filename = f"{country}_{survey}_logistic_regression_cross_validate_f1_score"
     dfpath = os.path.join(lrfolder, filename+'.csv')
     records.to_csv(dfpath, index=False)
-    print(f"Logistic regression results (image and csv) saved at {lrfolder}")
+    logger.info(f"Logistic regression results (image and csv) saved at {lrfolder}")
 
     if show:
         plt.show()

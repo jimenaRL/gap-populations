@@ -10,7 +10,7 @@ from gap.embeddings import \
 from gap.visualizations import \
     plot_ideological_embedding, \
     plot_attitudinal_embedding
-from gap.logistic_regression import make_validations
+from gap.validations import make_validations
 from gap.inout import \
     get_ide_ndims, \
     set_output_folder, \
@@ -23,7 +23,7 @@ ap.add_argument('--config', type=str, required=True)
 ap.add_argument('--country', type=str, required=True)
 ap.add_argument('--surveys', type=str, required=True)
 ap.add_argument('--output', type=str, required=True)
-ap.add_argument('--show', type=str, default=True)
+ap.add_argument('--show', type=bool, default=False)
 args = ap.parse_args()
 config = args.config
 output = args.output
@@ -35,7 +35,7 @@ show = args.show
 logfile = f'{country}.log'
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format=f"%(asctime)s [%(levelname)s] {country.upper()} %(message)s",
     handlers=[
         logging.FileHandler(logfile, 'w', 'utf-8'),
@@ -133,14 +133,17 @@ for survey in surveys:
 
 # 3. Make validations
 
-make_validations(
-    SQLITE,
-    187,
-    country,
-    survey,
-    att_folder,
-    True,
-    True,
-    logger)
+for survey in surveys:
 
-# 3. Show stats
+    att_folder = set_output_folder_att(
+        params, survey, country, ideN, output, logger)
+
+    make_validations(
+        SQLITE,
+        187,
+        country,
+        survey,
+        att_folder,
+        True,
+        show,
+        logger)

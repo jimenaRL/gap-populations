@@ -69,6 +69,7 @@ def plot_ideological_embedding(
             latent_dim_x=x,
             latent_dim_y=y,
             output_folders=output_folders,
+            logger=logger,
             show=show,
             palette=palette,
             **idevizparams
@@ -174,5 +175,6 @@ def plot_attitudinal_embedding(
             show=show,
             palette=palette,
             survey=survey,
+            logger=logger,
             **attvizparams
             )

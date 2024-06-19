@@ -13,6 +13,8 @@ from gap.conf import \
     GPS2019DEFAULTATTVIZ, \
     VIZMAXDROP
 
+mpl.set_loglevel('error')
+
 plt.rc('text', usetex=True)
 plt.rc('font', family='sans-serif', size=12)
 
@@ -94,7 +96,7 @@ def drop_extremes(df, dims, x0, x1, y0, y1):
     m2 = f"Dropped {diff} embeddings ({prop:.2f}%) "
     m2 += f"with atitudinal dimension {list(dims.values())} out of ranges\n"
     m2 += f"\t[{x0:.2f}, {x1:.2f}] x [{y0:.2f}, {y1:.2f}]."
-    print(m2)
+    logger.info(m2)
 
     return dfd
 
@@ -110,9 +112,10 @@ def visualize_ide(
     limits,
     cbar_rect,
     legend_loc,
+    logger,
     gridsize=100,
     output_folders=None,
-    show=False
+    show=False,
 ):
 
     # preprocessing
@@ -219,7 +222,7 @@ def visualize_ide(
             figname = f"latent_dims_{latent_dim_x}_vs_{latent_dim_y}.png"
             path = os.path.join(output_folder, figname)
             plt.savefig(path, dpi=dpi)
-            print(f"Figure saved at {path}.")
+            logger.info(f"Figure saved at {path}.")
 
     if show:
         plt.show()
@@ -239,6 +242,7 @@ def visualize_att(
     survey,
     cbar_rect,
     legend_loc,
+    logger,
     quantiles=None,
     paths=None,
     show=False,
@@ -366,7 +370,7 @@ def visualize_att(
     if paths:
         for path in paths:
             plt.savefig(path, dpi=dpi)
-            print(f"Figure saved at {path}.")
+            logger.info(f"Figure saved at {path}.")
 
     if show:
         plt.show()
