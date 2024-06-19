@@ -4,11 +4,13 @@ import logging
 from argparse import ArgumentParser
 
 from gap.sqlite import SQLite
-from gap.ideological_embedding import create_ideological_embedding
-from gap.attitudinal_embedding import create_attitudinal_embedding
-from gap.visualizations.create_ide_viz import plot_ideological_embedding
-from gap.visualizations.create_att_viz import plot_attitudinal_embedding
-from gap.validation.logistic_regression import make_validations
+from gap.embeddings import \
+    create_ideological_embedding, \
+    create_attitudinal_embedding
+from gap.visualizations import \
+    plot_ideological_embedding, \
+    plot_attitudinal_embedding
+from gap.logistic_regression import make_validations
 from gap.inout import \
     get_ide_ndims, \
     set_output_folder, \
@@ -67,36 +69,34 @@ folder = set_output_folder(
 emb_folder = set_output_folder_emb(
     params, country, ideN, output, logger)
 
-n_dims_to_viz = 3
+# 1. Create and plot ideological embedding
+create_ideological_embedding(
+    SQLITE,
+    NB_MIN_FOLLOWERS,
+    MIN_OUTDEGREE,
+    ideN,
+    folder,
+    emb_folder,
+    logger)
 
-# 1. Create ideological embedding
-# create_ideological_embedding(
-#     SQLITE,
-#     NB_MIN_FOLLOWERS,
-#     MIN_OUTDEGREE,
-#     ideN,
-#     folder,
-#     emb_folder,
-#     logger)
+n_dims_to_viz=3
+for survey in surveys:
 
-# # 1.2 Plot ideological embeddings
-# for survey in surveys:
+    plot_ideological_embedding(
+        SQLITE,
+        NB_MIN_FOLLOWERS,
+        MIN_OUTDEGREE,
+        country,
+        survey,
+        ideN,
+        n_dims_to_viz,
+        folder,
+        emb_folder,
+        vizparams,
+        show,
+        logger)
 
-#     plot_ideological_embedding(
-#         SQLITE,
-#         NB_MIN_FOLLOWERS,
-#         MIN_OUTDEGREE,
-#         country,
-#         survey,
-#         ideN,
-#         n_dims_to_viz,
-#         folder,
-#         emb_folder,
-#         vizparams,
-#         show,
-#         logger)
-
-# 2. Create create_attitudinal embedding
+# 2. Create and plot attitudinal embedding
 
 for survey in surveys:
 
@@ -104,32 +104,32 @@ for survey in surveys:
     att_folder = set_output_folder_att(
         params, survey, country, ideN, output, logger)
 
-    # create_attitudinal_embedding(
-    #     SQLITE,
-    #     NB_MIN_FOLLOWERS,
-    #     MIN_OUTDEGREE,
-    #     ATTDIMS,
-    #     ideN,
-    #     survey,
-    #     folder,
-    #     emb_folder,
-    #     att_folder,
-    #     logger)
+    create_attitudinal_embedding(
+        SQLITE,
+        NB_MIN_FOLLOWERS,
+        MIN_OUTDEGREE,
+        ATTDIMS,
+        ideN,
+        survey,
+        folder,
+        emb_folder,
+        att_folder,
+        logger)
 
-    # plot_attitudinal_embedding(
-    #     SQLITE,
-    #     NB_MIN_FOLLOWERS,
-    #     MIN_OUTDEGREE,
-    #     ATTDIMS,
-    #     country,
-    #     ideN,
-    #     survey,
-    #     folder,
-    #     emb_folder,
-    #     att_folder,
-    #     vizparams,
-    #     show,
-    #     logger)
+    plot_attitudinal_embedding(
+        SQLITE,
+        NB_MIN_FOLLOWERS,
+        MIN_OUTDEGREE,
+        ATTDIMS,
+        country,
+        ideN,
+        survey,
+        folder,
+        emb_folder,
+        att_folder,
+        vizparams,
+        show,
+        logger)
 
 # 3. Make validations
 
@@ -142,3 +142,5 @@ make_validations(
     True,
     True,
     logger)
+
+# 3. Show stats

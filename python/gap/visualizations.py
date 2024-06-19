@@ -2,15 +2,19 @@ import os
 import yaml
 import pandas as pd
 from string import Template
-from argparse import ArgumentParser
 from itertools import combinations
 
 from gap.inout import \
     get_ide_ndims, \
+    set_output_folder_emb, \
     set_output_folder_att, \
+    load_ide_embeddings, \
     load_att_embeddings
 
-from gap.bivariate_marginal import visualize_att
+from gap.bivariate_marginal import \
+    visualize_ide, \
+    visualize_att
+
 from gap.distributions import distributions
 
 from gap.conf import \
@@ -18,50 +22,57 @@ from gap.conf import \
     GPS2019DEFAULTATTVIZ, \
     CHES2023DEFAULTATTVIZ
 
-# # parse arguments and set paths
-# ap = ArgumentParser()
-# ap.add_argument('--config', type=str, required=True)
-# ap.add_argument('--country', type=str, required=True)
-# ap.add_argument('--survey', type=str, required=True)
-# ap.add_argument('--output', type=str, required=True)
-# ap.add_argument('--vizconfig', type=str, required=True)
-# ap.add_argument('--show',  action='store_true', required=False)
-# args = ap.parse_args()
-# config = args.config
-# vizconfig = args.vizconfig
-# survey = args.survey
-# output = args.output
-# country = args.country
-# show = args.show
+def plot_ideological_embedding(
+    SQLITE,
+    NB_MIN_FOLLOWERS,
+    MIN_OUTDEGREE,
+    country,
+    survey,
+    ideN,
+    n_dims_to_viz,
+    folder,
+    emb_folder,
+    vizparams,
+    show,
+    logger):
 
-# with open(vizconfig, "r", encoding='utf-8') as fh:
-#     vizparams = yaml.load(fh, Loader=yaml.SafeLoader)
-# # print(yaml.dump(vizparams, default_flow_style=False))
+    # Load data from ideological embedding
+    ide_sources, ide_targets = load_ide_embeddings(emb_folder, logger)
 
-# with open(config, "r", encoding='utf-8') as fh:
-#     params = yaml.load(fh, Loader=yaml.SafeLoader)
-# # print(yaml.dump(params, default_flow_style=False))
+    # show by dim distributions
+    distributions(
+        ide_sources,
+        ide_targets,
+        "",
+        country,
+        show)
 
-# with open(params['params_db'], "r", encoding='utf-8') as fh:
-#     params_db = yaml.load(fh, Loader=yaml.SafeLoader)
+    palette = vizparams['palette']
+    idevizparams = vizparams['ideological']
+    mp_parties = SQLITE.getMpParties(['MMS', survey])
+    targets_parties = mp_parties[['mp_pseudo_id', 'MMS_party_acronym']] \
+        .rename(columns={'MMS_party_acronym': 'party'})
 
-# SQLITE = SQLite(
-#     params['sqlite_db'].format(country=country),
-#     params_db['output']['tables'],
-#     country)
-# ATTDIMS = params['attitudinal_dimensions'][survey]
-# SURVEYCOL = f'{survey.upper()}_party_acronym'
+    # select parties to show
+    _parties_to_show = mp_parties[~mp_parties[f'{survey.upper()}_party_acronym'].isna()]
+    parties_to_show = _parties_to_show['MMS_party_acronym'].unique().tolist()
 
-# mps_parties = SQLITE.getMpParties(['MMS', survey], dropna=True)
+    d21_folder = os.path.join(f"exports/deliverableD21/ideological/{country}")
+    output_folders = [emb_folder]
 
-# parties_mapping = SQLITE.getPartiesMapping()
-# ideN = get_ide_ndims(parties_mapping, survey)
-
-
-# att_folder = set_output_folder_att(
-#     params, survey, country, ideN, output)
-# att_sources, att_targets = load_att_embeddings(att_folder)
-
+    for x, y in combinations(range(n_dims_to_viz), 2):
+        visualize_ide(
+            sources_coord_ide=ide_sources,
+            targets_coord_ide=ide_targets,
+            targets_parties=targets_parties,
+            parties_to_show=parties_to_show,
+            latent_dim_x=x,
+            latent_dim_y=y,
+            output_folders=output_folders,
+            show=show,
+            palette=palette,
+            **idevizparams
+        )
 
 def plot_attitudinal_embedding(
     SQLITE,
