@@ -1,12 +1,6 @@
 from itertools import combinations
 
-from gap.graph import graphToAdjencyMatrix
-from gap.inout import \
-    save_experiment_data, \
-    load_experiment_data, \
-    load_ide_embeddings, \
-    save_ide_embeddings, \
-    save_att_embeddings
+from gap.adjency_matrix import graphToAdjencyMatrix
 
 import numpy as np
 import pandas as pd
@@ -16,11 +10,10 @@ from sklearn.linear_model import Ridge
 
 def create_ideological_embedding(
     SQLITE,
+    INOUT,
     NB_MIN_FOLLOWERS,
     MIN_OUTDEGREE,
     ideN,
-    folder,
-    emb_folder,
     logger):
 
     # Get data
@@ -33,12 +26,11 @@ def create_ideological_embedding(
         preprocessed_graph, MIN_OUTDEGREE, logger, sparce=False)
 
     # Save social graph and target/source pseudo ids
-    save_experiment_data(
-        X, targets_pids, sources_pids, sources_map_pids, folder, logger)
+    INOUT.save_experiment_data(
+        X, targets_pids, sources_pids, sources_map_pids)
 
 
     # 2. Create ideological embeddings
-    X, targets_pids, sources_pids, sources_map_pids = load_experiment_data(folder)
 
     # Create and fit ideological embedding
     model = IdeologicalEmbedding(
@@ -90,18 +82,13 @@ def create_ideological_embedding(
     assert sources_embeddings.duplicated().sum() == 0
 
     # Save sources/targets coordinates in ideological space and add pseudo ids
-    save_ide_embeddings(sources_embeddings, targets_embeddings, emb_folder, logger)
+    INOUT.save_ide_embeddings(sources_embeddings, targets_embeddings)
 
 def create_attitudinal_embedding(
     SQLITE,
-    NB_MIN_FOLLOWERS,
-    MIN_OUTDEGREE,
+    INOUT,
     ATTDIMS,
-    ideN,
     survey,
-    folder,
-    emb_folder,
-    att_folder,
     logger):
 
 
@@ -114,7 +101,7 @@ def create_attitudinal_embedding(
     parties_coord_att = parties_coord_att.groupby(SURVEYCOL).first().reset_index()
 
     # Load data from ideological embedding
-    ide_followers, ide_mps = load_ide_embeddings(emb_folder, logger)
+    ide_followers, ide_mps =  INOUT.load_ide_embeddings()
     ide_followers_cp = ide_followers.copy()
     ide_mps_cp = ide_mps.copy()
     mps_parties = SQLITE.getMpParties(['MMS', survey], dropna=False)
@@ -188,8 +175,4 @@ def create_attitudinal_embedding(
         .assign(entity=ide_mps.entity)
 
     # save results
-    save_att_embeddings(
-        follower_coord_att,
-        mps_coord_att,
-        att_folder,
-        logger)
+    INOUT.save_att_embeddings(follower_coord_att,mps_coord_att)

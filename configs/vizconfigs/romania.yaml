@@ -22,6 +22,8 @@ attitudinal:
     V4_Scale_vs_v19: *id003
     V4_Scale_vs_v20: *id003
     V4_Scale_vs_v21: *id003
+  ches2023:
+    - 
   ches2019:
     antielite_salience_vs_environment: &id001
       cbar_rect:
@@ -46,78 +48,78 @@ attitudinal:
         USR:
         - 0.2
         - 0
-  antielite_salience_vs_eu_position: *id001
-  antielite_salience_vs_immigrate_policy: *id001
-  eu_position_vs_environment: *id001
-  eu_position_vs_immigrate_policy: *id001
-  immigrate_policy_vs_environment: *id001
-  lrecon_vs_antielite_salience: *id001
-  lrecon_vs_environment: *id001
-  lrecon_vs_eu_position: *id001
-  lrecon_vs_immigrate_policy: *id001
-  lrgen_vs_antielite_salience: *id001
-  lrgen_vs_environment: *id001
-  lrgen_vs_eu_position: *id001
-  lrgen_vs_immigrate_policy: *id001
-  lrgen_vs_lrecon: *id001
-  lrgen_vs_galtan: &id002
+    antielite_salience_vs_eu_position: *id001
+    antielite_salience_vs_immigrate_policy: *id001
+    eu_position_vs_environment: *id001
+    eu_position_vs_immigrate_policy: *id001
+    immigrate_policy_vs_environment: *id001
+    lrecon_vs_antielite_salience: *id001
+    lrecon_vs_environment: *id001
+    lrecon_vs_eu_position: *id001
+    lrecon_vs_immigrate_policy: *id001
+    lrgen_vs_antielite_salience: *id001
+    lrgen_vs_environment: *id001
+    lrgen_vs_eu_position: *id001
+    lrgen_vs_immigrate_policy: *id001
+    lrgen_vs_lrecon: *id001
+    lrgen_vs_galtan: &id002
+      cbar_rect:
+      - 0.15
+      - 0.6
+      - 0.02
+      - 0.3
+      legend_loc: lower center
+      limits:
+      - -6
+      - 16
+      nudges:
+        PNL:
+        - 0.4
+        - 0.4
+        UDMR:
+        - 0.4
+        - 0.4
+        PSD:
+        - 0.4
+        - 0.4
+        USR:
+        - 0.4
+        - 0.4
+    galtan_vs_environment: *id002
+    antielite_salience_vs_galtan: *id002
+    eu_position_vs_galtan: *id002
+    lrecon_vs_galtan: *id002
+    immigrate_policy_vs_galtan: *id002
+  ideological:
     cbar_rect:
     - 0.15
-    - 0.6
-    - 0.02
+    - 0.45
+    - 0.03
     - 0.3
-    legend_loc: lower center
+    legend_loc: upper right
+    gridsize:
+      - 200
+      - 50
     limits:
-    - -6
-    - 16
+      x:
+      - -2
+      - 2
+      y:
+      - -2
+      - 3
     nudges:
       PNL:
-      - 0.4
-      - 0.4
+      - 0.1
+      - 0.1
       UDMR:
-      - 0.4
-      - 0.4
+      - -0.5
+      - 0.1
       PSD:
-      - 0.4
-      - 0.4
+      - 0.15
+      - -0.1
       USR:
-      - 0.4
-      - 0.4
-  galtan_vs_environment: *id002
-  antielite_salience_vs_galtan: *id002
-  eu_position_vs_galtan: *id002
-  lrecon_vs_galtan: *id002
-  immigrate_policy_vs_galtan: *id002
-ideological:
-  cbar_rect:
-  - 0.15
-  - 0.45
-  - 0.03
-  - 0.3
-  legend_loc: upper right
-  gridsize:
-    - 200
-    - 50
-  limits:
-    x:
-    - -2
-    - 2
-    y:
-    - -2
-    - 3
-  nudges:
-    PNL:
-    - 0.1
-    - 0.1
-    UDMR:
-    - -0.5
-    - 0.1
-    PSD:
-    - 0.15
-    - -0.1
-    USR:
-    - 0.1
-    - 0.1
+      - 0.1
+      - 0.1
 palette:
   PNL: cornflowerblue
   UDMR: gold

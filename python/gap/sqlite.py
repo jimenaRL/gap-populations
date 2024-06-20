@@ -50,36 +50,6 @@ class SQLite:
 
         return res[0][0] == 1
 
-    def populate(self, name, schema, ncols, data, verbose=False):
-
-        qvals = ''.join('?,' * ncols)[:-1]
-
-        if not os.path.exists(self.DB):
-            self.logger.info(f"Creating new sqlite database at {self.DB}.")
-
-        with sqlite3.connect(self.DB) as con:
-            cur = con.cursor()
-            cur.execute(f'''CREATE TABLE IF NOT EXISTS {name}({schema})''')
-            cur.executemany(f"INSERT INTO {name} VALUES({qvals})", data)
-            con.commit()
-        if verbose:
-            self.logger.info(
-                f"SQLITE: table {name} populated with {len(data)} tuples.")
-
-    def dropAndPopulate(self, name, schema, ncols, data):
-
-        qvals = ''.join('?,' * ncols)[:-1]
-
-        if not os.path.exists(self.DB):
-            self.logger.info(f"SQLITE: Creating new sqlite database at {self.DB}.")
-
-        with sqlite3.connect(self.DB) as con:
-            cur = con.cursor()
-            cur.execute(f"DROP TABLE IF EXISTS {name}")
-            cur.execute(f'''CREATE TABLE {name}({schema})''')
-            cur.executemany(f"INSERT INTO {name} VALUES({qvals})", data)
-            self.logger.info(f"SQLITE: table {name} created and populated.")
-            con.commit()
 
     def get_tables(self):
         with sqlite3.connect(self.DB) as con:
@@ -123,37 +93,16 @@ class SQLite:
         self.logger.info(mssg)
         return res
 
+    def getAvailableSurveys(self):
+        res = self.retrieve("PRAGMA table_info(party_mapping);")
+        surveys = [r[1].split('_party_acronym')[0].lower() for r in res]
+        surveys.remove('mms')
+        return surveys
 
-    def retrieveGraph(self, entity, valid_mps=None, valid_entities=None):
-
-        table = Template(self.TABLES['raw_graph']['name']) \
-            .substitute(entity=entity)
-        columns = self.TABLES['raw_graph']['columns']
-        columns = [
-            Template(c).substitute(entity=entity) for c in columns]
-
-        query = f"SELECT {','.join(columns)} FROM {table} "
-
-        if valid_mps is not None and valid_entities is not None:
-            query += 'WHERE '
-            if valid_entities is not None:
-                valid_entities = [f"'{vf}'" for vf in valid_entities]
-                query += f"{entity}_pseudo_id IN ({','.join(valid_entities)}) "
-                if valid_mps is not None:
-                    valid_mps = [f"'{vf}'" for vf in valid_mps]
-                    query += f"AND mp_pseudo_id IN ({','.join(valid_mps)})"
-            else:
-                valid_mps = [f"'{vf}'" for vf in valid_mps]
-                query += f"mp_pseudo_id IN ({','.join(valid_mps)})"
-
-        res = self.retrieve(query)
-
-        mssg = f"SQLITE: found {len(res)} links in "
-        mssg += f"mp<>{entity} graph "
-        if valid_entities is not None:
-            mssg += f"with valid {entity}s."
-        self.logger.info(mssg)
-        return res
+    def getNParties(self, survey):
+        surveycol = f'{survey.upper()}_party_acronym'
+        parties_mapping = self.getPartiesMapping([survey])
+        return parties_mapping[surveycol].notna().sum()
 
     def retrievePidsFromGraph(self, followers=None):
         graph = self.retrieveGraph(followers)
@@ -161,36 +110,7 @@ class SQLite:
         follower_graph_pids = [g[1] for g in graph]
         return mp_graph_pids, follower_graph_pids
 
-    def retrieveTwitterIds(self, entity):
-        table = 'lut'
-        query = f"SELECT twitter_id FROM {table} WHERE is_{entity}=='1'"
-        res = self.retrieve(query)
-        mssg = f"SQLITE: found {len(res)} twitter_ids "
-        mssg += f"in table {table}."
-        self.logger.info(mssg)
-        return [r[0] for r in res]
-
-    def retrieveUsersMinIndegree(self, min_indegree):
-        query = f"SELECT pseudo_id FROM metadata "
-        query += f"WHERE followers >= {min_indegree}"
-        res = self.retrieve(query)
-        mssg = f"SQLITE: found {len(res)} users with at "
-        mssg += f"least {min_indegree} followers."
-        self.logger.info(mssg)
-        return [r[0] for r in res]
-
-    def getLut(self, entity=None):
-        columns = ["twitter_id", "pseudo_id"]
-        query = f"SELECT {','.join(columns)} FROM lut"
-        if entity:
-            query += f" WHERE is_{entity}=='1'"
-        res = self.retrieve(query)
-        mssg = f"SQLITE: found {len(res)} {entity} users in lut."
-        self.logger.info(mssg)
-        df = pd.DataFrame(res, columns=columns, dtype=str)
-        return df
-
-    def getMpParties(self, surveys, dropna=True):
+    def getMpParties(self, surveys, dropna=True, verbose=False):
 
         table = self.TABLES['party']['name']
         dtypes = str
@@ -209,7 +129,7 @@ class SQLite:
                 mps_with_party_annotation = ~targets_groups[survey_column].isna()
                 targets_groups = targets_groups[mps_with_party_annotation]
                 g1 = len(targets_groups)
-                if g0 > g1:
+                if g0 > g1 and verbose:
                     mssg = f"SQLITE: Dropped {g0 - g1} mps with no "
                     mssg += f"values in {survey_column}."
                     self.logger.info(mssg)
@@ -248,46 +168,6 @@ class SQLite:
             .astype(dtypes) \
             .dropna()
 
-    def getDescriptions(self, entity, limit=-1):
-        table = f"{entity}_metadata"
-        columns = ['pseudo_id', 'description']
-        query = f"SELECT {','.join(columns)} FROM {table}"
-        if limit > 0:
-            query += f" LIMIT {limit}"
-        res = self.retrieve(query)
-        self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
-        return pd.DataFrame(res, columns=columns)
-
-    def getPreprocessedMetadata(
-        self, columns=["pseudo_id", "description"], limit=-1):
-
-        table = self.ppSubstitution(
-            self.TABLES['preprocessed_metadata']['name'])
-        if not columns:
-            columns = self.TABLES['preprocessed_metadata']['columns']
-        query = f"SELECT {','.join(columns)} FROM {table}"
-        if limit > 0:
-            query += f" LIMIT {limit}"
-        res = self.retrieve(query)
-        self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
-        return pd.DataFrame(res, columns=columns)
-
-    def getTwitterIds(self, entity, pseudo_ids=[]):
-
-        table = Template(self.TABLES['lut']['name']) \
-            .substitute(entity=entity)
-        columns = self.TABLES['lut']['columns']
-
-        query = f"SELECT {','.join(columns)} FROM {table} "
-
-        if pseudo_ids:
-            pseudo_ids = [f"'{pid}'" for pid in pseudo_ids]
-            query += f"WHERE pseudo_id IN ({','.join(pseudo_ids)})"
-
-        res = self.retrieve(query)
-
-        return pd.DataFrame(res, columns=columns)
-
     def getAnnotations(self):
         table = f"mp_annotation"
         query = f"SELECT * FROM {table}"
@@ -296,7 +176,7 @@ class SQLite:
         self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
         return pd.DataFrame(res, columns=columns)
 
-    def getPartiesMapping(self, surveys):
+    def getPartiesMapping(self, surveys, verbose=False):
 
         table = self.TABLES['mapping']['name']
         precolumns = deepcopy(self.TABLES['mapping']['columns'])
@@ -307,53 +187,8 @@ class SQLite:
                 columns.append(cc)
         query = f"SELECT {','.join(columns)} FROM {table}"
         res = self.retrieve(query)
-        self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
-        return pd.DataFrame(res, columns=columns)
-
-    def getEnrichedMetadata(self, columns=None):
-
-        table = self.ppSubstitution(self.TABLES['enrichment']['name'])
-        if not columns:
-            columns = self.TABLES['enrichment']['columns']
-        query = f"SELECT {','.join(columns)} FROM {table}"
-        res = self.retrieve(query)
-        self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
-        return pd.DataFrame(res, columns=columns)
-
-    def getSentimentsPreprocessedMetadata(self, columns=None):
-
-        table = self.ppSubstitution(self.TABLES['sentiments']['name'])
-        if not columns:
-            columns = self.TABLES['sentiments']['columns']
-        query = f"SELECT {','.join(columns)} FROM {table}"
-        res = self.retrieve(query)
-        self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
-        return pd.DataFrame(res, columns=columns)
-
-    def checkTranslationsTableExists(self):
-        table = self.ppSubstitution(self.TABLES['english_translation']['name'])
-        return self.checkTableExists(table)
-
-    def checkLLMAnnotationTableExists(self, issue):
-        table = Template(self.TABLES['llm_answers']['name']).substitute(
-            issue=issue,
-            sources_min_followers=self.NB_MIN_FOLLOWERS,
-            sources_min_outdegree=self.MIN_OUTDEGREE
-        )
-        return self.checkTableExists(table)
-
-    def getEnglishTranslationsPreprocessedMetadata(
-        self, columns=None, limit=-1):
-
-        table = self.ppSubstitution(self.TABLES['english_translation']['name'])
-        if not columns:
-            columns = self.TABLES['english_translation']['columns']
-        query = f"SELECT {','.join(columns)} FROM {table}"
-        if limit > 0:
-            query += f" LIMIT {limit}"
-        res = self.retrieve(query)
-        self.logger.info(
-            f"SQLITE: Found {len(res)} descriptions in {table} table.")
+        if verbose:
+            self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
         return pd.DataFrame(res, columns=columns)
 
     def getKeywordsLabels(self, limit=-1):
@@ -367,29 +202,6 @@ class SQLite:
             query += f" LIMIT {limit}"
         res = self.retrieve(query)
         self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
-        return pd.DataFrame(res, columns=columns)
-
-    def getMetadata(self, columns=[]):
-        table = self.TABLES['metadata']['name']
-        if not columns:
-            columns = self.TABLES['metadata']['columns']
-        query = f"SELECT {','.join(columns)} FROM {table}"
-        res = self.retrieve(query)
-        self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
-        return pd.DataFrame(res, columns=columns)
-
-    def getLLMAnnotation(self, issue, limit=-1):
-        table = Template(self.TABLES['llm_answers']['name']).substitute(
-            issue=issue,
-            sources_min_followers=self.NB_MIN_FOLLOWERS,
-            sources_min_outdegree=self.MIN_OUTDEGREE)
-        columns = [
-            Template(c).substitute(issue=issue)
-               for c in self.TABLES['llm_answers']['columns']]
-        query = f"SELECT {','.join(columns)} FROM {table}"
-        res = self.retrieve(query)
-        self.logger.info(
-            f"SQLITE: Found {len(res)} descriptions in {table} table.")
         return pd.DataFrame(res, columns=columns)
 
     def getLLMLabels(self, limit=-1):

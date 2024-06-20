@@ -1,34 +1,38 @@
+import os
 import sys
 import yaml
 import logging
+from itertools import combinations
 from argparse import ArgumentParser
 
+import pandas as pd
+
 from gap.sqlite import SQLite
+from gap.inout import InOut
 from gap.embeddings import \
     create_ideological_embedding, \
     create_attitudinal_embedding
 from gap.visualizations import \
     plot_ideological_embedding, \
     plot_attitudinal_embedding
-from gap.validations import make_validations
-from gap.inout import \
-    get_ide_ndims, \
-    set_output_folder, \
-    set_output_folder_emb, \
-    set_output_folder_att
+from gap.validations import make_validation
 
 # parse arguments and set paths
 ap = ArgumentParser()
 ap.add_argument('--config', type=str, required=True)
 ap.add_argument('--country', type=str, required=True)
-ap.add_argument('--surveys', type=str, required=True)
+ap.add_argument('--survey', type=str, required=True, choices=['ches2023', 'ches2019', 'gps2019'])
+ap.add_argument('--maxidedim', type=int, required=False)
+ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--output', type=str, required=True)
-ap.add_argument('--show', type=bool, default=False)
+ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
 config = args.config
-output = args.output
-surveys = args.surveys.split(',')
 country = args.country
+output = args.output
+survey = args.survey
+maxidedim = args.maxidedim
+attdims = args.attdims
 show = args.show
 
 # 0. Get things setted
@@ -60,90 +64,90 @@ SQLITE = SQLite(
     logger=logger,
     country=country)
 
-# 0. Get ideological embedding space dimension and folder paths
-ideN = max([
-    get_ide_ndims(SQLITE.getPartiesMapping([survey]), survey)
-    for survey in surveys])
-folder = set_output_folder(
-    params, country, output, logger)
-emb_folder = set_output_folder_emb(
-    params, country, ideN, output, logger)
+# Set the number of dimension for the ideological embedding
+availableSurveys = SQLITE.getAvailableSurveys()
+nPartiesPerSurvey = [SQLITE.getNParties(s) for s in availableSurveys]
+ideN = max(nPartiesPerSurvey) - 1
+
+INOUT = InOut(
+    params=params,
+    country=country,
+    n_latent_dimensions=ideN,
+    survey=survey,
+    output=output,
+    logger=logger
+)
+
+# Get ideological dimension to plot
+if not maxidedim:
+    n_dims_to_viz = ideN
+
+# Get attitudinal dimension to plot and validate if not specified
+ATTDIMS = params['attitudinal_dimensions'][survey]
+if not attdims:
+    attdims = ATTDIMS
+else:
+    attdims = attdims.split(',')
 
 # 1. Create and plot ideological embedding
-create_ideological_embedding(
-    SQLITE,
-    NB_MIN_FOLLOWERS,
-    MIN_OUTDEGREE,
-    ideN,
-    folder,
-    emb_folder,
-    logger)
+# create_ideological_embedding(
+#     SQLITE,
+#     INOUT,
+#     NB_MIN_FOLLOWERS,
+#     MIN_OUTDEGREE,
+#     ideN,
+#     logger)
 
-n_dims_to_viz=3
-for survey in surveys:
-
-    plot_ideological_embedding(
-        SQLITE,
-        NB_MIN_FOLLOWERS,
-        MIN_OUTDEGREE,
-        country,
-        survey,
-        ideN,
-        n_dims_to_viz,
-        folder,
-        emb_folder,
-        vizparams,
-        show,
-        logger)
+# plot_ideological_embedding(
+#     SQLITE,
+#     INOUT,
+#     country,
+#     survey,
+#     n_dims_to_viz,
+#     vizparams,
+#     show,
+#     logger)
 
 # 2. Create and plot attitudinal embedding
+# create_attitudinal_embedding(
+#     SQLITE,
+#     INOUT,
+#     ATTDIMS,
+#     survey,
+#     logger)
 
-for survey in surveys:
-
-    ATTDIMS = params['attitudinal_dimensions'][survey]
-    att_folder = set_output_folder_att(
-        params, survey, country, ideN, output, logger)
-
-    create_attitudinal_embedding(
-        SQLITE,
-        NB_MIN_FOLLOWERS,
-        MIN_OUTDEGREE,
-        ATTDIMS,
-        ideN,
-        survey,
-        folder,
-        emb_folder,
-        att_folder,
-        logger)
-
-    plot_attitudinal_embedding(
-        SQLITE,
-        NB_MIN_FOLLOWERS,
-        MIN_OUTDEGREE,
-        ATTDIMS,
-        country,
-        ideN,
-        survey,
-        folder,
-        emb_folder,
-        att_folder,
-        vizparams,
-        show,
-        logger)
+# for attdimspair in  combinations(attdims, 2):
+#     plot_attitudinal_embedding(
+#         SQLITE,
+#         INOUT,
+#         list(attdimspair),
+#         country,
+#         survey,
+#         vizparams,
+#         show,
+#         logger)
 
 # 3. Make validations
+records = []
+for attdim in attdims:
+    record = make_validation(
+        SQLITE=SQLITE,
+        INOUT=INOUT,
+        SEED=187,
+        country=country,
+        survey=survey,
+        attdim=attdim,
+        plot=show,
+        show=show,
+        logger=logger)
+    if record:
+        records.append(record)
 
-for survey in surveys:
-
-    att_folder = set_output_folder_att(
-        params, survey, country, ideN, output, logger)
-
-    make_validations(
-        SQLITE,
-        187,
-        country,
-        survey,
-        att_folder,
-        True,
-        show,
-        logger)
+if records:
+    records = pd.DataFrame(records).sort_values(by='f1', ascending=False)
+    filename = f"{country}_{survey}_logistic_regression_cross_validate_f1_score"
+    valfolder = os.path.join(INOUT.att_folder, 'validations')
+    dfpath = os.path.join(valfolder, filename+'.csv')
+    records.to_csv(dfpath, index=False)
+    logger.info(f"Logistic regression results (image and csv) saved at {valfolder}")
+    print(records)

@@ -64,8 +64,8 @@ def graphToAdjencyMatrix(graph, min_outdegree, logger, sparce=False):
 
 
     assert ntwrk_csr.shape == (len(columns_id), len(rows_id))
-    mssg = f"Drop {ja - jb} of {ja} repeated sources "
-    mssg += f"({100*(ja - jb)/ja:.2f}%), keeped {jb}."
+    mssg = f"Ignoring {ja - jb} of {ja} repeated sources "
+    mssg += f"({100*(ja - jb)/ja:.2f}%) for adjency matrix computation, keeped {jb}."
     logger.info(mssg)
 
     # remove targets (columns) with no source associated
@@ -81,7 +81,7 @@ def graphToAdjencyMatrix(graph, min_outdegree, logger, sparce=False):
 
     assert ntwrk_csr.shape == (len(columns_id), len(rows_id))
     mssg = f"Drop {ia - ib} targets with no sources associated "
-    mssg += f"({100*(ia - ib)/ia:.2f}%), keeped {ib}:\n{invalid_rows_id}"
+    mssg += f"({100*(ia - ib)/ia:.2f}%), keeped {ib}."
 
     # checking if final network is bipartite:
     nb_shared = len(np.intersect1d(rows_id, columns_id))
