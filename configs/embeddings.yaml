@@ -83,7 +83,7 @@ attitudinal_dimensions:
     - supportUA
     - antielite_salience
     - Kremlin_ties
-sqlite: 'anonymizedDBs/{country}.db'
+sqlite: '{country}.db'
 sources_min_followers: 25
 sources_min_outdegree: 3
 validation:

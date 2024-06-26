@@ -1,5 +1,7 @@
 import os
 import yaml
+from functools import lru_cache
+
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
@@ -31,6 +33,11 @@ def excelExport(df, path, sheet_name):
             sheet_name=sheet_name,
             engine='xlsxwriter',
             float_format="%.2f")
+
+# Keep track of 3 different messages and then warn again
+@lru_cache(3)
+def warn_once(logger, msg):
+    logger.info(msg)
 
 class InOut:
 
@@ -80,8 +87,9 @@ class InOut:
 
     def load_ide_embeddings(self):
 
-        self.logger.info(
-            f"INOUT: Ideological embeddings loaded from folder {self.emb_folder}.")
+        warn_once(
+            self.logger,
+            f"INOUT: Ideological embeddings loaded from {self.emb_folder}.")
 
         ide_sources = pd.read_csv(os.path.join(self.emb_folder, 'ide_sources.csv'))
         ide_targets = pd.read_csv(os.path.join(self.emb_folder, 'ide_targets.csv'))
@@ -157,11 +165,11 @@ class InOut:
         mssg += f"{len(att_source)} sources) saved at folder {self.att_folder}."
         self.logger.info(mssg)
 
-
     def load_att_embeddings(self):
 
-        self.logger.info(
-            f"INOUT: Attitudinal embeddings load from folder {self.att_folder}.")
+        warn_once(
+            self.logger,
+            f"INOUT: Attitudinal embeddings load from {self.att_folder}.")
 
         att_source = pd.read_csv(os.path.join(self.att_folder, 'att_sources.csv'))
         att_targets = pd.read_csv(os.path.join(self.att_folder, 'att_targets.csv'))

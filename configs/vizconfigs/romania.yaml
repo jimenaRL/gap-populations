@@ -90,7 +90,7 @@ attitudinal:
     eu_position_vs_galtan: *id002
     lrecon_vs_galtan: *id002
     immigrate_policy_vs_galtan: *id002
-  ideological:
+ideological:
     cbar_rect:
     - 0.15
     - 0.45

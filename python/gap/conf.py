@@ -140,7 +140,7 @@ LOGISTICREGRESSIONS = [
         'group2': 'conservative',
     },
     {
-        'ches2019': ['immigrate_policy',],
+        'ches2019': ['immigrate_policy'],
         'gps2019': ['V10'],
         'ches2023': ['refugees'],
         'group1': 'liberal_immigration',

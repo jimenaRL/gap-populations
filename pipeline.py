@@ -19,20 +19,20 @@ from gap.validations import make_validation
 
 # parse arguments and set paths
 ap = ArgumentParser()
-ap.add_argument('--config', type=str, required=True)
 ap.add_argument('--country', type=str, required=True)
 ap.add_argument('--survey', type=str, required=True, choices=['ches2023', 'ches2019', 'gps2019'])
 ap.add_argument('--maxidedim', type=int, required=False)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--output', type=str, required=True)
+ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
-config = args.config
 country = args.country
 output = args.output
 survey = args.survey
 maxidedim = args.maxidedim
 attdims = args.attdims
+plot = args.plot
 show = args.show
 
 # 0. Get things setted
@@ -46,12 +46,14 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)],
 )
 
+config = "configs/embeddings.yaml"
 with open(config, "r", encoding='utf-8') as fh:
     params = yaml.load(fh, Loader=yaml.SafeLoader)
 
-vizconfig = f"configs/vizconfigs/{country}.yaml"
-with open(vizconfig, "r", encoding='utf-8') as fh:
-    vizparams = yaml.load(fh, Loader=yaml.SafeLoader)
+if plot or show:
+    vizconfig = f"configs/vizconfigs/{country}.yaml"
+    with open(vizconfig, "r", encoding='utf-8') as fh:
+        vizparams = yaml.load(fh, Loader=yaml.SafeLoader)
 
 NB_MIN_FOLLOWERS = params['sources_min_followers']
 MIN_OUTDEGREE = params['sources_min_outdegree']
@@ -90,42 +92,44 @@ else:
     attdims = attdims.split(',')
 
 # 1. Create and plot ideological embedding
-# create_ideological_embedding(
-#     SQLITE,
-#     INOUT,
-#     NB_MIN_FOLLOWERS,
-#     MIN_OUTDEGREE,
-#     ideN,
-#     logger)
+create_ideological_embedding(
+    SQLITE,
+    INOUT,
+    NB_MIN_FOLLOWERS,
+    MIN_OUTDEGREE,
+    ideN,
+    logger)
 
-# plot_ideological_embedding(
-#     SQLITE,
-#     INOUT,
-#     country,
-#     survey,
-#     n_dims_to_viz,
-#     vizparams,
-#     show,
-#     logger)
+if plot:
+    plot_ideological_embedding(
+        SQLITE,
+        INOUT,
+        country,
+        survey,
+        n_dims_to_viz,
+        vizparams,
+        show,
+        logger)
 
 # 2. Create and plot attitudinal embedding
-# create_attitudinal_embedding(
-#     SQLITE,
-#     INOUT,
-#     ATTDIMS,
-#     survey,
-#     logger)
+create_attitudinal_embedding(
+    SQLITE,
+    INOUT,
+    ATTDIMS,
+    survey,
+    logger)
 
-# for attdimspair in  combinations(attdims, 2):
-#     plot_attitudinal_embedding(
-#         SQLITE,
-#         INOUT,
-#         list(attdimspair),
-#         country,
-#         survey,
-#         vizparams,
-#         show,
-#         logger)
+if plot:
+    for attdimspair in  combinations(attdims, 2):
+        plot_attitudinal_embedding(
+            SQLITE,
+            INOUT,
+            list(attdimspair),
+            country,
+            survey,
+            vizparams,
+            show,
+            logger)
 
 # 3. Make validations
 records = []
@@ -137,17 +141,27 @@ for attdim in attdims:
         country=country,
         survey=survey,
         attdim=attdim,
-        plot=show,
+        plot=plot,
         show=show,
         logger=logger)
     if record:
         records.append(record)
 
-if records:
+if len(records) > 0:
     records = pd.DataFrame(records).sort_values(by='f1', ascending=False)
     filename = f"{country}_{survey}_logistic_regression_cross_validate_f1_score"
     valfolder = os.path.join(INOUT.att_folder, 'validations')
     dfpath = os.path.join(valfolder, filename+'.csv')
     records.to_csv(dfpath, index=False)
-    logger.info(f"Logistic regression results (image and csv) saved at {valfolder}")
-    print(records)
+
+    cols = [
+        "country",
+        "strategy",
+        "label1",
+        "nb_samples_label1",
+        "label2",
+        "nb_samples_label2",
+        "attitudinal_dimension",
+        "survey",
+        "f1"]
+    os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
