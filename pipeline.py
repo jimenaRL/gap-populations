@@ -36,15 +36,7 @@ plot = args.plot
 show = args.show
 
 # 0. Get things setted
-logfile = f'{country}.log'
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format=f"%(asctime)s [%(levelname)s] {country.upper()} %(message)s",
-    handlers=[
-        logging.FileHandler(logfile, 'w', 'utf-8'),
-        logging.StreamHandler(sys.stdout)],
-)
 
 config = "configs/embeddings.yaml"
 with open(config, "r", encoding='utf-8') as fh:
@@ -78,6 +70,15 @@ INOUT = InOut(
     survey=survey,
     output=output,
     logger=logger
+)
+
+logfile = os.path.join(INOUT.basepath, f'{country}.log')
+logging.basicConfig(
+    level=logging.INFO,
+    format=f"%(asctime)s [%(levelname)s] {country.upper()} %(message)s",
+    handlers=[
+        logging.FileHandler(logfile, 'w', 'utf-8'),
+        logging.StreamHandler(sys.stdout)],
 )
 
 # Get ideological dimension to plot
