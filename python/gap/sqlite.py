@@ -164,9 +164,10 @@ class SQLite:
                 SQLITE: HOT FIX drop rows with blanck spaces values.
                 This happens for some dimensions in GPS2019
                 """)
+
         return df \
             .astype(dtypes) \
-            .dropna()
+            .dropna(axis=1)
 
     def getAnnotations(self):
         table = f"mp_annotation"
