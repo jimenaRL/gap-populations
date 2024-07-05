@@ -29,7 +29,6 @@ def create_ideological_embedding(
     INOUT.save_experiment_data(
         X, targets_pids, sources_pids, sources_map_pids)
 
-
     # 2. Create ideological embeddings
 
     # Create and fit ideological embedding
@@ -109,7 +108,7 @@ def create_attitudinal_embedding(
     # drop mps with parties withou mapping and add parties to ideological positions
     mps_with_mapping = mps_parties[~mps_parties[SURVEYCOL].isna()]
     mps_without_mapping = mps_parties[mps_parties[SURVEYCOL].isna()]
-    mssg = f"Found {len(mps_with_mapping)} "
+    mssg = f"ATTITUDINAL EMBEDDINGS: found {len(mps_with_mapping)} "
     mssg += f"associated to parties mps with mapping in {survey}."
     logger.info(mssg)
 
@@ -123,15 +122,16 @@ def create_attitudinal_embedding(
         .drop(columns="mp_pseudo_id")
     t1 = len(ide_mps_in_parties_with_valid_mapping)
     if t0 > t1:
-        mm = f"Dropped {t0 - t1} mps out of {t0} in ideological embedding "
-        mm += f"with no party in mapping, left {t1}."
+        mm = f"ATTITUDINAL EMBEDDINGS: dropped {t0 - t1} mps out of {t0} in "
+        mm += f"ideological embedding with no party in mapping, left {t1}."
         logger.info(mm)
 
     parties_available_survey = set(parties_coord_att[SURVEYCOL].unique())
     parties_mps = set(ide_mps_in_parties_with_valid_mapping[SURVEYCOL].unique())
 
     if len(parties_available_survey) < len(parties_mps):
-        m = f"There are less effetively available parties in survey {survey}: "
+        m = f"ATTITUDINAL EMBEDDINGS: there are less effectively available "
+        m += f"parties in survey {survey}: "
         m += f"{parties_available_survey} that parties present in mps affilations "
         m += f"{parties_mps}. Dropping {parties_mps - parties_available_survey}."
         logger.info(m)
@@ -149,8 +149,34 @@ def create_attitudinal_embedding(
     estimated_parties_coord_ide = estimated_parties_coord_ide.sort_values(by=SURVEYCOL)
     parties_coord_att = parties_coord_att.sort_values(by=SURVEYCOL)
 
-    assert (len(estimated_parties_coord_ide[SURVEYCOL].values) == len(parties_coord_att[SURVEYCOL].values))
-    assert (estimated_parties_coord_ide[SURVEYCOL].values != parties_coord_att[SURVEYCOL].values).sum() == 0
+    p1 = set(estimated_parties_coord_ide[SURVEYCOL].values.tolist())
+    p2 = set(parties_coord_att[SURVEYCOL].values.tolist())
+    if not p1 == p2:
+        if p1.issubset(p2):
+            mssg = f"ATTITUDINAL EMBEDDINGS: parties with estimated "
+            mssg += f"ideological coordinates ({','.join(p1)}) "
+            mssg += f"doesn't match parties with attitudinal annotations "
+            mssg += f"({','.join(p2)}) for survey {survey}. "
+            prompt = mssg + f"Parties: {','.join(p2 - p1)} will be "
+            prompt += f"ignored. Do you want to continuate (yes/no): "
+            user_input = input(prompt)
+
+            while user_input.lower() != 'yes':
+                if user_input.lower() == 'no':
+                    exit()
+                else:
+                    user_input = input('Please type yes or no:')
+        else:
+            raise ValueError(mssg)
+
+    parties_coord_att = parties_coord_att[parties_coord_att[SURVEYCOL].isin(p1)]
+
+    if not p1 == p2:
+        logger.info(mssg + f"Parties: {','.join(p2 - p1)} where ignored.")
+
+    v1 = estimated_parties_coord_ide[SURVEYCOL].values
+    v2 = parties_coord_att[SURVEYCOL].values
+    assert (v1 != v2).sum() == 0
 
     X = estimated_parties_coord_ide.drop(columns=[SURVEYCOL]).values
     Y = parties_coord_att.drop(columns=[SURVEYCOL, 'MMS_party_acronym']).values
