@@ -95,7 +95,7 @@ class SQLite:
 
     def getAvailableSurveys(self):
         res = self.retrieve("PRAGMA table_info(party_mapping);")
-        surveys = [r[1].split('_party_acronym')[0].lower() for r in res]
+        surveys = [r[1].split('_party_acronym')[0].lower() for r in res]        
         surveys.remove('mms')
         return surveys
 
