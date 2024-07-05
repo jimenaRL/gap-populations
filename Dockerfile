@@ -86,9 +86,10 @@ WORKDIR /home/jimena/work/dev
 
 RUN git clone https://${env_token}@github.com/jimenaRL/gap-populations.git
 
+WORKDIR /home/jimena/work/dev/gap-populations
+
 RUN git pull
 
-WORKDIR /home/jimena/work/dev/gap-populations
 
 # RUN pip install -r python/requirements.txt
 
