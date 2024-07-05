@@ -1,3 +1,4 @@
+*.xlsx
 .python-version
 *.db
 wip/*
