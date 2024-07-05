@@ -4,7 +4,7 @@ function gn() {
     if [[ "$2" = "ches2019" ]]
     then
         python pipeline.py \
-            --country=$2 \
+            --country=$1 \
             --output=wip \
             --survey=ches2019 \
             --attdims=lrgen,lrecon,eu_position,people_vs_elite,antielite_salience,corrupt_salience,sociallifestyle,galtan,immigrate_policy,environment,enviro_salience,nationalism
