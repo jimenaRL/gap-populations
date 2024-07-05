@@ -90,8 +90,29 @@ WORKDIR /home/jimena/work/dev/gap-populations
 
 RUN git pull
 
-
 # RUN pip install -r python/requirements.txt
 
-# add symlink to python packages
+RUN pip install --upgrade pip
+RUN pip install pandas
+RUN pip install PyYAML==6.0
+RUN pip install scikit-learn==1.3.0
+RUN pip install scipy==1.11.1
+RUN pip install seaborn==0.13.2
+RUN pip install prince==0.7.1
+RUN pip install linate==0.4
+RUN pip install openpyxl
+RUN pip install tqdm
+RUN pip install linguars==0.3.2
+RUN pip install imblearn==0.0
 
+RUN git pull
+
+# add symlink to python packages
+RUN ln -fs /home/jimena/work/dev/gap-populations/python/gap /root/.pyenv/versions/3.10.10/lib/python3.10/site-packages/gap
+
+
+# TO BUILT
+# docker build -t gap --build-arg token=$GIT_TOKEN -f Dockerfile .
+
+# TO RUN
+# country=romania; cwd=$(pwd); docker run -d --name=gap_${country} -v ${cwd}/${country}.db:${cwd}/${country}.db -v ${cwd}/wip:${cwd}/wip gap bash -c 'source gap.sh romania'
