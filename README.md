@@ -4,5 +4,5 @@
  
 ```
 0 Download this repository and cd to the folder
-1 Pip install the python packages from python/requirements.py 
+1 Pip install the python packages from python/requirements.txt 
 ```
