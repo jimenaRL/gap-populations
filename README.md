@@ -22,7 +22,7 @@ Copy the sqlite file (.db extension) of a given *country* to the `gap-population
 To compute embeddings for a given *country* on a specific survey and validation on specific attitudinal dimension run
 
 ```
-python pipeline.py --country=country --survey=ches2019 --attdims=lrgen
+python pipeline.py --country=country -dbpath=country.db --survey=ches2019 --attdims=lrgen
 ```
 
 To compute embeddings for a given *country* on all available surveys and validations on all attitudinal dimensions run
