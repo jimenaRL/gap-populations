@@ -29,7 +29,7 @@ To compute embeddings for a given *country* on a specific survey and validation 
 python pipeline.py --country=country --dbpath=country.db --survey=ches2019 --attdims=lrgen,antielite_salience
 ```
 
-To options `--plot` and `--show` will create and show images for the embeddings and for the validations. 
+To options `--plot` and `--show` will additionally create and show images for the embeddings and for the validations. 
 
 To compute embeddings for a given *country* on all available surveys and validations on all attitudinal dimensions run
 
