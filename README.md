@@ -2,7 +2,7 @@
 
 ## Installation
 
-1. Clone or download this repository and cd to the folder:
+1. Clone or download this repository and cd to the `gap-populations` folder:
 ```
 git clone https://github.com/jimenaRL/gap-populations && cd gap-populations
 ```
