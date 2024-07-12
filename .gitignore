@@ -1,3 +1,7 @@
+validations_to_excel.py
+anonymized_all.sh
+anonymized_db.sh
+run_all_containers.sh
 *.xlsx
 .python-version
 *.db
