@@ -1,0 +1,128 @@
+attitudinal_dimensions:
+  gps2019:
+    - 'V1'
+    - 'V2'
+    - 'V3'
+    - 'V4_Scale'
+    - 'V5'
+    - 'V6_Scale'
+    - 'V7'
+    - 'V8_Scale'
+    - 'V9'
+    - 'V10'
+    - 'V11'
+    - 'V12'
+    - 'V13'
+    - 'V14'
+    - 'V15'
+    - 'V16'
+    - 'V17'
+    - 'V18'
+    - 'V19'
+    - 'V20'
+    - 'V21'
+  ches2019:
+    - 'eu_position'
+    - 'eu_position_sd'
+    - 'eu_salience'
+    - 'eu_dissent'
+    - 'eu_blur'
+    - 'eu_cohesion'
+    - 'eu_foreign'
+    - 'eu_intmark'
+    - 'eu_budgets'
+    - 'eu_asylum'
+    - 'lrgen'
+    - 'lrecon'
+    - 'lrecon_sd'
+    - 'lrecon_salience'
+    - 'lrecon_dissent'
+    - 'lrecon_blur'
+    - 'galtan'
+    - 'galtan_sd'
+    - 'galtan_salience'
+    - 'galtan_dissent'
+    - 'galtan_blur'
+    - 'immigrate_policy'
+    - 'immigrate_salience'
+    - 'immigrate_dissent'
+    - 'multiculturalism'
+    - 'multicult_salience'
+    - 'multicult_dissent'
+    - 'redistribution'
+    - 'redist_salience'
+    - 'environment'
+    - 'enviro_salience'
+    - 'spendvtax'
+    - 'deregulation'
+    - 'econ_interven'
+    - 'civlib_laworder'
+    - 'sociallifestyle'
+    - 'religious_principles'
+    - 'ethnic_minorities'
+    - 'nationalism'
+    - 'urban_rural'
+    - 'protectionism'
+    - 'regions'
+    - 'russian_interference'
+    - 'anti_islam_rhetoric'
+    - 'people_vs_elite'
+    - 'antielite_salience'
+    - 'corrupt_salience'
+    - 'members_vs_leadership'
+
+  ches2023:
+    - lrecon
+    - refugees
+    - EU_Russia
+    - eu_position
+    - galtan
+    - UA_EU
+    - energy_costs
+    - weapons
+    - supportUA
+    - antielite_salience
+    - Kremlin_ties
+sqlite: '{country}.db'
+sources_min_followers: 25
+sources_min_outdegree: 3
+validation:
+  seed: 666
+tables:
+  preprocessed_graph:
+    name: 'mp_${entity}_graph_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    columns:
+      - mp_pseudo_id
+      - ${entity}_pseudo_id
+  party:
+    name: 'mp_party'
+    columns:
+      - mp_pseudo_id
+      - MMS_party_acronym
+      - CHES2019_party_acronym
+      - GPS2019_party_acronym
+      - CHES2023_party_acronym
+  mapping:
+    name: 'party_mapping'
+    columns:
+      - MMS_party_acronym
+      - CHES2019_party_acronym
+      - GPS2019_party_acronym
+      - CHES2023_party_acronym
+  attitude:
+    name: 'party_${attitude}'
+    partial_columns:
+      - party
+      - party_id
+  keywords:
+    name: 'labels_keywords_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    columns:
+      - pseudo_id
+      - Left
+      - Right
+  llm_labels:
+    name: 'labels_llm_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    columns:
+      - pseudo_id
+      - left
+      - right

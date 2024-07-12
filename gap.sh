@@ -169,7 +169,12 @@ function fn() {
 
     if [[ "$1" = "israel" ]]
     then
-        gn israel gps2019
+        python pipeline.py \
+            --country=$1 \
+            --output=wip \
+            --config=configs/embeddings_israel.yaml \
+            --survey=gps2019 \
+            --attdims=V4_Scale
     fi
 
     if [[ "$1" = "italy" ]]
