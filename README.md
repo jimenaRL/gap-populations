@@ -20,7 +20,7 @@ export PYTHONPATH=$PYTHONPATH:$(pwd)/python
 Copy the sqlite file of a given *country* to the `gap-populations` folder:
 
 ```
-cp /path/to/the/db/folder/country.db ./
+cp /path/to/the/db/folder/country.db ./country.db
 ```
 
 To compute embeddings for a given *country* on a specific survey and validation on specific attitudinal dimension run
