@@ -5,6 +5,7 @@ function gn() {
     then
             python pipeline.py \
                 --country=$1 \
+                --dbpath=$1.db \
                 --survey=ches2019 \
                 --attdims=lrgen,lrecon,eu_position,people_vs_elite,antielite_salience,corrupt_salience,sociallifestyle,galtan,immigrate_policy,environment,enviro_salience,nationalism
     fi
@@ -13,6 +14,7 @@ function gn() {
     then
         python pipeline.py \
             --country=$1 \
+            --dbpath=$1.db \
             --survey=gps2019 \
             --attdims=V4_Scale,V6_Scale,V8_Scale,V9,V10,V12,V13,V14,V18,V19,V20,V21
     fi
@@ -21,6 +23,7 @@ function gn() {
     then
         python pipeline.py \
             --country=$1 \
+            --dbpath=$1.db \
             --survey=ches2023 \
             --attdims=antielite_salience,galtan,eu_position,lrecon,refugees
     fi
@@ -167,8 +170,8 @@ function fn() {
     if [[ "$1" = "israel" ]]
     then
         python pipeline.py \
-            --country=$1 \
-            --output=wip \
+            --country=israel \
+            --dbpath=israel.db \
             --config=configs/embeddings_israel.yaml \
             --survey=gps2019 \
             --attdims=V4_Scale

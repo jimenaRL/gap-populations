@@ -20,15 +20,17 @@ from gap.validations import make_validation
 # parse arguments and set paths
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
+ap.add_argument('--dbpath', type=str)
 ap.add_argument('--survey', type=str, required=True, choices=['ches2023', 'ches2019', 'gps2019'])
 ap.add_argument('--maxidedim', type=int, required=False)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, default="configs/embeddings.yaml")
-ap.add_argument('--output', type=str, default="output")
+ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
 country = args.country
+dbpath = args.dbpath
 output = args.output
 config = args.config
 survey = args.survey
@@ -36,6 +38,13 @@ maxidedim = args.maxidedim
 attdims = args.attdims
 plot = args.plot
 show = args.show
+
+
+if not dbpath:
+    dbpath = f"{country}.db"
+
+if not output:
+    output = country
 
 # 0. Get things setted
 logger = logging.getLogger(__name__)
@@ -52,7 +61,7 @@ NB_MIN_FOLLOWERS = params['sources_min_followers']
 MIN_OUTDEGREE = params['sources_min_outdegree']
 
 SQLITE = SQLite(
-    db_path=params['sqlite'].format(country=country),
+    db_path=dbpath,
     tables=params['tables'],
     sources_min_followers=NB_MIN_FOLLOWERS,
     sources_min_outdegree=MIN_OUTDEGREE,
