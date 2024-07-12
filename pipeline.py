@@ -23,12 +23,14 @@ ap.add_argument('--country', type=str, required=True)
 ap.add_argument('--survey', type=str, required=True, choices=['ches2023', 'ches2019', 'gps2019'])
 ap.add_argument('--maxidedim', type=int, required=False)
 ap.add_argument('--attdims', type=str, required=False)
+ap.add_argument('--config', type=str, default="configs/embeddings.yaml")
 ap.add_argument('--output', type=str, required=True)
 ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
 country = args.country
 output = args.output
+config = args.config
 survey = args.survey
 maxidedim = args.maxidedim
 attdims = args.attdims
@@ -38,7 +40,6 @@ show = args.show
 # 0. Get things setted
 logger = logging.getLogger(__name__)
 
-config = "configs/embeddings.yaml"
 with open(config, "r", encoding='utf-8') as fh:
     params = yaml.load(fh, Loader=yaml.SafeLoader)
 
