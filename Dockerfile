@@ -27,13 +27,25 @@ FROM ubuntu:22.04 AS pyenv
 ENV DEBIAN_FRONTEND=noninteractive
 
 # install pyenv with pyenv-installer
-COPY pyenv_dependencies.txt pyenv_dependencies.txt
-
 ENV PYENV_GIT_TAG=v2.3.14
 
 RUN apt-get update && \
-    apt-get install -y $(cat pyenv_dependencies.txt) && \
-    apt-get install curl -y
+    apt-get install build-essential -y && \
+    apt-get install curl -y && \
+    apt-get install git -y && \
+    apt-get install zlib1g-dev -y && \
+    apt-get install tk-dev -y && \
+    apt-get install libssl-dev -y && \
+    apt-get install libbz2-dev -y && \
+    apt-get install libreadline-dev -y && \
+    apt-get install libsqlite3-dev -y && \
+    apt-get install libncursesw5-dev -y && \
+    apt-get install xz-utils -y && \
+    apt-get install libxml2-dev -y && \
+    apt-get install libxmlsec1-dev -y && \
+    apt-get install libffi-dev -y && \
+    apt-get install liblzma-dev -y
+
 RUN curl https://pyenv.run | bash
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
