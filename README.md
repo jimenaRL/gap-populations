@@ -11,4 +11,13 @@
 
 To compute embeddings for a given *country* on all available surveys and validations on all attitudinal dimensions run
 
+
+`        python pipeline.py \
+            --country=*country* \
+            --output=output \
+            --survey=ches2019 \
+            --attdims=lrgen
+
+To compute embeddings for a given *country* on all available surveys and validations on all attitudinal dimensions run
+
 `source gap.sh country`
