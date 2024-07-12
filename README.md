@@ -9,6 +9,6 @@
 
 ## Run
 
-To compute embeddings on all availaible surveys and validation on attidiual dimension run
+To compute embeddings for a given *country* on all available surveys and validations on all attitudinal dimensions run
 
 `source gap.sh country`
