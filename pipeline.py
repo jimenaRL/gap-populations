@@ -24,7 +24,7 @@ ap.add_argument('--survey', type=str, required=True, choices=['ches2023', 'ches2
 ap.add_argument('--maxidedim', type=int, required=False)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, default="configs/embeddings.yaml")
-ap.add_argument('--output', type=str, required=True)
+ap.add_argument('--output', type=str, default="output")
 ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
@@ -166,4 +166,5 @@ if len(records) > 0:
         "attitudinal_dimension",
         "survey",
         "f1"]
-    os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
+    # os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
+    print(records[cols])
