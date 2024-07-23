@@ -22,7 +22,7 @@ ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
 ap.add_argument('--dbpath', type=str)
 ap.add_argument('--survey', type=str, required=True, choices=['ches2023', 'ches2019', 'gps2019'])
-ap.add_argument('--maxidedim', type=int, required=False)
+ap.add_argument('--ndimsviz', type=int, default=3)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, default="configs/embeddings.yaml")
 ap.add_argument('--output', type=str, required=False)
@@ -34,7 +34,7 @@ dbpath = args.dbpath
 output = args.output
 config = args.config
 survey = args.survey
-maxidedim = args.maxidedim
+ndimsviz = args.ndimsviz
 attdims = args.attdims
 plot = args.plot
 show = args.show
@@ -91,10 +91,6 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)],
 )
 
-# Get ideological dimension to plot
-if not maxidedim:
-    n_dims_to_viz = ideN
-
 # Get attitudinal dimension to plot and validate if not specified
 ATTDIMS = params['attitudinal_dimensions'][survey]
 if not attdims:
@@ -117,7 +113,7 @@ if plot:
         INOUT,
         country,
         survey,
-        n_dims_to_viz,
+        ndimsviz,
         vizparams,
         show,
         logger)
