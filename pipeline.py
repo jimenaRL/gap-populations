@@ -26,6 +26,8 @@ ap.add_argument('--ndimsviz', type=int, default=3)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, default="configs/embeddings.yaml")
 ap.add_argument('--output', type=str, required=False)
+ap.add_argument('--ideological', action='store_true')
+ap.add_argument('--novalidation', action='store_true')
 ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
@@ -36,6 +38,8 @@ config = args.config
 survey = args.survey
 ndimsviz = args.ndimsviz
 attdims = args.attdims
+ideological = args.ideological
+novalidation = args.novalidation
 plot = args.plot
 show = args.show
 
@@ -99,24 +103,25 @@ else:
     attdims = attdims.split(',')
 
 # 1. Create and plot ideological embedding
-create_ideological_embedding(
-    SQLITE,
-    INOUT,
-    NB_MIN_FOLLOWERS,
-    MIN_OUTDEGREE,
-    ideN,
-    logger)
-
-if plot:
-    plot_ideological_embedding(
+if ideological:
+    create_ideological_embedding(
         SQLITE,
         INOUT,
-        country,
-        survey,
-        ndimsviz,
-        vizparams,
-        show,
+        NB_MIN_FOLLOWERS,
+        MIN_OUTDEGREE,
+        ideN,
         logger)
+
+    if plot:
+        plot_ideological_embedding(
+            SQLITE,
+            INOUT,
+            country,
+            survey,
+            ndimsviz,
+            vizparams,
+            show,
+            logger)
 
 # 2. Create and plot attitudinal embedding
 create_attitudinal_embedding(
@@ -139,37 +144,38 @@ if plot:
             logger)
 
 # 3. Make validations
-records = []
-for attdim in attdims:
-    record = make_validation(
-        SQLITE=SQLITE,
-        INOUT=INOUT,
-        SEED=187,
-        country=country,
-        survey=survey,
-        attdim=attdim,
-        plot=plot,
-        show=show,
-        logger=logger)
-    if record:
-        records.append(record)
+if not novalidation:
+    records = []
+    for attdim in attdims:
+        record = make_validation(
+            SQLITE=SQLITE,
+            INOUT=INOUT,
+            SEED=187,
+            country=country,
+            survey=survey,
+            attdim=attdim,
+            plot=plot,
+            show=show,
+            logger=logger)
+        if record:
+            records.append(record)
 
-if len(records) > 0:
-    records = pd.DataFrame(records).sort_values(by='f1', ascending=False)
-    filename = f"{country}_{survey}_logistic_regression_cross_validate_f1_score"
-    valfolder = os.path.join(INOUT.att_folder, 'validations')
-    dfpath = os.path.join(valfolder, filename+'.csv')
-    records.to_csv(dfpath, index=False)
+    if len(records) > 0:
+        records = pd.DataFrame(records).sort_values(by='f1', ascending=False)
+        filename = f"{country}_{survey}_logistic_regression_cross_validate_f1_score"
+        valfolder = os.path.join(INOUT.att_folder, 'validations')
+        dfpath = os.path.join(valfolder, filename+'.csv')
+        records.to_csv(dfpath, index=False)
 
-    cols = [
-        "country",
-        "strategy",
-        "label1",
-        "nb_samples_label1",
-        "label2",
-        "nb_samples_label2",
-        "attitudinal_dimension",
-        "survey",
-        "f1"]
-    # os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
-    print(records[cols])
+        cols = [
+            "country",
+            "strategy",
+            "label1",
+            "nb_samples_label1",
+            "label2",
+            "nb_samples_label2",
+            "attitudinal_dimension",
+            "survey",
+            "f1"]
+        os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
+        # print(records[cols])
