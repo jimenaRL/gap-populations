@@ -70,7 +70,6 @@ attitudinal_dimensions:
     - 'antielite_salience'
     - 'corrupt_salience'
     - 'members_vs_leadership'
-
   ches2023:
     - lrecon
     - refugees
