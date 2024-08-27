@@ -177,12 +177,22 @@ class InOut:
 
     def load_att_embeddings(self):
 
+        path_sources = os.path.join(self.att_folder, 'att_sources.csv')
+        path_targets = os.path.join(self.att_folder, 'att_targets.csv')
+        m = " Attitudinal embeddings have not been computed yet. "
+        if not os.path.exists(path_sources):
+            m = f"Missing files at {path_sources}." + m
+            raise FileNotFoundError(m)
+        if not os.path.exists(path_targets):
+            m = f"Missing files at {path_targets}." + m
+            raise FileNotFoundError(m)
+
         warn_once(
             self.logger,
             f"INOUT: Attitudinal embeddings load from {self.att_folder}.")
 
-        att_source = pd.read_csv(os.path.join(self.att_folder, 'att_sources.csv'))
-        att_targets = pd.read_csv(os.path.join(self.att_folder, 'att_targets.csv'))
+        att_source = pd.read_csv(path_sources)
+        att_targets = pd.read_csv(path_targets)
 
         return att_source, att_targets
 
