@@ -20,14 +20,14 @@ from gap.validations import make_validation
 # parse arguments and set paths
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
-ap.add_argument('--dbpath', type=str)
+ap.add_argument('--dbpath', type=str, required=True)
 ap.add_argument('--survey', type=str, required=True, choices=['ches2023', 'ches2019', 'gps2019'])
 ap.add_argument('--ndimsviz', type=int, default=3)
 ap.add_argument('--attdims', type=str, required=False)
-ap.add_argument('--config', type=str, default="configs/embeddings.yaml")
+ap.add_argument('--config', type=str, required=True)
 ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
-ap.add_argument('--novalidation', action='store_true')
+ap.add_argument('--validation', action='store_true')
 ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
@@ -39,16 +39,12 @@ survey = args.survey
 ndimsviz = args.ndimsviz
 attdims = args.attdims
 ideological = args.ideological
-novalidation = args.novalidation
+validation = args.validation
 plot = args.plot
 show = args.show
 
-
-if not dbpath:
-    dbpath = f"{country}.db"
-
 if not output:
-    output = country
+    output = os.getcwd()
 
 # 0. Get things setted
 logger = logging.getLogger(__name__)
@@ -102,6 +98,7 @@ if not attdims:
 else:
     attdims = attdims.split(',')
 
+
 # 1. Create and plot ideological embedding
 if ideological:
     create_ideological_embedding(
@@ -144,7 +141,7 @@ if plot:
             logger)
 
 # 3. Make validations
-if not novalidation:
+if validation:
     records = []
     for attdim in attdims:
         record = make_validation(
