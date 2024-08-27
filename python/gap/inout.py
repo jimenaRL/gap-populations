@@ -91,8 +91,18 @@ class InOut:
             self.logger,
             f"INOUT: Ideological embeddings loaded from {self.emb_folder}.")
 
-        ide_sources = pd.read_csv(os.path.join(self.emb_folder, 'ide_sources.csv'))
-        ide_targets = pd.read_csv(os.path.join(self.emb_folder, 'ide_targets.csv'))
+        path_sources = os.path.join(self.emb_folder, 'ide_sources.csv')
+        path_targets = os.path.join(self.emb_folder, 'ide_targets.csv')
+        m = " Ideological embeddings have not been computed yet. "
+        m += "Please run the pipeline script again with the --ideological flag."
+        if not os.path.exists(path_sources):
+            m = f"Missing files at {path_sources}." + m
+            raise FileNotFoundError(m)
+        if not os.path.exists(path_targets):
+            m = f"Missing files at {path_targets}." + m
+            raise FileNotFoundError(m)
+        ide_sources = pd.read_csv(path_sources)
+        ide_targets = pd.read_csv(path_targets)
 
         return ide_sources, ide_targets
 
