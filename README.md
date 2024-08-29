@@ -26,10 +26,25 @@ cp /path/to/the/db/folder/country.db ./country.db
 To compute embeddings for a given *country* on a specific survey and validation on specific attitudinal dimensions run
 
 ```
-python pipeline.py --country=country --dbpath=country.db --ideological --survey=ches2019 --attdims=lrgen,antielite_salience --validation
+python pipeline.py --country=country --dbpath=country.db --ideological --attitudinal --validation --survey=survey --attdims=attdim1,attdim2,attdim3 
 ```
 
 To options `--plot` and `--show` will additionally create and show images for the embeddings and for the validations. Plase notice that this require latex to be installed in your machine to correctly display images annotations.
+
+For instances, the commands
+
+```
+python pipeline.py --country=uruguay --dbpath=uruguay2023.db --ideological --survey=gps2019 --plot
+```
+
+```
+python pipeline.py --country=uruguay --dbpath=uruguay2023.db --attitudinal --survey=gps2019 --attdims=V4_Scale,V8_Scale  --plot
+```
+```
+python pipeline.py --country=uruguay --dbpath=uruguay2023.db --validations --survey=gps2019 --attdims=V4_Scale  --plot
+```
+
+will ...
 
 To compute embeddings for a given *country* on all available surveys and validations on all attitudinal dimensions run
 
