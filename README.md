@@ -31,7 +31,7 @@ python pipeline.py --country=country --dbpath=country.db --ideological --attitud
 
 To options `--plot` and `--show` will additionally create and show images for the embeddings and for the validations. Plase notice that this require latex to be installed in your machine to correctly display images annotations.
 
-For instances, the commands
+For instances:
 
 ```
 python pipeline.py --country=uruguay --dbpath=uruguay2023.db --ideological --survey=gps2019 --plot
@@ -49,4 +49,10 @@ To compute embeddings for a given *country* on all available surveys and validat
 
 ```
 source gap.sh country
+```
+
+For instances:
+
+```
+source gap.sh poland2020
 ```
