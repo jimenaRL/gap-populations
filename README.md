@@ -41,7 +41,7 @@ python pipeline.py --country=uruguay --dbpath=uruguay2023.db --ideological --sur
 python pipeline.py --country=uruguay --dbpath=uruguay2023.db --attitudinal --survey=gps2019 --attdims=V4_Scale,V8_Scale  --plot
 ```
 ```
-python pipeline.py --country=uruguay --dbpath=uruguay2023.db --validations --survey=gps2019 --attdims=V4_Scale  --plot
+python pipeline.py --country=uruguay --dbpath=uruguay2023.db --validation --survey=gps2019 --attdims=V4_Scale  --plot
 ```
 
 will ...
