@@ -94,7 +94,10 @@ class SQLite:
         return res
 
     def getAvailableSurveys(self):
-        res = self.retrieve("PRAGMA table_info(party_mapping);")
+        name = 'party_mapping'
+        if not self.checkTableExists(name):
+            raise ValueError(f"Table {name} doesn't exist at {self.DB}")
+        res = self.retrieve(f"PRAGMA table_info({name});")
         surveys = [r[1].split('_party_acronym')[0].lower() for r in res]
         surveys.remove('mms')
         return surveys
