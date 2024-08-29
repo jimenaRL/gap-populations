@@ -21,7 +21,7 @@ from gap.validations import make_validation
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
 ap.add_argument('--dbpath', type=str, required=True)
-ap.add_argument('--survey', type=str, required=True, choices=['ches2023', 'ches2019', 'gps2019'])
+ap.add_argument('--survey', type=str, required=True, default=None, choices=['ches2023', 'ches2019', 'gps2019'])
 ap.add_argument('--ndimsviz', type=int, default=2)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, default="configs/embeddings.yaml")
