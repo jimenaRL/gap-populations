@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+import seaborn as sns
+
 from itertools import combinations
 
 from gap.bivariate_marginal import \
@@ -11,7 +13,14 @@ from gap.distributions import distributions
 from gap.conf import \
     CHES2019DEFAULTATTVIZ, \
     GPS2019DEFAULTATTVIZ, \
-    CHES2023DEFAULTATTVIZ
+    CHES2023DEFAULTATTVIZ, \
+    COLORS
+
+def make_palette(palette, parties):
+    sorted(parties)
+    if not palette:
+        return dict(zip(parties, COLORS))
+    return palette
 
 def plot_ideological_embedding(
     SQLITE,
@@ -26,15 +35,14 @@ def plot_ideological_embedding(
     # Load data from ideological embedding
     ide_sources, ide_targets = INOUT.load_ide_embeddings()
 
-    # show by dim distributions
-    distributions(
-        ide_sources,
-        ide_targets,
-        "",
-        country,
-        show)
+    # # show by dim distributions
+    # distributions(
+    #     ide_sources,
+    #     ide_targets,
+    #     "",
+    #     country,
+    #     show)
 
-    palette = vizparams['palette']
     idevizparams = vizparams['ideological']
     mp_parties = SQLITE.getMpParties(['MMS', survey])
     targets_parties = mp_parties[['mp_pseudo_id', 'MMS_party_acronym']] \
@@ -47,6 +55,8 @@ def plot_ideological_embedding(
 
     output_folder = os.path.join(INOUT.emb_folder, 'figures')
     os.makedirs(output_folder, exist_ok=True)
+
+    palette = make_palette(vizparams['palette'], parties_to_show)
 
     for x, y in combinations(range(n_dims_to_viz), 2):
         visualize_ide(
@@ -89,13 +99,19 @@ def plot_attitudinal_embedding(
 
     # (1) show 2d figures
 
+    party_mapping = SQLITE.getPartiesMapping(surveys=[survey])
     # use mapping to adapt palette to the party system survey
-    color_data = vizparams['palette'].items()
+    if not vizparams['palette']:
+        palette = make_palette(
+            vizparams['palette'], party_mapping.MMS_party_acronym.unique())
+
+    color_data = palette.items()
     palette = pd.DataFrame.from_dict(color_data) \
         .rename(columns={0: 'MMS_party_acronym', 1: 'color'}) \
-        .merge(SQLITE.getPartiesMapping(surveys=[survey]))
+        .merge(party_mapping)
     _zip = zip(palette[SURVEYCOL], palette['color'])
     palette = {z[0]: z[1] for z in _zip}
+
 
     parties_coord_att = SQLITE.getPartiesAttitudes(survey, dimspair)
 
@@ -114,6 +130,7 @@ def plot_attitudinal_embedding(
         attvizparams = vizparams['attitudinal'][survey][dimpair_str]
     else:
         attvizparams = globals()[f"{survey.upper()}DEFAULTATTVIZ"]
+
 
     output_folder = os.path.join(INOUT.att_folder, 'figures')
     os.makedirs(output_folder, exist_ok=True)

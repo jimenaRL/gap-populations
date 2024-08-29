@@ -21,6 +21,28 @@ GPS2019DEFAULTATTVIZ = {
   'nudges': []
 }
 
+COLORS = [
+ 'tab:green',
+ 'yellow',
+ 'navy',
+ 'orangered',
+ 'blue',
+ 'tab:purple',
+ 'bisque',
+ 'orange',
+ 'black',
+ 'red',
+ 'gold',
+ 'cyan',
+ 'darkgreen',
+ 'mediumvioletred',
+ 'magenta',
+ 'cornflowerblue',
+ 'tab:brown',
+ 'tab:blue',
+ 'tab:pink'
+]
+
 ATTDICT = {
     'ches2023': {
         'antielite_salience': 'Anti-elite salience',

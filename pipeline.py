@@ -22,11 +22,13 @@ ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
 ap.add_argument('--dbpath', type=str, required=True)
 ap.add_argument('--survey', type=str, required=True, choices=['ches2023', 'ches2019', 'gps2019'])
-ap.add_argument('--ndimsviz', type=int, default=3)
+ap.add_argument('--ndimsviz', type=int, default=2)
 ap.add_argument('--attdims', type=str, required=False)
-ap.add_argument('--config', type=str, required=True)
+ap.add_argument('--config', type=str, default="configs/embeddings.yaml")
+ap.add_argument('--vizconfig', type=str, default="configs/vizconfigs/template.yaml")
 ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
+ap.add_argument('--attitudinal', action='store_true')
 ap.add_argument('--validation', action='store_true')
 ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
@@ -35,10 +37,12 @@ country = args.country
 dbpath = args.dbpath
 output = args.output
 config = args.config
+vizconfig = args.vizconfig
 survey = args.survey
 ndimsviz = args.ndimsviz
 attdims = args.attdims
 ideological = args.ideological
+attitudinal = args.attitudinal
 validation = args.validation
 plot = args.plot
 show = args.show
@@ -53,7 +57,6 @@ with open(config, "r", encoding='utf-8') as fh:
     params = yaml.load(fh, Loader=yaml.SafeLoader)
 
 if plot or show:
-    vizconfig = f"configs/vizconfigs/{country}.yaml"
     with open(vizconfig, "r", encoding='utf-8') as fh:
         vizparams = yaml.load(fh, Loader=yaml.SafeLoader)
 
@@ -121,24 +124,25 @@ if ideological:
             logger)
 
 # 2. Create and plot attitudinal embedding
-create_attitudinal_embedding(
-    SQLITE,
-    INOUT,
-    ATTDIMS,
-    survey,
-    logger)
+if attitudinal:
+    create_attitudinal_embedding(
+        SQLITE,
+        INOUT,
+        ATTDIMS,
+        survey,
+        logger)
 
-if plot:
-    for attdimspair in  combinations(attdims, 2):
-        plot_attitudinal_embedding(
-            SQLITE,
-            INOUT,
-            list(attdimspair),
-            country,
-            survey,
-            vizparams,
-            show,
-            logger)
+    if plot:
+        for attdimspair in  combinations(attdims, 2):
+            plot_attitudinal_embedding(
+                SQLITE,
+                INOUT,
+                list(attdimspair),
+                country,
+                survey,
+                vizparams,
+                show,
+                logger)
 
 # 3. Make validations
 if validation:

@@ -1,18 +1,10 @@
 attitudinal:
-  att1_vs_att2:
-    cbar_rect:
-    - 0.15
-    - 0.6
-    - 0.02
-    - 0.3
-    legend_loc: lower center
-    limits:
-    - -2
-    - 12
-    nudges:
-      party:
-      - 0
-      - 0
+  ches2019:
+    -
+  gps2019:
+    -
+  ches2023:
+    -
 ideological:
   cbar_rect:
   - 0.15
@@ -31,4 +23,5 @@ ideological:
     party:
     - 0
     - 0
-palette: null
+palette:
+  false
