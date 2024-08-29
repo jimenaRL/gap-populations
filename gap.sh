@@ -8,7 +8,7 @@ function gn() {
 
     country=$(echo ${dbpath} | cut -d "." -f 1)
 
-    command="python pipeline.py --config=configs/embeddings.yaml --dbpath=$dbpath --country=$country --validation"
+    command="python pipeline.py --config=configs/embeddings.yaml --dbpath=$dbpath --country=$country --validation --attitudinal"
 
     if [[ "$survey" = "ches2019" ]]
     then
