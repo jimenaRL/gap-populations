@@ -44,7 +44,6 @@ python pipeline.py --country=uruguay --dbpath=uruguay2023.db --attitudinal --sur
 python pipeline.py --country=uruguay --dbpath=uruguay2023.db --validation --survey=gps2019 --attdims=V4_Scale  --plot
 ```
 
-will ...
 
 To compute embeddings for a given *country* on all available surveys and validations on all attitudinal dimensions run
 
