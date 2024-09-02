@@ -87,10 +87,6 @@ class InOut:
 
     def load_ide_embeddings(self):
 
-        warn_once(
-            self.logger,
-            f"INOUT: Ideological embeddings loaded from {self.emb_folder}.")
-
         path_sources = os.path.join(self.emb_folder, 'ide_sources.csv')
         path_targets = os.path.join(self.emb_folder, 'ide_targets.csv')
         m = " Ideological embeddings have not been computed yet. "
@@ -103,6 +99,10 @@ class InOut:
             raise FileNotFoundError(m)
         ide_sources = pd.read_csv(path_sources)
         ide_targets = pd.read_csv(path_targets)
+
+        m = f"INOUT: Ideological embeddings loaded from {self.emb_folder}. "
+        m += f"Found {len(ide_sources)} sources and {len(ide_targets)} targets."
+        warn_once(self.logger, m)
 
         return ide_sources, ide_targets
 
@@ -187,12 +187,12 @@ class InOut:
             m = f"Missing files at {path_targets}." + m
             raise FileNotFoundError(m)
 
-        warn_once(
-            self.logger,
-            f"INOUT: Attitudinal embeddings load from {self.att_folder}.")
-
         att_source = pd.read_csv(path_sources)
         att_targets = pd.read_csv(path_targets)
+
+        m = f"INOUT: Attitudinal embeddings loaded from {self.att_folder}. "
+        m += f"Found {len(att_source)} sources and {len(att_targets)} targets."
+        warn_once(self.logger, m)
 
         return att_source, att_targets
 

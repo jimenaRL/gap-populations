@@ -8,7 +8,7 @@ from gap.bivariate_marginal import \
     visualize_ide, \
     visualize_att
 
-from gap.distributions import distributions
+# from gap.distributions import distributions
 
 from gap.conf import \
     CHES2019DEFAULTATTVIZ, \

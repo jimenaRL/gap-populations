@@ -9,3 +9,4 @@ openpyxl
 tqdm
 linguars==0.3.2
 imblearn
+statsmodels

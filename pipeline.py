@@ -16,6 +16,7 @@ from gap.visualizations import \
     plot_ideological_embedding, \
     plot_attitudinal_embedding
 from gap.validations import make_validation
+from gap.labels import labels_stats
 
 # parse arguments and set paths
 ap = ArgumentParser()
@@ -30,6 +31,7 @@ ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
 ap.add_argument('--attitudinal', action='store_true')
 ap.add_argument('--validation', action='store_true')
+ap.add_argument('--labels', action='store_true')
 ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
@@ -43,6 +45,7 @@ ndimsviz = args.ndimsviz
 attdims = args.attdims
 ideological = args.ideological
 attitudinal = args.attitudinal
+labels = args.labels
 validation = args.validation
 plot = args.plot
 show = args.show
@@ -180,3 +183,7 @@ if validation:
             "f1"]
         os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
         # print(records[cols])
+
+if labels:
+
+    labels_stats(SQLITE, INOUT, survey, country, logger, show)
