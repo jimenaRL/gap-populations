@@ -1,10 +1,17 @@
 import os
 import sqlite3
+from copy import deepcopy
+from string import Template
+from functools import lru_cache
+
+
 import numpy as np
 import pandas as pd
-from string import Template
-from copy import deepcopy
 
+# Keep track of 3 different messages and then warn again
+@lru_cache(3)
+def warn_once(logger, msg):
+    logger.info(msg)
 
 class SQLite:
 
@@ -177,7 +184,8 @@ class SQLite:
         query = f"SELECT * FROM {table}"
         res = self.retrieve(query)
         columns = self.TABLES['annotation']['columns']
-        self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
+        m = f"SQLITE: Found {len(res)} entries in {table}."
+        warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)
 
     def getPartiesMapping(self, surveys, verbose=False):
@@ -192,7 +200,8 @@ class SQLite:
         query = f"SELECT {','.join(columns)} FROM {table}"
         res = self.retrieve(query)
         if verbose:
-            self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
+            m = f"SQLITE: Found {len(res)} entries in {table}."
+            warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)
 
     def getKeywordsLabels(self, limit=-1):
@@ -205,7 +214,8 @@ class SQLite:
         if limit > 0:
             query += f" LIMIT {limit}"
         res = self.retrieve(query)
-        self.logger.info(f"SQLITE: found {len(res)} entries in {table}.")
+        m = f"SQLITE: found {len(res)} entries in {table}."
+        warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)
 
     def getLLMLabels(self, limit=-1):
@@ -215,6 +225,6 @@ class SQLite:
         columns = self.TABLES['llm_labels']['columns']
         query = f"SELECT {','.join(columns)} FROM {table}"
         res = self.retrieve(query)
-        self.logger.info(
-            f"SQLITE: Found {len(res)} descriptions in {table} table.")
+        m = f"SQLITE: Found {len(res)} descriptions in {table} table."
+        warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)

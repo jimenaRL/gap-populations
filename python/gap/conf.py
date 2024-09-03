@@ -132,7 +132,7 @@ ATTDICT = {
     }
 }
 
-LOGISTICREGRESSIONS = [
+VALIDATIONCONFIG = [
     {
         'ches2019': ['lrgen', 'lrecon'],
         'gps2019': ['V4_Scale'],

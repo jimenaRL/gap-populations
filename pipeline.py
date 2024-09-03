@@ -22,10 +22,10 @@ from gap.labels import labels_stats
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
 ap.add_argument('--dbpath', type=str, required=True)
-ap.add_argument('--survey', type=str, required=True, default=None, choices=['ches2023', 'ches2019', 'gps2019'])
+ap.add_argument('--survey', type=str, required=False, default=None, choices=['ches2023', 'ches2019', 'gps2019'])
 ap.add_argument('--ndimsviz', type=int, default=2)
 ap.add_argument('--attdims', type=str, required=False)
-ap.add_argument('--config', type=str, default="configs/embeddings.yaml")
+ap.add_argument('--config', type=str, required=False, default="configs/embeddings.yaml")
 ap.add_argument('--vizconfig', type=str, default="configs/vizconfigs/template.yaml")
 ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
@@ -49,6 +49,12 @@ labels = args.labels
 validation = args.validation
 plot = args.plot
 show = args.show
+
+if not (ideological or attitudinal or validation or labels):
+    m = "Please add at least one of the following actions as argument to run "
+    m += "the script:\n--ideological\n--attitudinal\n--validation\n--labels."
+    print(m)
+    exit()
 
 if not output:
     output = os.getcwd()
@@ -98,11 +104,12 @@ logging.basicConfig(
 )
 
 # Get attitudinal dimension to plot and validate if not specified
-ATTDIMS = params['attitudinal_dimensions'][survey]
-if not attdims:
-    attdims = ATTDIMS
-else:
-    attdims = attdims.split(',')
+if survey:
+    ATTDIMS = params['attitudinal_dimensions'][survey]
+    if not attdims:
+        attdims = ATTDIMS
+    else:
+        attdims = attdims.split(',')
 
 
 # 1. Create and plot ideological embedding
@@ -120,7 +127,6 @@ if ideological:
             SQLITE,
             INOUT,
             country,
-            survey,
             ndimsviz,
             vizparams,
             show,
@@ -187,4 +193,5 @@ if validation:
 # 4. Compute labels statistics
 if labels:
     for attdim in attdims:
-        labels_stats(SQLITE, INOUT, survey, country, attdim, logger, show)
+        labels_stats(
+            SQLITE, INOUT, survey, country, attdim, logger, plot, show)

@@ -21,7 +21,7 @@ from matplotlib.lines import Line2D
 import seaborn as sns
 
 from gap.conf import \
-    LOGISTICREGRESSIONS, \
+    VALIDATIONCONFIG, \
     ATTDICT
 
 # Font & Latex definitions

@@ -26,7 +26,6 @@ def plot_ideological_embedding(
     SQLITE,
     INOUT,
     country,
-    survey,
     n_dims_to_viz,
     vizparams,
     show,
@@ -44,14 +43,15 @@ def plot_ideological_embedding(
     #     show)
 
     idevizparams = vizparams['ideological']
-    mp_parties = SQLITE.getMpParties(['MMS', survey])
+    mp_parties = SQLITE.getMpParties(['MMS'])
     targets_parties = mp_parties[['mp_pseudo_id', 'MMS_party_acronym']] \
         .rename(columns={'MMS_party_acronym': 'party'})
 
     # select parties to show
-    _parties_to_show = mp_parties[
-        ~mp_parties[f'{survey.upper()}_party_acronym'].isna()]
-    parties_to_show = _parties_to_show['MMS_party_acronym'].unique().tolist()
+    # _parties_to_show = mp_parties[
+    #     ~mp_parties[f'{survey.upper()}_party_acronym'].isna()]
+    # parties_to_show = _parties_to_show['MMS_party_acronym'].unique().tolist()
+    parties_to_show = mp_parties['MMS_party_acronym'].unique().tolist()
 
     output_folder = os.path.join(INOUT.emb_folder, 'figures')
     os.makedirs(output_folder, exist_ok=True)

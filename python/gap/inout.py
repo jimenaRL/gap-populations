@@ -81,8 +81,9 @@ class InOut:
         os.makedirs(self.emb_folder, exist_ok=True)
 
     def setAttFolder(self, survey):
-        self.att_folder = os.path.join(self.emb_folder, survey)
-        os.makedirs(self.att_folder, exist_ok=True)
+        if survey is not None:
+            self.att_folder = os.path.join(self.emb_folder, survey)
+            os.makedirs(self.att_folder, exist_ok=True)
 
 
     def load_ide_embeddings(self):

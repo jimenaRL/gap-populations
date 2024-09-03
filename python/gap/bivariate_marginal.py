@@ -207,7 +207,7 @@ def visualize_ide(
     ax.set_xlabel(xl, fontsize=fs)
     ax.set_ylabel(yl, fontsize=fs)
 
-    ax.legend(handles=custom_legend, loc=legend_loc)
+    ax.legend(handles=custom_legend, loc=legend_loc, prop={'size': 14})
     ax.tick_params(axis='x', labelsize=fs)
     ax.tick_params(axis='x', labelsize=fs)
 
