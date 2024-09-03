@@ -184,6 +184,7 @@ if validation:
         os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
         # print(records[cols])
 
+# 4. Compute labels statistics
 if labels:
-
-    labels_stats(SQLITE, INOUT, survey, country, logger, show)
+    for attdim in attdims:
+        labels_stats(SQLITE, INOUT, survey, country, attdim, logger, show)

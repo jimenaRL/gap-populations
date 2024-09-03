@@ -27,7 +27,7 @@ KWARGS = {
 }
 
 
-def labels_stats(SQLITE, INOUT, survey, country, logger, show):
+def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, show):
 
     statsfolder = os.path.join(INOUT.att_folder, 'stats')
     os.makedirs(os.path.join(statsfolder), exist_ok=True)
@@ -70,6 +70,9 @@ def labels_stats(SQLITE, INOUT, survey, country, logger, show):
 
         for lrdata in LOGISTICREGRESSIONS:
 
+            if not attdim in lrdata[survey]:
+                continue
+
             egroups = {
                 1:  f"{lrdata['group1']}",
                 2:  f"{lrdata['group2']}",
@@ -86,78 +89,93 @@ def labels_stats(SQLITE, INOUT, survey, country, logger, show):
                     f"WARNING: {egroups[2]} is missing from {strategy} strategy data.")
                 continue
 
-            for attdim in lrdata[survey]:
+            for egroup in egroups:
 
-                for egroup in egroups:
+                baseline_embeddings = baselineData[attdim]
+                baseline_count, _ = np.histogram(baseline_embeddings, **KWARGS)
 
-                    baseline_embeddings = baselineData[attdim]
-                    baseline_count, _ = np.histogram(baseline_embeddings, **KWARGS)
+                fig = plt.figure(figsize=(18, 9))
+                ax = fig.add_subplot(1, 1, 1)
+                legend_axes =[]
 
-                    fig = plt.figure(figsize=(18, 9))
-                    ax = fig.add_subplot(1, 1, 1)
-                    legend_axes =[]
+                data_ = strategy_data[strategy]
+                label = egroups[egroup]
+                pos_labels = data_[data_[label] == '1']
+                pos_labels_embeddings = pos_labels[attdim]
+                pos_labels_count, bin_edges = np.histogram(
+                    pos_labels_embeddings, **KWARGS)
+                rate = pos_labels_count / baseline_count
 
-                    data_ = strategy_data[strategy]
-                    label = egroups[egroup]
-                    pos_labels = data_[data_[label] == '1']
-                    pos_labels_embeddings = pos_labels[attdim]
-                    pos_labels_count, bin_edges = np.histogram(
-                        pos_labels_embeddings, **KWARGS)
-                    p = pos_labels_count / baseline_count
+                # compute confidence interval for a binomial proportion
+                # Clopper-Pearson
+                cis_low, cis_upp = by_interval_Clopper_Pearson(
+                    pos_labels_embeddings,
+                    baseline_embeddings,
+                    KWARGS['bins'])
 
-                    # compute confidence interval for a binomial proportion
-                    # Clopper-Pearson
-                    cis_low, cis_upp = by_interval_Clopper_Pearson(
-                        pos_labels_embeddings,
-                        baseline_embeddings,
-                        KWARGS['bins'])
+                half_step = np.mean(bin_edges[0:2])
+                plot_x = (bin_edges+half_step)[:-1]
 
-                    half_step = np.mean(bin_edges[0:2])
-                    plot_x = (bin_edges+half_step)[:-1]
+                total_perc = 100 * len(pos_labels) / len(baseline_embeddings)
 
-                    figlabel = f"{label} {strategy} label ({len(pos_labels)}/{len(baseline_embeddings)}), "
-                    figlabel += f"{len(pos_labels)/len(baseline_embeddings):0.2f}\%"
-                    a, = ax.plot(
-                        plot_x,
-                        p,
-                        'o-',
-                        color='k',
-                        label=figlabel
-                    )
-                    plt.errorbar(
-                        plot_x,
-                        p,
-                        yerr=[cis_low, cis_upp],
-                        fmt="o",
-                        color="gray")
+                country_name = country.split('2')[0].capitalize()
+                char_end_country_name = len(country_name)
+                year = country[char_end_country_name:]
+                title = f"{country_name} {year} collection"
 
-                    legend_axes.append(a)
-                    ax.set_xlim([0, 10])
-                    ax.set_ylim((-0.1, 1))
-                    plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-                    title = f"{country}"
-                    ax.set_title(title)
-                    ax.set_xlabel(f"{survey.upper()} {ATTDICT[survey][attdim]}", fontsize=fs)
-                    fmt = '%.02f%%'
-                    pticks = ticker.FormatStrFormatter(fmt)
-                    ax.yaxis.set_major_formatter(pticks)
-                    plt.legend(fontsize=fs)
+                figlabel = f"Labelled {label.capitalize()} {strategy.upper()}, "
+                figlabel += f"({len(pos_labels)}/{len(baseline_embeddings)}) "
+                figlabel += f"{total_perc:0.2f}\%"
 
-                    plt.gca().xaxis.grid(True)
-                    plt.grid(axis='x', color='gray', linestyle='dashed', linewidth=.8)
-                    plt.grid(axis='y', linewidth=0)
-                    plt.tight_layout()
-                    if show:
-                        plt.show()
+                # scaling for plot
+                proportion = 100 * rate
+                cis_low *= 100
+                cis_upp *= 100
 
-                    # saving
 
-                    strategyfolder = os.path.join(statsfolder, strategy)
-                    os.makedirs(os.path.join(strategyfolder), exist_ok=True)
+                a, = ax.plot(
+                    plot_x,
+                    proportion,
+                    color='k',
+                    label=figlabel
+                )
 
-                    figname = f'{strategy}_strategy_{attdim}_'
-                    figname += f'{egroups[egroup]}_'
-                    figname += 'labels_propostions_and_CP_ci.png'
-                    path = os.path.join(strategyfolder, figname)
-                    plt.savefig(path, dpi=dpi)
-                    print(f"Figure saved at {path}.")
+                plt.errorbar(
+                    plot_x,
+                    proportion,
+                    yerr=[cis_low, cis_upp],
+                    linewidth=2,
+                    marker='s',
+                    color="black")
+
+                legend_axes.append(a)
+                ax.set_xlim([0, 10])
+                ax.set_ylim((0, 1.1 * (np.nanmax(proportion) + np.nanmax(cis_upp))))
+                plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                ax.set_title(title)
+                ax.set_xlabel(f"{survey.upper()} {ATTDICT[survey][attdim]}", fontsize=fs)
+                fmt = '%.02f%%'
+                pticks = ticker.FormatStrFormatter(fmt)
+                ax.yaxis.set_major_formatter(pticks)
+                plt.legend(fontsize=fs, loc='upper center')
+
+                plt.gca().xaxis.grid(True)
+                plt.grid(axis='x', color='gray', linestyle='dashed', linewidth=.8)
+                plt.grid(axis='y', linewidth=0)
+                plt.tight_layout()
+                if show:
+                    plt.show()
+
+                # saving
+
+                strategyfolder = os.path.join(statsfolder, strategy)
+                os.makedirs(os.path.join(strategyfolder), exist_ok=True)
+
+                figname = f'{strategy}_strategy_{attdim}_'
+                figname += f'{egroups[egroup]}_'
+                figname += 'labels_propostions_and_CP_ci.png'
+                path = os.path.join(strategyfolder, figname)
+                plt.savefig(path, dpi=dpi)
+                print(f"Figure saved at {path}.")
+
+                plt.close('all')

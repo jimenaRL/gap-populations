@@ -20,7 +20,7 @@ def by_interval_Clopper_Pearson(pos_labels, baseline, bins):
         cis_low.append(ci_low)
         cis_upp.append(ci_upp)
 
-    return cis_low, cis_upp
+    return np.array(cis_low), np.array(cis_upp)
 
 
 def smallSamplesSpearmanr(x, y):
