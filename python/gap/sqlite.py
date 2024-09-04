@@ -218,12 +218,19 @@ class SQLite:
         warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)
 
-    def getLLMLabels(self, limit=-1):
+    def getLLMLabels(self, limit=-1, allow_missing=True):
         table = Template(self.TABLES['llm_labels']['name']).substitute(
             sources_min_followers=self.NB_MIN_FOLLOWERS,
             sources_min_outdegree=self.MIN_OUTDEGREE)
+        # check available llm labels
+        table_info = self.retrieve(f"PRAGMA table_info({table});")
+        available_cols = [i[1] for i in table_info]
         columns = self.TABLES['llm_labels']['columns']
-        query = f"SELECT {','.join(columns)} FROM {table}"
+        if allow_missing:
+            columns = available_cols
+        else:
+            columns = self.TABLES['llm_labels']['columns']
+        query = f"SELECT * FROM {table}"
         res = self.retrieve(query)
         m = f"SQLITE: Found {len(res)} descriptions in {table} table."
         warn_once(self.logger, m)
