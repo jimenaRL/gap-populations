@@ -176,8 +176,9 @@ if validation:
             plot=plot,
             show=show,
             logger=logger)
+
         if record:
-            records.append(record)
+            records.extend(record)
 
     if len(records) > 0:
         records = pd.DataFrame(records).sort_values(by='f1', ascending=False)

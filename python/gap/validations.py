@@ -72,10 +72,12 @@ def make_validation(
         .drop(columns=['pseudo_id'])
 
     strategy_data = {
-        # 'A': keywords_data,
-        'C': llm_data
+        'keywords': keywords_data,
+        'llm': llm_data
     }
 
+
+    records = []
     for strategy, lrdata in tqdm(
         itertools.product(strategy_data.keys(), VALIDATIONCONFIG)):
 
@@ -181,10 +183,12 @@ def make_validation(
             "country": country
             }
 
-        su = strategy.upper()
+        records.append(record)
+
+        su = strategy.capitalize()
         os.makedirs(os.path.join(valfolder, 'json'), exist_ok=True)
         result_path = os.path.join(
-            valfolder, 'json', f"strategy{su}_{attdim}_{label1}_{label2}.json")
+            valfolder, 'json', f"strategy_{su}_{attdim}_{label1}_{label2}.json")
 
         with open(result_path, 'w') as file:
             json.dump(record, file)
@@ -284,8 +288,5 @@ def make_validation(
 
             logger.info(f"Figures saved at {valfolder}")
 
-        if show:
-            plt.show()
 
-
-        return record
+    return records

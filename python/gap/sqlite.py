@@ -95,7 +95,7 @@ class SQLite:
 
         res = self.retrieve(query)
 
-        mssg = f"SQLITE: found {len(res)} links in preprocessed"
+        mssg = f"SQLITE: Found {len(res)} links in preprocessed"
         mssg += f"mp<>follower graph "
         self.logger.info(mssg)
         return res
@@ -214,7 +214,7 @@ class SQLite:
         if limit > 0:
             query += f" LIMIT {limit}"
         res = self.retrieve(query)
-        m = f"SQLITE: found {len(res)} entries in {table}."
+        m = f"SQLITE: Found {len(res)} entries in {table}."
         warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)
 

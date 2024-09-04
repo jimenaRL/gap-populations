@@ -183,9 +183,11 @@ class InOut:
         m = " Attitudinal embeddings have not been computed yet. "
         if not os.path.exists(path_sources):
             m = f"Missing files at {path_sources}." + m
+            m += "Please run the pipeline script again with the --attitudinal flag."
             raise FileNotFoundError(m)
         if not os.path.exists(path_targets):
             m = f"Missing files at {path_targets}." + m
+            m += "Please run the pipeline script again with the --attitudinal flag."
             raise FileNotFoundError(m)
 
         att_source = pd.read_csv(path_sources)

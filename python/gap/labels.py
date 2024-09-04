@@ -56,7 +56,7 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
         .drop(columns=['pseudo_id'])
 
     strategy_data = {
-        # 'keywords': keywords_data,
+        'keywords': keywords_data,
         'llm': llm_data
     }
 
@@ -86,12 +86,12 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
             # for instance there is no 'climate denialist'
             # for the keywords strategy
             if not strategy_groups[1] in strategy_data[strategy]:
-                m += f"WARNING: {strategy_groups[1]} "
+                m = f"WARNING: {strategy_groups[1]} "
                 m += f"is missing from {strategy} strategy data."
                 logger.info(m)
                 continue
             if not strategy_groups[2] in strategy_data[strategy]:
-                m += f"WARNING: {strategy_groups[2]} "
+                m = f"WARNING: {strategy_groups[2]} "
                 m += f"is missing from {strategy} strategy data."
                 logger.info(m)
                 continue
@@ -135,7 +135,7 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
 
                 result_name = f'{strategy}_strategy_{attdim}_'
                 result_name += f'{strategy_groups[strategy_group]}_'
-                result_name += 'labels_propostions_and_CP_ci.png'
+                result_name += 'labels_propostions_and_CP_ci'
 
                 result_path = os.path.join(
                     strategyfolder, f"{result_name}.json")
