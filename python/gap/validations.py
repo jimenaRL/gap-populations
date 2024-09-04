@@ -77,7 +77,7 @@ def make_validation(
     }
 
     for strategy, lrdata in tqdm(
-        itertools.product(strategy_data.keys(), LOGISTICREGRESSIONS)):
+        itertools.product(strategy_data.keys(), VALIDATIONCONFIG)):
 
         if not attdim in lrdata[survey]:
             continue
