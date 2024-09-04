@@ -18,11 +18,13 @@ from gap.visualizations import \
 from gap.validations import make_validation
 from gap.labels import labels_stats
 
+
+SURVEYS = ['ches2023', 'ches2019', 'gps2019']
 # parse arguments and set paths
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
-ap.add_argument('--dbpath', type=str, required=True)
-ap.add_argument('--survey', type=str, required=False, default=None, choices=['ches2023', 'ches2019', 'gps2019'])
+ap.add_argument('--dbpath', type=str, required=True, help="Path to the dataset")
+ap.add_argument('--survey', type=str, required=False, default=None, choices=SURVEYS)
 ap.add_argument('--ndimsviz', type=int, default=2)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, required=False, default="configs/embeddings.yaml")
@@ -50,11 +52,18 @@ validation = args.validation
 plot = args.plot
 show = args.show
 
+
+
 if not (ideological or attitudinal or validation or labels):
-    m = "Please add at least one of the following actions as argument to run "
-    m += "the script:\n--ideological\n--attitudinal\n--validation\n--labels."
-    print(m)
-    exit()
+    e = "Please add at least one of the following actions as argument to run "
+    e += "the script:\n--ideological\n--attitudinal\n--validation\n--labels."
+    ap.error(e)
+
+if attitudinal and not survey:
+    e = f"Please specify one fo the surveys in {SURVEYS} for computing "
+    e += f"attitudinal embeddings."
+    ap.error(e)
+
 
 if not output:
     output = os.getcwd()
