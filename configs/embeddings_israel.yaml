@@ -118,11 +118,24 @@ tables:
     name: 'labels_keywords_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
     columns:
       - pseudo_id
-      - Left
-      - Right
+      - left
+      - right
   llm_labels:
     name: 'labels_llm_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
     columns:
       - pseudo_id
+      - climate_denialist
+      - conservative
+      - cosmopolitan
+      - elite
+      - economic_focus
+      - eurosceptic
       - left
+      - liberal
+      - liberal_immigration
+      - nationalist
+      - populist
+      - pro_environment
+      - pro_european
+      - restrictive_immigration
       - right
