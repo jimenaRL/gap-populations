@@ -59,7 +59,7 @@ if not (ideological or attitudinal or validation or labels):
     e += "the script:\n--ideological\n--attitudinal\n--validation\n--labels."
     ap.error(e)
 
-if attitudinal and not survey:
+if (attitudinal or validation) and not survey:
     e = f"Please specify one fo the surveys in {SURVEYS} for computing "
     e += f"attitudinal embeddings."
     ap.error(e)
