@@ -92,10 +92,10 @@ def make_validation(
         # check that label is present for estrategy
         # for instance there is no 'climate denialist' for the A strategy
         if not egroups[1] in strategy_data[strategy]:
-            logger.info(f"{egroups[1]} is missing from {strategy} strategy data.")
+            logger.info(f"VALIDATION: {egroups[1]} is missing from {strategy} strategy data.")
             continue
         if not egroups[2] in strategy_data[strategy]:
-            logger.info(f"{egroups[2]} is missing from {strategy} strategy data.")
+            logger.info(f"VALIDATION: {egroups[2]} is missing from {strategy} strategy data.")
             continue
 
         data = {
@@ -103,8 +103,10 @@ def make_validation(
             2: strategy_data[strategy].query(f"{egroups[2]}=='1' & {egroups[1]}!='1'")
         }
 
-        logger.info(f"{country}: there are {len(data[1])} users labeled {egroups[1]} in data.")
-        logger.info(f"{country}: there are {len(data[2])} users labeled {egroups[2]} in data.")
+        logger.info(
+            f"VALIDATION: there are {len(data[1])} users labeled {egroups[1]} in data.")
+        logger.info(
+            f"VALIDATION: there are {len(data[2])} users labeled {egroups[2]} in data.")
         if len(data[1]) == 0:
             continue
         if len(data[2]) == 0:
@@ -113,7 +115,7 @@ def make_validation(
         label1 = egroups[1]
         label2 = egroups[2]
 
-        mss = f"Using labels `{label1}` and `{label2}` from strategy "
+        mss = f"VALIDATION: Using labels `{label1}` and `{label2}` from strategy "
         mss += f"`{strategy}` for validating {attdim} {survey} dimension."
         logger.info(mss)
 
@@ -141,7 +143,16 @@ def make_validation(
 
         nb_splits = 10
         if not len(X) > nb_splits:
-            logger.info(f"Too low sample number ({len(X)}), ignoring {lrdata}.")
+            logger.info(
+                f"VALIDATION: Too low sample number ({len(X)}), ignoring {lrdata}.")
+            continue
+
+        unique, counts = np.unique(y, return_counts=True)
+        if not counts.max() > nb_splits:
+            debug = dict(np.array([unique, counts], dtype=int).T)
+            m = f"VALIDATION: Too number of members if one ot the clasees "
+            m += f"{debug} for {nb_splits} splits, ignoring {lrdata}."
+            logger.info(m)
             continue
 
         cv_results = cross_validate(
@@ -193,7 +204,8 @@ def make_validation(
         with open(result_path, 'w') as file:
             json.dump(record, file)
 
-        logger.info(f"Logistic regression results saved at {result_path}.")
+        logger.info(
+            f"VALIDATION: Logistic regression results saved at {result_path}.")
 
         # plot
         if plot:
@@ -279,14 +291,14 @@ def make_validation(
             plt.savefig(path_pdf, dpi=300)
 
             logger.info(
-                f"Logistic regression plot saved at {path_png}.")
+                f"VALIDATION: Logistic regression plot saved at {path_png}.")
 
             if show:
                 plt.show()
 
             plt.close()
 
-            logger.info(f"Figures saved at {valfolder}")
+            logger.info(f"VALIDATION: Figures saved at {valfolder}")
 
 
     return records
