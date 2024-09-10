@@ -143,17 +143,27 @@ def make_validation(
 
         nb_splits = 10
         if not len(X) > nb_splits:
-            logger.info(
-                f"VALIDATION: Too low sample number ({len(X)}), ignoring {lrdata}.")
+            m = f"VALIDATION: Too low sample number of attitudinal "
+            m += f"embeddings({len(X)}), ignoring {lrdata}."
+            logger.info(m)
             continue
 
         unique, counts = np.unique(y, return_counts=True)
-        if not counts.max() > nb_splits:
-            debug = dict(np.array([unique, counts], dtype=int).T)
-            m = f"VALIDATION: Too number of members if one ot the clasees "
-            m += f"{debug} for {nb_splits} splits, ignoring {lrdata}."
+
+        if counts.min() == 1:
+            m = f"VALIDATION: Ignoring {lrdata} because "
+            m += "of one ot the classes has only one member "
+            m += f"{dict(np.array([unique, counts], dtype=int).T)}."
             logger.info(m)
             continue
+
+        if counts.min() < nb_splits:
+            m = f"VALIDATION: Number of splits for {lrdata} in cross validate "
+            m += f"was decreased from {nb_splits} to { counts.min()} because "
+            m += "of too low number of members if one ot the classes "
+            m += f"{dict(np.array([unique, counts], dtype=int).T)}."
+            logger.info(m)
+            nb_splits = counts.min()
 
         cv_results = cross_validate(
             model, X, y, cv=nb_splits, scoring=('precision', 'recall', 'f1'),
@@ -191,7 +201,8 @@ def make_validation(
             "test_precision_std": cv_results['test_precision'].std(),
             "test_recall_std": cv_results['test_recall'].std(),
             "test_f1_std":  cv_results['test_f1'].std(),
-            "country": country
+            "country": country,
+            "nb_splits": str(nb_splits)
             }
 
         records.append(record)
