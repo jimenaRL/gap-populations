@@ -3,6 +3,7 @@ import json
 
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -11,8 +12,6 @@ import matplotlib.ticker as ticker
 from gap.conf import \
     VALIDATIONCONFIG, \
     ATTDICT
-from gap.correlation_coefficient import \
-    by_interval_Clopper_Pearson
 
 # Font & Latex definitions
 mpl.rcParams['mathtext.fontset'] = 'cm'
@@ -21,6 +20,7 @@ fs = 32
 dpi = 150
 plt.rc('text', usetex=True)
 plt.rc('font', family='sans-serif', size=fs)
+BINS_REPRESENTATION_PERC_TH = 0.1
 KWARGS = {
     'bins':  np.linspace(0, 10, 11).astype(int),
     'range': [0, 10],
@@ -32,6 +32,10 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
 
     statsfolder = os.path.join(INOUT.att_folder, 'stats')
     os.makedirs(os.path.join(statsfolder), exist_ok=True)
+
+    bin_edges = KWARGS['bins']
+    half_step = np.mean(bin_edges[0:2])
+    xaxis = (bin_edges+half_step)[:-1]
 
     att_sources, att_targets = INOUT.load_att_embeddings()
 
@@ -60,13 +64,29 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
         'llm': llm_data
     }
 
-    # set baseline
+    # set baseline for attitudinal dim
     baselineData = att.merge(
         keywords_labels[['pseudo_id']],
         right_on='pseudo_id',
         left_on='entity')
+    baseline_embeddings = baselineData[attdim]
+    baseline_count, _ = np.histogram(baseline_embeddings, **KWARGS)
 
-    COLOR = ['red', 'green']
+    # remove non representative bins with less than a given % of total embeddings
+    bins_th = BINS_REPRESENTATION_PERC_TH
+    total_proportion = 100 * baseline_count / len(baseline_embeddings)
+    representative_bins = total_proportion > bins_th
+    dropped_bins = KWARGS['bins'][1:][~representative_bins].tolist()
+    if len(dropped_bins) > 0:
+        m = f"WARNING: data from the "
+        m += f"{'th, '.join(map(str, dropped_bins[:-1]))}th "
+        m += f"and {dropped_bins[-1]}th bins was dropped due to"
+        m += f" low total representative (less than {bins_th}%)."
+        logger.info(m)
+
+    repr_xaxis = xaxis[representative_bins]
+    baseline_count = baseline_count[representative_bins]
+
     for strategy in strategy_data.keys():
 
         strategyfolder = os.path.join(statsfolder, strategy)
@@ -98,52 +118,36 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
 
             for strategy_group in strategy_groups:
 
-                baseline_embeddings = baselineData[attdim]
-                baseline_count, _ = np.histogram(baseline_embeddings, **KWARGS)
+                result_name = f'{strategy}_strategy_{attdim}_'
+                result_name += f'{strategy_groups[strategy_group]}_'
+                result_name += 'labels_propostions_and_CP_ci'
 
                 data_ = strategy_data[strategy]
                 label = strategy_groups[strategy_group]
                 pos_labels = data_[data_[label] == '1']
                 pos_labels_embeddings = pos_labels[attdim]
-                pos_labels_count, bin_edges = np.histogram(
+                pos_labels_count, _ = np.histogram(
                     pos_labels_embeddings, **KWARGS)
+
+                # remove non representative bins with less than a given % of total embeddings
+                pos_labels_count = pos_labels_count[representative_bins]
                 rate = pos_labels_count / baseline_count
 
                 # compute confidence interval for a binomial proportion
                 # Clopper-Pearson
-                cis_low, cis_upp = by_interval_Clopper_Pearson(
-                    pos_labels_embeddings,
-                    baseline_embeddings,
-                    KWARGS['bins'])
+                cis_low, cis_upp = sm.stats.proportion_confint(
+                    pos_labels_count,
+                    baseline_count,
+                    method='beta',
+                    alpha=0.01)
 
                 # scaling
                 proportions = 100 * rate
                 cis_low *= 100
                 cis_upp *= 100
 
-                half_step = np.mean(bin_edges[0:2])
-                xaxis = (bin_edges+half_step)[:-1]
-
+                # plot data
                 total_perc = 100 * len(pos_labels) / len(baseline_embeddings)
-
-                result = {
-                    "xaxis": xaxis.tolist(),
-                    "proportions": proportions.tolist(),
-                    "cis_low": cis_low.tolist(),
-                    "cis_upp": cis_upp.tolist()
-                }
-
-                result_name = f'{strategy}_strategy_{attdim}_'
-                result_name += f'{strategy_groups[strategy_group]}_'
-                result_name += 'labels_propostions_and_CP_ci'
-
-                result_path = os.path.join(
-                    strategyfolder, f"{result_name}.json")
-
-                with open(result_path, 'w') as file:
-                    json.dump(result, file)
-
-                logger.info(f"Label statistics saved at {result_path}.")
 
                 if plot:
                     country_name = country.split('2')[0].capitalize()
@@ -161,14 +165,14 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
                     legend_axes =[]
 
                     a, = ax.plot(
-                        xaxis,
+                        repr_xaxis,
                         proportions,
                         color='k',
                         label=figlabel
                     )
 
                     plt.errorbar(
-                        xaxis,
+                        repr_xaxis,
                         proportions,
                         yerr=[cis_low, cis_upp],
                         linewidth=2,
@@ -209,3 +213,19 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
                     plt.show()
 
                 plt.close('all')
+
+                result = {
+                    "xaxis": xaxis.tolist(),
+                    "proportions": proportions.tolist(),
+                    "cis_low": cis_low.tolist(),
+                    "cis_upp": cis_upp.tolist()
+                }
+
+                result_path = os.path.join(
+                    strategyfolder, f"{result_name}.json")
+
+                with open(result_path, 'w') as file:
+                    json.dump(result, file)
+
+                logger.info(f"Label statistics saved at {result_path}.")
+
