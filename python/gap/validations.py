@@ -159,7 +159,7 @@ def make_validation(
 
         if counts.min() < nb_splits:
             m = f"VALIDATION: Number of splits for {lrdata} in cross validate "
-            m += f"was decreased from {nb_splits} to { counts.min()} because "
+            m += f"was decreased from {nb_splits} to {counts.min()} because "
             m += "of too low number of members if one ot the classes "
             m += f"{dict(np.array([unique, counts], dtype=int).T)}."
             logger.info(m)
@@ -202,7 +202,13 @@ def make_validation(
             "test_recall_std": cv_results['test_recall'].std(),
             "test_f1_std":  cv_results['test_f1'].std(),
             "country": country,
-            "nb_splits": str(nb_splits)
+            "nb_splits": str(nb_splits),
+            "train_precision_by_folds":  ' | '.join([f"{i:.3f}" for i in cv_results['train_precision'].tolist()]),
+            "train_recall_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['train_recall'].tolist()]),
+            "train_f1_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['train_f1'].tolist()]),
+            "test_precision_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['test_precision'].tolist()]),
+            "test_recall_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['test_recall'].tolist()]),
+            "test_f1_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['test_f1'].tolist()]),
             }
 
         records.append(record)
