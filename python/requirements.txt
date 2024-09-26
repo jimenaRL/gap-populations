@@ -7,6 +7,6 @@ prince==0.7.1
 linate==0.4
 openpyxl
 tqdm
-linguars==0.3.2
+linguars==0.4.0
 imblearn
 statsmodels

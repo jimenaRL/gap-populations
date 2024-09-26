@@ -1,6 +1,7 @@
 import os
 import sys
 import yaml
+import pathlib
 import logging
 from itertools import combinations
 from argparse import ArgumentParser
@@ -20,6 +21,9 @@ from gap.labels import labels_stats
 
 
 SURVEYS = ['ches2023', 'ches2019', 'gps2019']
+PARENTFOLDER = pathlib.Path(__file__).parent.resolve()
+CONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/embeddings.yaml")
+VIZCONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/vizconfigs/template.yaml")
 # parse arguments and set paths
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
@@ -27,8 +31,8 @@ ap.add_argument('--dbpath', type=str, required=True, help="Path to the dataset")
 ap.add_argument('--survey', type=str, required=False, default=None, choices=SURVEYS)
 ap.add_argument('--ndimsviz', type=int, default=2)
 ap.add_argument('--attdims', type=str, required=False)
-ap.add_argument('--config', type=str, required=False, default="configs/embeddings.yaml")
-ap.add_argument('--vizconfig', type=str, default="configs/vizconfigs/template.yaml")
+ap.add_argument('--config', type=str, required=False, default=CONFIGDEFAULTPATH)
+ap.add_argument('--vizconfig', type=str, default=VIZCONFIGDEFAULTPATH)
 ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
 ap.add_argument('--attitudinal', action='store_true')
@@ -64,9 +68,8 @@ if (attitudinal or validation) and not survey:
     e += f"attitudinal embeddings."
     ap.error(e)
 
-
 if not output:
-    output = os.getcwd()
+    output = PARENTFOLDER
 
 # 0. Get things setted
 logger = logging.getLogger(__name__)
