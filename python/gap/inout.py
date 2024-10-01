@@ -64,7 +64,7 @@ class InOut:
         emb_folder = f"min_followers_{self.params['sources_min_followers']}"
         emb_folder += f"_min_outdegree_{self.params['sources_min_outdegree']}"
 
-        self.basepath = os.path.join(output, self.country, emb_folder)
+        self.basepath = os.path.join(output, emb_folder)
 
         os.makedirs(self.basepath, exist_ok=True)
 
@@ -175,6 +175,41 @@ class InOut:
         mssg = f"Attitudinal embeddings ({len(att_targets)} targets and "
         mssg += f"{len(att_source)} sources) saved at folder {self.att_folder}."
         self.logger.info(mssg)
+
+    def save_affine_map(self, coefficients, intercept, dims_names):
+
+        assert len(dims_names) == coefficients.shape[0] == len(intercept)
+        np.save(
+            os.path.join(self.att_folder, "affine_map_coefficients.npy"),
+            coefficients,
+            allow_pickle=True)
+
+        np.save(
+            os.path.join(self.att_folder, "affine_map_intercept.npy"),
+            intercept,
+            allow_pickle=True)
+
+        data = np.vstack([coefficients.T, intercept]).astype(str)
+        index = [f"{i}" for i in range(coefficients.shape[1])]+['intercept']
+        data =  np.hstack([np.array(index).reshape(-1, 1), data])
+        columns = ['dimension'] + dims_names.tolist()
+
+        df = pd.DataFrame(data=data, columns=columns)
+
+        df.to_csv(
+            os.path.join(self.att_folder, "affine_map.csv"),
+            index=False,
+            sep=',',
+            encoding='utf-8',
+            lineterminator='\n')
+
+        M = coefficients.shape[0]
+        N = coefficients.shape[1]
+        mssg = f"Affine map saved at folder {self.att_folder}. "
+        mssg += f"Affine map coefficients is a matrix with {N} columns "
+        mssg += f"and {M} rows. The intercept is a vector of size {M}."
+        self.logger.info(mssg)
+
 
     def load_att_embeddings(self):
 

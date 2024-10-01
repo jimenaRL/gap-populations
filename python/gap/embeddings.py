@@ -186,6 +186,9 @@ def create_attitudinal_embedding(
     clf = Ridge(alpha=1.0)
     clf.fit(X, Y)
 
+    intercept = clf.intercept_
+    coefficients = clf.coef_
+
     follower_coord_att_values = clf.predict(ide_followers_cp.drop(columns=['entity']).values)
     mps_coord_att_values = clf.predict(ide_mps.drop(columns=['entity']).values)
 
@@ -201,4 +204,5 @@ def create_attitudinal_embedding(
         .assign(entity=ide_mps.entity)
 
     # save results
-    INOUT.save_att_embeddings(follower_coord_att,mps_coord_att)
+    INOUT.save_att_embeddings(follower_coord_att, mps_coord_att)
+    INOUT.save_affine_map(coefficients, intercept, columns)
