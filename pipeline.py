@@ -27,6 +27,7 @@ VIZCONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/vizconfigs/template.y
 # parse arguments and set paths
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
+ap.add_argument('--year', type=str, required=True)
 ap.add_argument('--dbpath', type=str, required=True, help="Path to the dataset")
 ap.add_argument('--survey', type=str, required=False, default=None, choices=SURVEYS)
 ap.add_argument('--ndimsviz', type=int, default=2)
@@ -42,6 +43,7 @@ ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
 country = args.country
+year = args.year
 dbpath = args.dbpath
 output = args.output
 config = args.config
@@ -69,7 +71,7 @@ if (attitudinal or validation) and not survey:
     ap.error(e)
 
 if not output:
-    output = PARENTFOLDER
+    output = os.path.join(PARENTFOLDER, f"{country}_{year}")
 
 # 0. Get things setted
 logger = logging.getLogger(__name__)
