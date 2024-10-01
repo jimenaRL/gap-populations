@@ -160,20 +160,42 @@ class SQLite:
             'MMS_party_acronym': str,
             survey_col: str
         }
-        dtypes.update({d: np.float32 for d in dims_names})
 
         df = pd.DataFrame(res, columns=columns)
 
         # HOT FIX : drop rows with blanck spaces values.
         # This happens for some dimensions in GPS2019
-        l0 = len(df)
-        df = df[(df[dims_names] == ' ').sum(axis=1) == 0]
-        l1 = len(df)
-        if l1 < l0:
-            self.logger.info("""
-                SQLITE: HOT FIX drop rows with blanck spaces values.
-                This happens for some dimensions in GPS2019
-                """)
+        attitudes_with_empty_entries = df.columns[((df == ' ').sum(axis=0) > 0)]
+        temp = df[['MMS_party_acronym'] + attitudes_with_empty_entries.tolist()]
+        if len(attitudes_with_empty_entries) > 0:
+            bad_rows = [a[0] for a in np.where(df == ' ')]
+            dropped_parties = set(df.iloc[bad_rows][survey_col].tolist())
+            df = df[(df[dims_names] == ' ').sum(axis=1) == 0]
+            info =f"""
+                SQLITE: drop parties {dropped_parties} beacause
+                corresponding rows in survey have blanck spaces for values.
+                Left {df.shape[0]} parties.
+                This happens for some dimensions in GPS2019.
+                {temp}
+                """
+            self.logger.info(info)
+
+        # HOT FIX : drop columns with NAN values.
+        # This happens for some dimensions in GPS2019
+        attitudes_with_nan_values = df.columns[(df.isna().sum(axis=0) > 0)].tolist()
+        if len(attitudes_with_nan_values) > 0:
+            temp2 = df[['MMS_party_acronym'] + attitudes_with_nan_values]
+            df = df.drop(columns=attitudes_with_nan_values)
+            dims_names = set(dims_names) - set(attitudes_with_nan_values)
+            dtypes.update({d: np.float32 for d in dims_names})
+            info =f"""
+                SQLITE: drop attitudes {attitudes_with_nan_values} because
+                some rows in survey have NAN values.
+                Left {df.shape[1] - 2} attitudes.
+                This happens for some dimensions in CHES2019.
+                {temp2}
+                """
+            self.logger.info(info)
 
         return df \
             .astype(dtypes) \
