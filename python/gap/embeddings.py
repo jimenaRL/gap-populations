@@ -80,6 +80,9 @@ def create_ideological_embedding(
 
     assert sources_embeddings.duplicated().sum() == 0
 
+    # homogenize columns order
+    sources_embeddings = sources_embeddings[targets_embeddings.columns.tolist()]
+
     # Save sources/targets coordinates in ideological space and add pseudo ids
     INOUT.save_ide_embeddings(sources_embeddings, targets_embeddings)
 
