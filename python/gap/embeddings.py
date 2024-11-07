@@ -162,9 +162,9 @@ def create_attitudinal_embedding(
         mssg += f"doesn't match parties with attitudinal annotations.\n"
         mssg += f"IDE COORDINATES: {joinParties(partiesIde)}"
         mssg += f"ATT COORDINATES: {joinParties(partiesAtt)}"
-        if partiesIde.issubset(partiesAtt):
+        if partiesAtt.issubset(partiesIde):
             mssg += f"These parties will be ignored:"
-            mssg = mssg + f"{joinParties(partiesAtt - partiesIde)}"
+            mssg = mssg + f"{joinParties(partiesIde - partiesAtt)}"
             # prompt = mssg + f"Do you want to continuate (yes/no): "
             # user_input = input(prompt)
 
@@ -173,10 +173,10 @@ def create_attitudinal_embedding(
             #         exit()
             #     else:
             #         user_input = input('Please type yes or no:')
-            print(mssg)
+            logger.info(mssg)
         else:
             mssg += f"These parties are excedding:"
-            mssg += f"{joinParties(partiesIde - partiesAtt)}"
+            mssg += f"{joinParties(partiesAtt - partiesIde)}"
             print(mssg)
             raise ValueError(mssg)
 
