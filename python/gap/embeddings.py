@@ -106,7 +106,7 @@ def create_attitudinal_embedding(
     ide_followers, ide_mps =  INOUT.load_ide_embeddings()
     ide_followers_cp = ide_followers.copy()
     ide_mps_cp = ide_mps.copy()
-    mps_parties = SQLITE.getMpParties(['MMS', survey], dropna=False)
+    mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=False)
 
     # drop mps with parties withou mapping and add parties to ideological positions
     mps_with_mapping = mps_parties[~mps_parties[SURVEYCOL].isna()]
@@ -144,7 +144,7 @@ def create_attitudinal_embedding(
 
     # Fit ridge regression
     estimated_parties_coord_ide = ide_mps_in_parties_with_valid_mapping \
-        .drop(columns=['entity', 'MMS_party_acronym']) \
+        .drop(columns=['entity', 'EPO_party_acronym']) \
         .groupby(SURVEYCOL) \
         .mean() \
         .reset_index()
@@ -182,7 +182,7 @@ def create_attitudinal_embedding(
     assert (v1 != v2).sum() == 0
 
     X = estimated_parties_coord_ide.drop(columns=[SURVEYCOL]).values
-    Y = parties_coord_att.drop(columns=[SURVEYCOL, 'MMS_party_acronym']).values
+    Y = parties_coord_att.drop(columns=[SURVEYCOL, 'EPO_party_acronym']).values
 
     assert (len(X) == len(Y))
 
@@ -196,7 +196,7 @@ def create_attitudinal_embedding(
     mps_coord_att_values = clf.predict(ide_mps.drop(columns=['entity']).values)
 
     columns = parties_coord_att.drop(
-        columns=["MMS_party_acronym", SURVEYCOL]).columns
+        columns=["EPO_party_acronym", SURVEYCOL]).columns
     follower_coord_att = pd.DataFrame(
         data=follower_coord_att_values,
         columns=columns) \

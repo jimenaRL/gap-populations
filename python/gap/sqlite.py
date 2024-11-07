@@ -106,7 +106,7 @@ class SQLite:
             raise ValueError(f"Table {name} doesn't exist at {self.DB}")
         res = self.retrieve(f"PRAGMA table_info({name});")
         surveys = [r[1].split('_party_acronym')[0].lower() for r in res]
-        surveys.remove('mms')
+        surveys.remove('epo')
         return surveys
 
     def getNParties(self, survey):
@@ -150,14 +150,14 @@ class SQLite:
     def getPartiesAttitudes(self, survey, dims_names):
 
         survey_col = f'{survey.upper()}_party_acronym'
-        columns = ['MMS_party_acronym', survey_col]+list(dims_names)
+        columns = ['EPO_party_acronym', survey_col]+list(dims_names)
         table = Template(self.TABLES['attitude']['name']) \
             .substitute(attitude=survey)
         query = f"SELECT {','.join(columns)} FROM {table}"
 
         res = self.retrieve(query)
         dtypes = {
-            'MMS_party_acronym': str,
+            'EPO_party_acronym': str,
             survey_col: str
         }
 
@@ -166,7 +166,7 @@ class SQLite:
         # HOT FIX : drop rows with blanck spaces values.
         # This happens for some dimensions in GPS2019
         attitudes_with_empty_entries = df.columns[((df == ' ').sum(axis=0) > 0)]
-        temp = df[['MMS_party_acronym'] + attitudes_with_empty_entries.tolist()]
+        temp = df[['EPO_party_acronym'] + attitudes_with_empty_entries.tolist()]
         if len(attitudes_with_empty_entries) > 0:
             bad_rows = [a[0] for a in np.where(df == ' ')]
             dropped_parties = set(df.iloc[bad_rows][survey_col].tolist())
@@ -214,8 +214,8 @@ class SQLite:
 
         table = self.TABLES['mapping']['name']
         precolumns = deepcopy(self.TABLES['mapping']['columns'])
-        precolumns.remove('MMS_party_acronym')
-        columns = ['MMS_party_acronym']
+        precolumns.remove('EPO_party_acronym')
+        columns = ['EPO_party_acronym']
         for cc in precolumns:
             if any([cc.startswith(ss.upper()) for ss in surveys]):
                 columns.append(cc)
