@@ -160,15 +160,15 @@ def create_attitudinal_embedding(
             mssg += f"ideological coordinates ({','.join(p1)}) "
             mssg += f"doesn't match parties with attitudinal annotations "
             mssg += f"({','.join(p2)}) for survey {survey}. "
-            prompt = mssg + f"Parties: {','.join(p2 - p1)} will be "
-            prompt += f"ignored. Do you want to continuate (yes/no): "
-            user_input = input(prompt)
+            prompt = mssg + f"Parties: {','.join(p2 - p1)} will be ignored."
+            # prompt += f"ignored. Do you want to continuate (yes/no): "
+            # user_input = input(prompt)
 
-            while user_input.lower() != 'yes':
-                if user_input.lower() == 'no':
-                    exit()
-                else:
-                    user_input = input('Please type yes or no:')
+            # while user_input.lower() != 'yes':
+                # if user_input.lower() == 'no':
+                    # exit()
+                # else:
+                    # user_input = input('Please type yes or no:')
         else:
             raise ValueError(mssg)
 
