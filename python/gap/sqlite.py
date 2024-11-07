@@ -184,7 +184,7 @@ class SQLite:
         # This happens for some dimensions in GPS2019
         attitudes_with_nan_values = df.columns[(df.isna().sum(axis=0) > 0)].tolist()
         if len(attitudes_with_nan_values) > 0:
-            temp2 = df[['MMS_party_acronym'] + attitudes_with_nan_values]
+            temp2 = df[['EPO_party_acronym'] + attitudes_with_nan_values]
             df = df.drop(columns=attitudes_with_nan_values)
             dims_names = set(dims_names) - set(attitudes_with_nan_values)
             dtypes.update({d: np.float32 for d in dims_names})
