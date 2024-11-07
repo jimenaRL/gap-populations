@@ -152,30 +152,38 @@ def create_attitudinal_embedding(
     estimated_parties_coord_ide = estimated_parties_coord_ide.sort_values(by=SURVEYCOL)
     parties_coord_att = parties_coord_att.sort_values(by=SURVEYCOL)
 
-    p1 = set(estimated_parties_coord_ide[SURVEYCOL].values.tolist())
-    p2 = set(parties_coord_att[SURVEYCOL].values.tolist())
-    if not p1 == p2:
-        if p1.issubset(p2):
-            mssg = f"ATTITUDINAL EMBEDDINGS: parties with estimated "
-            mssg += f"ideological coordinates ({','.join(p1)}) "
-            mssg += f"doesn't match parties with attitudinal annotations "
-            mssg += f"({','.join(p2)}) for survey {survey}. "
-            prompt = mssg + f"Parties: {','.join(p2 - p1)} will be ignored."
-            # prompt += f"ignored. Do you want to continuate (yes/no): "
+    def joinParties(parties, joinseq='\n\t'):
+        return '\n\t'+joinseq.join(parties)+'\n'
+
+    partiesIde = set(estimated_parties_coord_ide[SURVEYCOL].values.tolist())
+    partiesAtt = set(parties_coord_att[SURVEYCOL].values.tolist())
+    if not partiesIde == partiesAtt:
+        mssg = f"ATTITUDINAL EMBEDDINGS: parties with ideological coordinates "
+        mssg += f"doesn't match parties with attitudinal annotations.\n"
+        mssg += f"IDE COORDINATES: {joinParties(partiesIde)}"
+        mssg += f"ATT COORDINATES: {joinParties(partiesAtt)}"
+        if partiesIde.issubset(partiesAtt):
+            mssg += f"These parties will be ignored:"
+            mssg = mssg + f"{joinParties(partiesAtt - partiesIde)}"
+            # prompt = mssg + f"Do you want to continuate (yes/no): "
             # user_input = input(prompt)
 
             # while user_input.lower() != 'yes':
-                # if user_input.lower() == 'no':
-                    # exit()
-                # else:
-                    # user_input = input('Please type yes or no:')
+            #     if user_input.lower() == 'no':
+            #         exit()
+            #     else:
+            #         user_input = input('Please type yes or no:')
+            print(mssg)
         else:
+            mssg += f"These parties are excedding:"
+            mssg += f"{joinParties(partiesIde - partiesAtt)}"
+            print(mssg)
             raise ValueError(mssg)
 
-    parties_coord_att = parties_coord_att[parties_coord_att[SURVEYCOL].isin(p1)]
+    parties_coord_att = parties_coord_att[parties_coord_att[SURVEYCOL].isin(partiesIde)]
 
-    if not p1 == p2:
-        logger.info(mssg + f"Parties: {','.join(p2 - p1)} where ignored.")
+    if not partiesIde == partiesAtt:
+        logger.info(mssg + f"Parties: {','.join(partiesAtt - partiesIde)} where ignored.")
 
     v1 = estimated_parties_coord_ide[SURVEYCOL].values
     v2 = parties_coord_att[SURVEYCOL].values
