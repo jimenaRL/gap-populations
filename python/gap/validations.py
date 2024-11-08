@@ -202,6 +202,7 @@ def make_validation(
             "test_recall_std": cv_results['test_recall'].std(),
             "test_f1_std":  cv_results['test_f1'].std(),
             "country": country,
+            "path": SQLITE.DB,
             "nb_splits": str(nb_splits),
             "train_precision_by_folds":  ' | '.join([f"{i:.3f}" for i in cv_results['train_precision'].tolist()]),
             "train_recall_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['train_recall'].tolist()]),
