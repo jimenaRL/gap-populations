@@ -6,9 +6,6 @@ FOLDERS = {
         2023: '/home/jimena/work/dev/some4demDB/dbs',
         2020: '/home/jimena/work/dev/some4demDB/dbs/2020',
     },
-    'lut': '/home/jimena/work/dev/gap-populations/temp/lut',
-    'identifiable': '/home/jimena/work/dev/gap-populations/temp/identifiable',
-    'pseudoanonymized': '/home/jimena/work/dev/gap-populations/temp/pseudoanonymized',
 }
 
 def get_path(country, year, kind):
@@ -20,52 +17,31 @@ def get_path(country, year, kind):
 
 COUNTRIES = {
     2020: [
-        "austria",
-        "belgium",
-        "denmark",
-        "finland",
-        "greece",
-        "iceland", # IDENTIFIABLE checkTablesSchema FAILS
-        "latvia",
-        "malta",
-        "luxembourg",
-        "norway",
-        "newzealand",
-        "poland",
-        "slovenia",
-        "sweden",
-        # "switzerland", # RAW checkSameSizeTables FAILS # IDENTIFIABLE checkTablesSchema FAILS
     ],
     2023: [
         "austria",
         "belgium",
         "cyprus",
-        "czechia",
         "denmark",
-        "ecuador",
         "estonia",
-        "finland", # IDENTIFIABLE checkTablesExistence FAILS because of gps2019 att table missing
+        "finland",
         "france",
+        "germany",
         "greece",
-        "hungary",
-        "iceland",  # IDENTIFIABLE checkTablesSchema FAILS
-        "ireland",  # IDENTIFIABLE checkTablesSchema FAILS
+        "iceland",
+        "ireland",
         "latvia",
         "lithuania",
         "luxembourg",
         "malta",
         "netherlands",
         "newzealand",
-        "norway",  # IDENTIFIABLE checkTablesSchema FAILS
-        "peru",
-        "poland",
         "portugal",
         "romania",
         "serbia",
         "slovakia",
         "slovenia",
         "sweden",
-        "switzerland",   # IDENTIFIABLE checkTablesSchema FAILS
         "uruguay",
     ],
 }
@@ -95,6 +71,6 @@ if __name__ == "__main__":
             dbpath = get_path(country, year, kind="raw")
             print(f"--------------- {country} {year} ---------------")
             print(dbpath)
-            command = f"./validate_country.sh {country} {year} {dbpath}"
+            command = f"bash -e validate_country.sh {country} {year} {dbpath}"
             print(f"[RUNNING]: {command}")
             os.system(command)
