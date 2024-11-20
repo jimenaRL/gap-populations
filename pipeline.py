@@ -95,8 +95,23 @@ SQLITE = SQLite(
     country=country)
 
 # Set the number of dimension for the ideological embedding
+# 1. Get the avaibale surveys
 availableSurveys = SQLITE.getAvailableSurveys()
-nPartiesPerSurvey = [SQLITE.getNParties(s) for s in availableSurveys]
+# 2. Get the number of unique survey parties corresponding with an available
+# EPO party after follower>Mps graph preprocessing
+nPartiesPerSurvey = []
+for survey in availableSurveys:
+    survey_party_acronym = {survey.upper()}_party_acronym
+    query = """
+        SELECT COUNT(DISTINCT(p.{survey_party_acronym}))
+        FROM mp_follower_graph_minin_25_minout_3 g
+        LEFT JOIN mp_annotation USING(mp_pseudo_id)
+        LEFT JOIN party_mapping p USING(EPO_party_acronym)
+        WHERE p.{survey_party_acronym} is NOT NULL"""
+    res = SQLITE.retrieve(query)
+    numberEPOPartiesWithMPsinPPGraph = res[0][0]
+    nPartiesPerSurvey.append(numberEPOPartiesWithMPsinPPGraph)
+# 3. Compute ideN
 ideN = max(nPartiesPerSurvey) - 1
 
 INOUT = InOut(
