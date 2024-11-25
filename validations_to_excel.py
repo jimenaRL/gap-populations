@@ -8,13 +8,19 @@ import pandas as pd
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=False, default="")
 ap.add_argument('--year', type=str, required=False, default="")
+ap.add_argument('--outputfolder', type=str, required=False)
 args = ap.parse_args()
 country = args.country
 year = args.year
+outputfolder = args.outputfolder
 
 if country and year:
     base = f"{country}_{year}"
-    ouputpath = f'validations_{base}.xlsx'
+    ouputpath = os.path.join(
+        base,
+        'min_followers_25_min_outdegree_3',
+        f'validations_{base}.xlsx'
+    )
 else:
     base = "*"
     ouputpath = 'validations.xlsx'
@@ -55,3 +61,5 @@ del df["path"]
 with pd.ExcelWriter(ouputpath) as writer:
     for c in sorted(set(df.country.tolist())):
         df[df.country == c].to_excel(writer, sheet_name=c, index=False)
+
+print(f"Validations score in excel format saved at {ouputpath}.")
