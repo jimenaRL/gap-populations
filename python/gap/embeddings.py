@@ -91,6 +91,7 @@ def create_attitudinal_embedding(
     INOUT,
     ATTDIMS,
     survey,
+    N_survey,
     logger):
 
 
@@ -157,6 +158,7 @@ def create_attitudinal_embedding(
 
     partiesIde = set(estimated_parties_coord_ide[SURVEYCOL].values.tolist())
     partiesAtt = set(parties_coord_att[SURVEYCOL].values.tolist())
+
     if not partiesIde == partiesAtt:
         mssg = f"ATTITUDINAL EMBEDDINGS: parties with ideological coordinates "
         mssg += f"doesn't match parties with attitudinal annotations.\n"
@@ -191,8 +193,16 @@ def create_attitudinal_embedding(
 
     X = estimated_parties_coord_ide.drop(columns=[SURVEYCOL]).values
     Y = parties_coord_att.drop(columns=[SURVEYCOL, 'EPO_party_acronym']).values
-
     assert (len(X) == len(Y))
+
+    # make the projection of the ideological embedding onto the first N_survey
+    # dimensions
+    X = X[:, :N_survey]
+
+    # the following check should be redundant, just to check that the correct
+    # value was computed in the pipeline for N_survey
+    assert N_survey == len(X) - 1
+
 
     clf = Ridge(alpha=1.0)
     clf.fit(X, Y)
@@ -200,8 +210,13 @@ def create_attitudinal_embedding(
     intercept = clf.intercept_
     coefficients = clf.coef_
 
-    follower_coord_att_values = clf.predict(ide_followers_cp.drop(columns=['entity']).values)
-    mps_coord_att_values = clf.predict(ide_mps.drop(columns=['entity']).values)
+    # make the projection of the ideological embedding onto the first N_survey
+    # dimensions and perfoem map
+    ide_values_followers = ide_followers_cp.drop(columns=['entity']).values[:, :N_survey]
+    ide_values_mps = ide_mps.drop(columns=['entity']).values[:, :N_survey]
+
+    follower_coord_att_values = clf.predict(ide_values_followers)
+    mps_coord_att_values = clf.predict(ide_values_mps)
 
     columns = parties_coord_att.drop(
         columns=["EPO_party_acronym", SURVEYCOL]).columns

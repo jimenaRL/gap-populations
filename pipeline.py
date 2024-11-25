@@ -31,6 +31,7 @@ ap.add_argument('--year', type=str, required=True)
 ap.add_argument('--dbpath', type=str, required=True, help="Path to the dataset")
 ap.add_argument('--survey', type=str, required=False, default=None, choices=SURVEYS)
 ap.add_argument('--ndimsviz', type=int, default=2)
+ap.add_argument('--ideN', type=int, default=20)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, required=False, default=CONFIGDEFAULTPATH)
 ap.add_argument('--vizconfig', type=str, default=VIZCONFIGDEFAULTPATH)
@@ -49,6 +50,7 @@ output = args.output
 config = args.config
 vizconfig = args.vizconfig
 survey = args.survey
+ideN = args.ideN
 ndimsviz = args.ndimsviz
 attdims = args.attdims
 ideological = args.ideological
@@ -93,26 +95,6 @@ SQLITE = SQLite(
     sources_min_outdegree=MIN_OUTDEGREE,
     logger=logger,
     country=country)
-
-# Set the number of dimension for the ideological embedding
-# 1. Get the avaibale surveys
-availableSurveys = SQLITE.getAvailableSurveys()
-# 2. Get the number of unique survey parties corresponding with an available
-# EPO party after follower>Mps graph preprocessing
-nPartiesPerSurvey = []
-for survey in availableSurveys:
-    survey_party_acronym = {survey.upper()}_party_acronym
-    query = """
-        SELECT COUNT(DISTINCT(p.{survey_party_acronym}))
-        FROM mp_follower_graph_minin_25_minout_3 g
-        LEFT JOIN mp_annotation USING(mp_pseudo_id)
-        LEFT JOIN party_mapping p USING(EPO_party_acronym)
-        WHERE p.{survey_party_acronym} is NOT NULL"""
-    res = SQLITE.retrieve(query)
-    numberEPOPartiesWithMPsinPPGraph = res[0][0]
-    nPartiesPerSurvey.append(numberEPOPartiesWithMPsinPPGraph)
-# 3. Compute ideN
-ideN = max(nPartiesPerSurvey) - 1
 
 INOUT = InOut(
     params=params,
@@ -163,11 +145,27 @@ if ideological:
 
 # 2. Create and plot attitudinal embedding
 if attitudinal:
+
+    # Set the number of dimension for the mapping to the attitudinal space
+    # 1. Get the number of unique survey parties corresponding with an available
+    # EPO party after follower>Mps graph preprocessing
+    survey_party_acronym = f"{survey.upper()}_party_acronym"
+    query = f"""
+        SELECT COUNT(DISTINCT(p.{survey_party_acronym}))
+        FROM mp_follower_graph_minin_25_minout_3 g
+        LEFT JOIN mp_annotation USING(mp_pseudo_id)
+        LEFT JOIN party_mapping p USING(EPO_party_acronym)
+        WHERE p.{survey_party_acronym} is NOT NULL"""
+    res = SQLITE.retrieve(query)
+    numberEPOPartiesWithMPsinPPGraph = res[0][0]
+    N_survey = numberEPOPartiesWithMPsinPPGraph - 1
+
     create_attitudinal_embedding(
         SQLITE,
         INOUT,
         ATTDIMS,
         survey,
+        N_survey,
         logger)
 
     if plot:
