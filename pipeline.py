@@ -22,7 +22,7 @@ from gap.labels import labels_stats
 
 SURVEYS = ['ches2023', 'ches2019', 'gps2019']
 PARENTFOLDER = pathlib.Path(__file__).parent.resolve()
-CONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/embeddings.yaml")
+CONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/embeddings_pseudonymized_alldata.yaml")
 VIZCONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/vizconfigs/template.yaml")
 # parse arguments and set paths
 ap = ArgumentParser()
@@ -31,6 +31,7 @@ ap.add_argument('--year', type=str, required=True)
 ap.add_argument('--dbpath', type=str, required=True, help="Path to the dataset")
 ap.add_argument('--survey', type=str, required=False, default=None, choices=SURVEYS)
 ap.add_argument('--ndimsviz', type=int, default=2)
+ap.add_argument('--ideN', type=int, default=20)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, required=False, default=CONFIGDEFAULTPATH)
 ap.add_argument('--vizconfig', type=str, default=VIZCONFIGDEFAULTPATH)
@@ -49,6 +50,7 @@ output = args.output
 config = args.config
 vizconfig = args.vizconfig
 survey = args.survey
+ideN = args.ideN
 ndimsviz = args.ndimsviz
 attdims = args.attdims
 ideological = args.ideological
@@ -93,11 +95,6 @@ SQLITE = SQLite(
     sources_min_outdegree=MIN_OUTDEGREE,
     logger=logger,
     country=country)
-
-# Set the number of dimension for the ideological embedding
-availableSurveys = SQLITE.getAvailableSurveys()
-nPartiesPerSurvey = [SQLITE.getNParties(s) for s in availableSurveys]
-ideN = max(nPartiesPerSurvey) - 1
 
 INOUT = InOut(
     params=params,
@@ -148,11 +145,27 @@ if ideological:
 
 # 2. Create and plot attitudinal embedding
 if attitudinal:
+
+    # Set the number of dimension for the mapping to the attitudinal space
+    # 1. Get the number of unique survey parties corresponding with an available
+    # EPO party after follower>Mps graph preprocessing
+    survey_party_acronym = f"{survey.upper()}_party_acronym"
+    query = f"""
+        SELECT COUNT(DISTINCT(p.{survey_party_acronym}))
+        FROM mp_follower_graph_minin_25_minout_3 g
+        LEFT JOIN mp_annotation USING(mp_pseudo_id)
+        LEFT JOIN party_mapping p USING(EPO_party_acronym)
+        WHERE p.{survey_party_acronym} is NOT NULL"""
+    res = SQLITE.retrieve(query)
+    numberEPOPartiesWithMPsinPPGraph = res[0][0]
+    N_survey = numberEPOPartiesWithMPsinPPGraph - 1
+
     create_attitudinal_embedding(
         SQLITE,
         INOUT,
         ATTDIMS,
         survey,
+        N_survey,
         logger)
 
     if plot:
