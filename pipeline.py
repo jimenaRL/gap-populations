@@ -188,6 +188,7 @@ if validation:
             SQLITE=SQLITE,
             INOUT=INOUT,
             SEED=187,
+            NBCVSPLITS=10,
             country=country,
             survey=survey,
             attdim=attdim,
@@ -214,7 +215,10 @@ if validation:
             "nb_samples_label2",
             "attitudinal_dimension",
             "survey",
-            "f1"]
+            "f1",
+            "recall",
+            "precision",
+            "auc"]
         os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
         # print(records[cols])
 
