@@ -37,6 +37,7 @@ def make_validation(
     SQLITE,
     INOUT,
     SEED,
+    NBCVSPLITS,
     country,
     survey,
     attdim,
@@ -137,11 +138,21 @@ def make_validation(
 
         # egalize samples
         model = make_pipeline(
-            RandomUnderSampler(random_state=SEED),
-            LogisticRegression(penalty='l2', C=1e5, class_weight='balanced')
+            RandomUnderSampler(
+                sampling_strategy='not minority',
+                random_state=SEED,
+                replacement=False
+            ),
+            LogisticRegression(
+                penalty='l2',
+                C=1e5,
+                class_weight='balanced',
+                solver='lbfgs'
+            )
         )
 
-        nb_splits = 10
+        nb_splits = NBCVSPLITS
+
         if not len(X) > nb_splits:
             m = f"VALIDATION: Too low sample number of attitudinal "
             m += f"embeddings({len(X)}), ignoring {lrdata}."
@@ -166,16 +177,33 @@ def make_validation(
             nb_splits = counts.min()
 
         cv_results = cross_validate(
-            model, X, y, cv=nb_splits, scoring=('precision', 'recall', 'f1'),
+            model, X, y, cv=nb_splits, scoring=('precision', 'recall', 'f1', 'roc_auc'),
             return_train_score=True, return_estimator=True, n_jobs=-1)
 
         clf_models = [pipe[-1] for pipe in cv_results['estimator']]
         clf_intercept = np.mean([clf.intercept_ for clf in clf_models])
         clf_coef = np.mean([clf.coef_ for clf in clf_models])
 
+
+        #################################
+        # HERE recover each of the LR estimators and compute thenscoer over the whole data
+
+        # CCA_Directions_df.loc[idx,'logreg_AUC']       += roc_auc_score(logreg_data_df.loc[logreg_data_df['in_sample'],'target'], predictions_probabilities[:,1])/N_samplings
+
+        # conf_matrix  = confusion_matrix(logreg_data_df.loc[logreg_data_df['in_sample'],'target'], predictions)/N_samplings
+        # chi2_results = chi2_contingency(conf_matrix)
+
+        # CCA_Directions_df.loc[idx,'logreg_chi2_chi2'] += chi2_results[0]/N_samplings
+        # CCA_Directions_df.loc[idx,'logreg_chi2_p']    += chi2_results[1]/N_samplings
+
+        #################################
+
         precision = cv_results['train_precision'].mean()
         recall = cv_results['train_recall'].mean()
         f1 = cv_results['train_f1'].mean()
+        auc = cv_results['train_roc_auc'].mean()
+
+        print(f"\n\t >>>>>>>>>> AUC {strategy}: {auc}\n")
 
         record = {
             "strategy": strategy,
@@ -188,13 +216,16 @@ def make_validation(
             "survey": survey,
             "precision": precision,
             "recall":recall,
-            "f1":  f1,
+            "f1": f1,
+            "auc": auc,
             "train_precision_mean": cv_results['train_precision'].mean(),
             "train_recall_mean": cv_results['train_recall'].mean(),
             "train_f1_mean":  cv_results['train_f1'].mean(),
+            "train_auc_mean":  cv_results['train_roc_auc'].mean(),
             "train_precision_std": cv_results['train_precision'].std(),
             "train_recall_std": cv_results['train_recall'].std(),
             "train_f1_std":  cv_results['train_f1'].std(),
+            "train_auc_std":  cv_results['train_roc_auc'].std(),
             "test_precision_mean": cv_results['test_precision'].mean(),
             "test_recall_mean": cv_results['test_recall'].mean(),
             "test_f1_mean":  cv_results['test_f1'].mean(),
