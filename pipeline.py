@@ -216,11 +216,19 @@ if validation:
             "attitudinal_dimension",
             "survey",
             "f1",
+            "f1_bis",
             "recall",
+            "recall_bis",
             "precision",
-            "auc"]
-        os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
+            "precision_bis",
+            "auc",
+            "auc_bis",
+            "logreg_chi2_chi2",
+            "logreg_chi2_p",
+            ]
+        os.system(f"xan select {','.join(cols)} {dfpath} | xan view -p")
         # print(records[cols])
+        logger.info(f"VALIDATION: scores saved at {dfpath}")
 
 # 4. Compute labels statistics
 if labels:
