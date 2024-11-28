@@ -14,6 +14,16 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.pipeline import make_pipeline
 from sklearn.model_selection import cross_validate
 
+from sklearn.metrics import \
+    precision_score, \
+    recall_score, \
+    f1_score, \
+    roc_auc_score, \
+    r2_score, \
+    confusion_matrix
+
+from scipy.stats import chi2_contingency
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -184,26 +194,30 @@ def make_validation(
         clf_intercept = np.mean([clf.intercept_ for clf in clf_models])
         clf_coef = np.mean([clf.coef_ for clf in clf_models])
 
-
         #################################
-        # HERE recover each of the LR estimators and compute thenscoer over the whole data
+        precision_bis = np.mean([
+            precision_score(y, lr.predict(X)) for lr in clf_models])
+        recall_bis = np.mean([
+            recall_score(y, lr.predict(X)) for lr in clf_models])
+        f1_bis = np.mean([
+            f1_score(y, lr.predict(X)) for lr in clf_models])
+        auc_bis = np.mean([
+            roc_auc_score(y, lr.predict(X)) for lr in clf_models])
 
-        # CCA_Directions_df.loc[idx,'logreg_AUC']       += roc_auc_score(logreg_data_df.loc[logreg_data_df['in_sample'],'target'], predictions_probabilities[:,1])/N_samplings
-
-        # conf_matrix  = confusion_matrix(logreg_data_df.loc[logreg_data_df['in_sample'],'target'], predictions)/N_samplings
-        # chi2_results = chi2_contingency(conf_matrix)
-
-        # CCA_Directions_df.loc[idx,'logreg_chi2_chi2'] += chi2_results[0]/N_samplings
-        # CCA_Directions_df.loc[idx,'logreg_chi2_p']    += chi2_results[1]/N_samplings
-
+        logreg_chi2_chi2 = []
+        logreg_chi2_p = []
+        for lr in clf_models:
+            chi2_results = chi2_contingency(confusion_matrix(y, lr.predict(X)))
+            logreg_chi2_chi2.append(chi2_results[0])
+            logreg_chi2_p.append(chi2_results[1])
+        logreg_chi2_chi2 = np.mean(logreg_chi2_chi2)
+        logreg_chi2_p = np.mean(logreg_chi2_p)
         #################################
 
         precision = cv_results['train_precision'].mean()
         recall = cv_results['train_recall'].mean()
         f1 = cv_results['train_f1'].mean()
         auc = cv_results['train_roc_auc'].mean()
-
-        print(f"\n\t >>>>>>>>>> AUC {strategy}: {auc}\n")
 
         record = {
             "strategy": strategy,
@@ -218,6 +232,12 @@ def make_validation(
             "recall":recall,
             "f1": f1,
             "auc": auc,
+            "precision_bis": precision_bis,
+            "recall_bis":recall_bis,
+            "f1_bis": f1_bis,
+            "auc_bis": auc_bis,
+            "logreg_chi2_chi2": logreg_chi2_chi2,
+            "logreg_chi2_p": logreg_chi2_p,
             "train_precision_mean": cv_results['train_precision'].mean(),
             "train_recall_mean": cv_results['train_recall'].mean(),
             "train_f1_mean":  cv_results['train_f1'].mean(),
