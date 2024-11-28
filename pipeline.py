@@ -217,16 +217,16 @@ if validation:
             "survey",
             "f1",
             "f1_bis",
-            "recall",
-            "recall_bis",
-            "precision",
-            "precision_bis",
+            # "recall",
+            # "recall_bis",
+            # "precision",
+            # "precision_bis",
             "auc",
             "auc_bis",
-            "chi2_stat",
-            "chi2_pval",
+            # "chi2_stat",
+            # "chi2_pval",
             ]
-        os.system(f"xan select {','.join(cols)} {dfpath} | xan view -p")
+        os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
         # print(records[cols])
         logger.info(f"VALIDATION: scores saved at {dfpath}")
 
