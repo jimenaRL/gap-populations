@@ -213,7 +213,12 @@ def make_validation(
         chi2_stat = []
         chi2_pval = []
         for lr in clf_models:
-            chi2_results = chi2_contingency(confusion_matrix(y, lr.predict(X)))
+            try:
+                chi2_results = chi2_contingency(confusion_matrix(y, lr.predict(X)))
+            except:
+                logger.info(
+                    f"VALIDATION: Unnable to compute chi2_results.")
+                continue
             chi2_stat.append(chi2_results[0])
             chi2_pval.append(chi2_results[1])
         chi2_stat = np.mean(chi2_stat)
