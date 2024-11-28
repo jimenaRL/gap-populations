@@ -223,8 +223,8 @@ if validation:
             "precision_bis",
             "auc",
             "auc_bis",
-            "logreg_chi2_chi2",
-            "logreg_chi2_p",
+            "chi2_stat",
+            "chi2_pval",
             ]
         os.system(f"xan select {','.join(cols)} {dfpath} | xan view -p")
         # print(records[cols])

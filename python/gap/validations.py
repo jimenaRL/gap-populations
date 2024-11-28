@@ -194,7 +194,13 @@ def make_validation(
         clf_intercept = np.mean([clf.intercept_ for clf in clf_models])
         clf_coef = np.mean([clf.coef_ for clf in clf_models])
 
-        #################################
+        # Compute validation scores 1st strategy
+        precision = cv_results['train_precision'].mean()
+        recall = cv_results['train_recall'].mean()
+        f1 = cv_results['train_f1'].mean()
+        auc = cv_results['train_roc_auc'].mean()
+
+        # Compute validation scores 2nd strategy
         precision_bis = np.mean([
             precision_score(y, lr.predict(X)) for lr in clf_models])
         recall_bis = np.mean([
@@ -204,20 +210,15 @@ def make_validation(
         auc_bis = np.mean([
             roc_auc_score(y, lr.predict(X)) for lr in clf_models])
 
-        logreg_chi2_chi2 = []
-        logreg_chi2_p = []
+        chi2_stat = []
+        chi2_pval = []
         for lr in clf_models:
             chi2_results = chi2_contingency(confusion_matrix(y, lr.predict(X)))
-            logreg_chi2_chi2.append(chi2_results[0])
-            logreg_chi2_p.append(chi2_results[1])
-        logreg_chi2_chi2 = np.mean(logreg_chi2_chi2)
-        logreg_chi2_p = np.mean(logreg_chi2_p)
-        #################################
+            chi2_stat.append(chi2_results[0])
+            chi2_pval.append(chi2_results[1])
+        chi2_stat = np.mean(chi2_stat)
+        chi2_pval = np.mean(chi2_pval)
 
-        precision = cv_results['train_precision'].mean()
-        recall = cv_results['train_recall'].mean()
-        f1 = cv_results['train_f1'].mean()
-        auc = cv_results['train_roc_auc'].mean()
 
         record = {
             "strategy": strategy,
@@ -236,8 +237,8 @@ def make_validation(
             "recall_bis":recall_bis,
             "f1_bis": f1_bis,
             "auc_bis": auc_bis,
-            "logreg_chi2_chi2": logreg_chi2_chi2,
-            "logreg_chi2_p": logreg_chi2_p,
+            "chi2_stat": chi2_stat,
+            "chi2_pval": chi2_pval,
             "train_precision_mean": cv_results['train_precision'].mean(),
             "train_recall_mean": cv_results['train_recall'].mean(),
             "train_f1_mean":  cv_results['train_f1'].mean(),
