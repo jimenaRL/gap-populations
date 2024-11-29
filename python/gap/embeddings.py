@@ -167,10 +167,8 @@ def create_attitudinal_embedding(
         if partiesAtt.issubset(partiesIde):
             mssg += f"These parties will be ignored:"
             mssg = mssg + f"{joinParties(partiesIde - partiesAtt)}"
-            prompt = mssg + f"Do you want to continuate (yes/no): "
             logger.info(mssg)
-            user_input = input(prompt)
-
+            user_input = input("Do you want to continuate (yes/no):")
             while user_input.lower() != 'yes':
                 if user_input.lower() == 'no':
                     exit()
@@ -180,11 +178,8 @@ def create_attitudinal_embedding(
             mssg += f"These parties are excedding:"
             mssg += f"{joinParties(partiesAtt - partiesIde)}"
             print(mssg)
-            # raise ValueError(mssg)
-            prompt = mssg + f"Do you want to continuate (yes/no): "
             logger.info(mssg)
-            user_input = input(prompt)
-
+            user_input = input("Do you want to continuate (yes/no):")
             while user_input.lower() != 'yes':
                 if user_input.lower() == 'no':
                     exit()
