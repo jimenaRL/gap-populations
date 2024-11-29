@@ -167,20 +167,29 @@ def create_attitudinal_embedding(
         if partiesAtt.issubset(partiesIde):
             mssg += f"These parties will be ignored:"
             mssg = mssg + f"{joinParties(partiesIde - partiesAtt)}"
-            # prompt = mssg + f"Do you want to continuate (yes/no): "
-            # user_input = input(prompt)
-
-            # while user_input.lower() != 'yes':
-            #     if user_input.lower() == 'no':
-            #         exit()
-            #     else:
-            #         user_input = input('Please type yes or no:')
+            prompt = mssg + f"Do you want to continuate (yes/no): "
             logger.info(mssg)
+            user_input = input(prompt)
+
+            while user_input.lower() != 'yes':
+                if user_input.lower() == 'no':
+                    exit()
+                else:
+                    user_input = input('Please type yes or no:')
         else:
             mssg += f"These parties are excedding:"
             mssg += f"{joinParties(partiesAtt - partiesIde)}"
             print(mssg)
-            raise ValueError(mssg)
+            # raise ValueError(mssg)
+            prompt = mssg + f"Do you want to continuate (yes/no): "
+            logger.info(mssg)
+            user_input = input(prompt)
+
+            while user_input.lower() != 'yes':
+                if user_input.lower() == 'no':
+                    exit()
+                else:
+                    user_input = input('Please type yes or no:')
 
     parties_coord_att = parties_coord_att[parties_coord_att[SURVEYCOL].isin(partiesIde)]
 
