@@ -183,14 +183,14 @@ function fn() {
 
     if [[ $COUNTRY = "israel" ]]
     then
-        python pipeline.py \
-            --COUNTRY=israel \
-            --YEAR=$YEAR
-            --DBPATH=$DBPATH \
-            --config=configs/embeddings_israel.yaml \
+        python /home/jimena/work/dev/gap-populations/pipeline.py \
+            --country=israel \
+            --year=$YEAR \
+            --dbpath=$DBPATH \
+            --config=/home/jimena/work/dev/gap-populations/configs/embeddings_israel.yaml \
             --SURVEY=gps2019 \
-            --attdims=V4_Scale \
-            --ideological
+            --attdims=V4_Scale,V6_Scale,V8_Scale,V9,V10,V12,V13,V14,V18,V19,V20,V21 \
+            --validation
     fi
 
     if [[ $COUNTRY = "italy" ]]
