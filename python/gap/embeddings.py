@@ -8,6 +8,9 @@ import pandas as pd
 from linate import IdeologicalEmbedding
 from sklearn.linear_model import Ridge
 
+def joinParties(parties, joinseq='\n\t'):
+    return '\n\t'+joinseq.join(parties)+'\n'
+
 def create_ideological_embedding(
     SQLITE,
     INOUT,
@@ -92,8 +95,8 @@ def create_attitudinal_embedding(
     ATTDIMS,
     survey,
     N_survey,
-    logger):
-
+    logger,
+    ignore_errors=False):
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
 
@@ -136,9 +139,21 @@ def create_attitudinal_embedding(
     if len(parties_available_survey) < len(parties_mps):
         m = f"ATTITUDINAL EMBEDDINGS: there are less effectively available "
         m += f"parties in survey {survey}: "
-        m += f"{parties_available_survey} that parties present in mps affilations "
-        m += f"{parties_mps}. Dropping {parties_mps - parties_available_survey}."
+        m += f"{joinParties(parties_available_survey)}that parties present in mps affilations:"
+        m += f"{joinParties(parties_mps)}Dropping {parties_mps - parties_available_survey}."
         logger.info(m)
+        if not ignore_errors:
+            logger.info(mssg)
+            new_candidate_N_survey = len(parties_available_survey) - 1
+            user_input = input(
+                f"Do you want to continuate by modifiying N_survey from {N_survey} to {new_candidate_N_survey} ? (yes/no):")
+            while user_input.lower() != 'yes':
+                if user_input.lower() == 'no':
+                    exit()
+                else:
+                    user_input = input('Please type yes or no:')
+        N_survey = new_candidate_N_survey
+        logger.info(f"N_survey value vas modified to {N_survey}.")
         cond = ide_mps_in_parties_with_valid_mapping[SURVEYCOL].isin(
             parties_available_survey)
         ide_mps_in_parties_with_valid_mapping = ide_mps_in_parties_with_valid_mapping[cond]
@@ -153,9 +168,6 @@ def create_attitudinal_embedding(
     estimated_parties_coord_ide = estimated_parties_coord_ide.sort_values(by=SURVEYCOL)
     parties_coord_att = parties_coord_att.sort_values(by=SURVEYCOL)
 
-    def joinParties(parties, joinseq='\n\t'):
-        return '\n\t'+joinseq.join(parties)+'\n'
-
     partiesIde = set(estimated_parties_coord_ide[SURVEYCOL].values.tolist())
     partiesAtt = set(parties_coord_att[SURVEYCOL].values.tolist())
 
@@ -168,23 +180,25 @@ def create_attitudinal_embedding(
             mssg += f"These parties will be ignored:"
             mssg = mssg + f"{joinParties(partiesIde - partiesAtt)}"
             logger.info(mssg)
-            user_input = input("Do you want to continuate (yes/no):")
-            while user_input.lower() != 'yes':
-                if user_input.lower() == 'no':
-                    exit()
-                else:
-                    user_input = input('Please type yes or no:')
+            if not ignore_errors:
+                logger.info(mssg)
+                user_input = input("Do you want to continuate (yes/no):")
+                while user_input.lower() != 'yes':
+                    if user_input.lower() == 'no':
+                        exit()
+                    else:
+                        user_input = input('Please type yes or no:')
         else:
             mssg += f"These parties are excedding:"
             mssg += f"{joinParties(partiesAtt - partiesIde)}"
-            print(mssg)
             logger.info(mssg)
-            user_input = input("Do you want to continuate (yes/no):")
-            while user_input.lower() != 'yes':
-                if user_input.lower() == 'no':
-                    exit()
-                else:
-                    user_input = input('Please type yes or no:')
+            if not ignore_errors:
+                user_input = input("Do you want to continuate (yes/no):")
+                while user_input.lower() != 'yes':
+                    if user_input.lower() == 'no':
+                        exit()
+                    else:
+                        user_input = input('Please type yes or no:')
 
     parties_coord_att = parties_coord_att[parties_coord_att[SURVEYCOL].isin(partiesIde)]
 
@@ -206,7 +220,6 @@ def create_attitudinal_embedding(
     # the following check should be redundant, just to check that the correct
     # value was computed in the pipeline for N_survey
     assert N_survey == len(X) - 1
-
 
     clf = Ridge(alpha=1.0)
     clf.fit(X, Y)
