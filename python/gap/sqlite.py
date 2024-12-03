@@ -167,10 +167,10 @@ class SQLite:
         # This happens for some dimensions in GPS2019
         attitudes_with_empty_entries = df.columns[((df == ' ').sum(axis=0) > 0)]
         temp = df[['EPO_party_acronym'] + attitudes_with_empty_entries.tolist()]
+        parties = set(df[survey_col].tolist())
         if len(attitudes_with_empty_entries) > 0:
-            bad_rows = [a[0] for a in np.where(df == ' ')]
-            dropped_parties = set(df.iloc[bad_rows][survey_col].tolist())
             df = df[(df[dims_names] == ' ').sum(axis=1) == 0]
+            dropped_parties = parties - set(df[survey_col].tolist())
             info =f"""
                 SQLITE: drop parties {dropped_parties} beacause
                 corresponding rows in survey have blanck spaces for values.
