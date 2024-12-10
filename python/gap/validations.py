@@ -46,8 +46,8 @@ plt.rc('font', family='sans-serif', size=fs)
 def make_validation(
     SQLITE,
     INOUT,
-    SEED,
-    NBCVSPLITS,
+    cv_seed,
+    nb_splits,
     country,
     survey,
     attdim,
@@ -86,7 +86,6 @@ def make_validation(
         'keywords': keywords_data,
         'llm': llm_data
     }
-
 
     records = []
     for strategy, lrdata in tqdm(
@@ -150,18 +149,17 @@ def make_validation(
         model = make_pipeline(
             RandomUnderSampler(
                 sampling_strategy='not minority',
-                random_state=SEED,
+                random_state=cv_seed,
                 replacement=False
             ),
             LogisticRegression(
                 penalty='l2',
-                C=1e5,
-                class_weight='balanced',
-                solver='lbfgs'
+                class_weight=None,
+                solver='lbfgs',
+                verbose=0,
+                n_jobs=-1,
             )
         )
-
-        nb_splits = NBCVSPLITS
 
         if not len(X) > nb_splits:
             m = f"VALIDATION: Too low sample number of attitudinal "
@@ -194,20 +192,14 @@ def make_validation(
         clf_intercept = np.mean([clf.intercept_ for clf in clf_models])
         clf_coef = np.mean([clf.coef_ for clf in clf_models])
 
-        # Compute validation scores 1st strategy
-        precision = cv_results['train_precision'].mean()
-        recall = cv_results['train_recall'].mean()
-        f1 = cv_results['train_f1'].mean()
-        auc = cv_results['train_roc_auc'].mean()
-
-        # Compute validation scores 2nd strategy
-        precision_bis = np.mean([
+        # Compute validation scores
+        precision = np.mean([
             precision_score(y, lr.predict(X)) for lr in clf_models])
-        recall_bis = np.mean([
+        recall = np.mean([
             recall_score(y, lr.predict(X)) for lr in clf_models])
-        f1_bis = np.mean([
+        f1 = np.mean([
             f1_score(y, lr.predict(X)) for lr in clf_models])
-        auc_bis = np.mean([
+        auc = np.mean([
             roc_auc_score(y, lr.predict(X)) for lr in clf_models])
 
         chi2_stat = []
@@ -238,10 +230,6 @@ def make_validation(
             "recall":recall,
             "f1": f1,
             "auc": auc,
-            "precision_bis": precision_bis,
-            "recall_bis":recall_bis,
-            "f1_bis": f1_bis,
-            "auc_bis": auc_bis,
             "chi2_stat": chi2_stat,
             "chi2_pval": chi2_pval,
             "train_precision_mean": cv_results['train_precision'].mean(),
@@ -267,7 +255,7 @@ def make_validation(
             "test_precision_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['test_precision'].tolist()]),
             "test_recall_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['test_recall'].tolist()]),
             "test_f1_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['test_f1'].tolist()]),
-            }
+        }
 
         records.append(record)
 
@@ -311,7 +299,6 @@ def make_validation(
                     label='Classification'),
                 Line2D([0], [0], color='white', lw=1, alpha=1, label='cuttof'),
             ]
-
 
             fig = plt.figure(figsize=(5,  3.3))
 
