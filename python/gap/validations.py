@@ -62,7 +62,7 @@ def make_validation(
     # Loading data #
     ################
 
-    att_sources, att_targets = INOUT.load_att_embeddings()
+    att_sources, _ = INOUT.load_att_embeddings()
 
     # get A strategy labels
     keywords_labels = SQLITE.getKeywordsLabels()
