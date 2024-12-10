@@ -39,6 +39,8 @@ ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
 ap.add_argument('--attitudinal', action='store_true')
 ap.add_argument('--validation', action='store_true')
+ap.add_argument('--nbsplits_validation', type=int, default=10)
+ap.add_argument('--seed_validation', type=int, default=42)
 ap.add_argument('--labels', action='store_true')
 ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
@@ -57,9 +59,10 @@ ideological = args.ideological
 attitudinal = args.attitudinal
 labels = args.labels
 validation = args.validation
+seed = args.seed_validation
+nb_splits = args.nbsplits_validation
 plot = args.plot
 show = args.show
-
 
 
 if not (ideological or attitudinal or validation or labels):
@@ -187,8 +190,8 @@ if validation:
         record = make_validation(
             SQLITE=SQLITE,
             INOUT=INOUT,
-            SEED=187,
-            NBCVSPLITS=10,
+            cv_seed=seed,
+            nb_splits=nb_splits,
             country=country,
             survey=survey,
             attdim=attdim,
@@ -216,17 +219,29 @@ if validation:
             "attitudinal_dimension",
             "survey",
             "f1",
-            "f1_bis",
             # "recall",
-            # "recall_bis",
             # "precision",
-            # "precision_bis",
             "auc",
-            "auc_bis",
             # "chi2_stat",
-            # "chi2_pval",
+            "chi2_pval",
             ]
-        os.system(f"xan select {','.join(cols)} {dfpath} | xan view")
+        rcols = [
+            "country",
+            "strategy",
+            "l1",
+            "#l1",
+            "l2",
+            "#l2",
+            "att_dim",
+            "survey",
+            "f1",
+            # "recall",
+            # "precision",
+            "auc",
+            # "chi2_stat",
+            "chi2_pval",
+            ]
+        os.system(f"xan select {','.join(cols)} {dfpath} | xan rename {','.join(rcols)} | xan view -I")
         # print(records[cols])
         logger.info(f"VALIDATION: scores saved at {dfpath}")
 
