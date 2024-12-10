@@ -204,7 +204,7 @@ if validation:
 
     if len(records) > 0:
         records = pd.DataFrame(records).sort_values(by='f1', ascending=False)
-        filename = f"{country}_{survey}_logistic_regression_cross_validate_f1_score"
+        filename = f"{country}_{year}_{survey}_logistic_regression_cross_validate_f1_score"
         valfolder = os.path.join(INOUT.att_folder, 'validations')
         dfpath = os.path.join(valfolder, filename+'.csv')
         records.to_csv(dfpath, index=False)
