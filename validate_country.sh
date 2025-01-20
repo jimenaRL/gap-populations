@@ -6,15 +6,17 @@ function gn() {
     COUNTRY=$2
     SURVEY=$3
     YEAR=$4
+    OUTPUT_FOLDER=$5
 
     echo "--------------------------------------------------"
     echo "[COUNTRY] ${COUNTRY}"
     echo "[YEAR] ${YEAR}"
     echo "[DBPATH] ${DBPATH}"
+    echo "[OUTPUT] ${OUTPUT_FOLDER}"
     echo "[SURVEY] ${SURVEY}"
     echo "--------------------------------------------------"
 
-    command="python /home/jimena/work/dev/gap-populations/pipeline.py  --dbpath=$DBPATH --country=$COUNTRY --year=$YEAR --validation"
+    command="python /home/jimena/work/dev/gap-populations/pipeline.py  --dbpath=$DBPATH --country=$COUNTRY --year=$YEAR --output=$OUTPUT_FOLDER --validation"
 
     if [[ "$SURVEY" = "ches2019" ]]
     then
@@ -43,6 +45,7 @@ function fn() {
     COUNTRY=$1
     YEAR=$2
     DBPATH=$3
+    OUTPUT_FOLDER=$4
 
     if [[ $COUNTRY = "argentina" ]]
     then
@@ -372,4 +375,4 @@ function fn() {
     fi
 }
 
-fn $1 $2 $3
+fn $1 $2 $3 $4
