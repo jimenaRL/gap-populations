@@ -319,12 +319,15 @@ def visualize_att(
 
         # plot parties attitudinal coordinates
         group_positions = parties_coord_att[parties_coord_att.party == party]
+
+        xpos = float(group_positions.iloc[0][dims['x']])
+        ypos = float(group_positions.iloc[0][dims['y']])
         if len(group_positions) > 1:
             raise ValueError("Bizarre")
         if len(group_positions) == 1:
             ax.plot(
-                group_positions.iloc[0][dims['x']],
-                group_positions.iloc[0][dims['y']],
+                xpos,
+                ypos,
                 marker='o',
                 markeredgecolor='black',
                 markeredgewidth=1.0,
@@ -333,8 +336,8 @@ def visualize_att(
         )
 
         text = ax.text(
-            group_positions.iloc[0][dims['x']]+nudges[party][0],
-            group_positions.iloc[0][dims['y']]+nudges[party][1],
+            xpos + nudges[party][0],
+            ypos + nudges[party][1],
             party.replace("&", ""),
             color='white',
             bbox=dict(
