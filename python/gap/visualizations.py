@@ -43,15 +43,15 @@ def plot_ideological_embedding(
     #     show)
 
     idevizparams = vizparams['ideological']
-    mp_parties = SQLITE.getMpParties(['MMS'])
-    targets_parties = mp_parties[['mp_pseudo_id', 'MMS_party_acronym']] \
-        .rename(columns={'MMS_party_acronym': 'party'})
+    mp_parties = SQLITE.getMpParties(['EPO'])
+    targets_parties = mp_parties[['mp_pseudo_id', 'EPO_party_acronym']] \
+        .rename(columns={'EPO_party_acronym': 'party'})
 
     # select parties to show
     # _parties_to_show = mp_parties[
     #     ~mp_parties[f'{survey.upper()}_party_acronym'].isna()]
-    # parties_to_show = _parties_to_show['MMS_party_acronym'].unique().tolist()
-    parties_to_show = mp_parties['MMS_party_acronym'].unique().tolist()
+    # parties_to_show = _parties_to_show['EPO_party_acronym'].unique().tolist()
+    parties_to_show = mp_parties['EPO_party_acronym'].unique().tolist()
 
     output_folder = os.path.join(INOUT.emb_folder, 'figures')
     os.makedirs(output_folder, exist_ok=True)
@@ -87,7 +87,7 @@ def plot_attitudinal_embedding(
 
     att_sources, att_targets = INOUT.load_att_embeddings()
 
-    mps_parties = SQLITE.getMpParties(['MMS', survey], dropna=True)
+    mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=True)
 
     # # (0) show by dim distributions
     # distributions(
@@ -103,11 +103,11 @@ def plot_attitudinal_embedding(
     # use mapping to adapt palette to the party system survey
     if not vizparams['palette']:
         palette = make_palette(
-            vizparams['palette'], party_mapping.MMS_party_acronym.unique())
+            vizparams['palette'], party_mapping.EPO_party_acronym.unique())
 
     color_data = palette.items()
     palette = pd.DataFrame.from_dict(color_data) \
-        .rename(columns={0: 'MMS_party_acronym', 1: 'color'}) \
+        .rename(columns={0: 'EPO_party_acronym', 1: 'color'}) \
         .merge(party_mapping)
     _zip = zip(palette[SURVEYCOL], palette['color'])
     palette = {z[0]: z[1] for z in _zip}
@@ -119,7 +119,7 @@ def plot_attitudinal_embedding(
     att_targets.rename(columns=rename_cols, inplace=True)
     parties_coord_att.rename(columns=rename_cols, inplace=True)
 
-    # When the map from MMS parties to the survey's parties is not injective,
+    # When the map from EPO parties to the survey's parties is not injective,
     # keep only one match
     parties_coord_att.drop_duplicates(subset=['party'], inplace=True)
 
