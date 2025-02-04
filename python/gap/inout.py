@@ -159,7 +159,7 @@ class InOut:
                 os.path.join(self.emb_folder, 'ide_targets.csv'),
                 index=False)
 
-        mssg = f"Ideological embeddings ({len(targets_embeddings)} targets and "
+        mssg = f"INOUT: Ideological embeddings ({len(targets_embeddings)} targets and "
         mssg += f"{len(sources_embeddings)} sources) saved at folder "
         mssg += f"{self.emb_folder}."
         self.logger.info(mssg)
