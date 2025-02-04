@@ -39,6 +39,7 @@ ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
 ap.add_argument('--attitudinal', action='store_true')
 ap.add_argument('--validation', action='store_true')
+ap.add_argument('--no_recomputation', action='store_true')
 ap.add_argument('--nbsplits_validation', type=int, default=10)
 ap.add_argument('--seed_validation', type=int, default=42)
 ap.add_argument('--labels', action='store_true')
@@ -59,6 +60,7 @@ ideological = args.ideological
 attitudinal = args.attitudinal
 labels = args.labels
 validation = args.validation
+no_recomputation = args.no_recomputation
 seed = args.seed_validation
 nb_splits = args.nbsplits_validation
 plot = args.plot
@@ -127,7 +129,7 @@ if survey:
 
 
 # 1. Create and plot ideological embedding
-if ideological:
+if ideological and not no_recomputation:
     create_ideological_embedding(
         SQLITE,
         INOUT,
@@ -136,7 +138,7 @@ if ideological:
         ideN,
         logger)
 
-    if plot:
+if ideological and plot:
         plot_ideological_embedding(
             SQLITE,
             INOUT,
@@ -147,7 +149,7 @@ if ideological:
             logger)
 
 # 2. Create and plot attitudinal embedding
-if attitudinal:
+if attitudinal and not no_recomputation:
 
     # Set the number of dimension for the mapping to the attitudinal space
     # 1. Get the number of unique survey parties corresponding with an available
@@ -171,7 +173,7 @@ if attitudinal:
         N_survey,
         logger)
 
-    if plot:
+if attitudinal and plot:
         for attdimspair in  combinations(attdims, 2):
             plot_attitudinal_embedding(
                 SQLITE,
