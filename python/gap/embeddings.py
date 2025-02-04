@@ -115,8 +115,8 @@ def create_attitudinal_embedding(
     # drop mps with parties withou mapping and add parties to ideological positions
     mps_with_mapping = mps_parties[~mps_parties[SURVEYCOL].isna()]
     mps_without_mapping = mps_parties[mps_parties[SURVEYCOL].isna()]
-    mssg = f"ATTITUDINAL EMBEDDINGS: found {len(mps_with_mapping)} "
-    mssg += f"associated to parties mps with mapping in {survey}."
+    mssg = f"ATTITUDINAL EMBEDDINGS: found {len(mps_with_mapping)} mps that "
+    mssg += f"are associated to a party having a mapping in {survey} survey."
     logger.info(mssg)
 
     t0 = len(ide_mps)
@@ -130,7 +130,8 @@ def create_attitudinal_embedding(
     t1 = len(ide_mps_in_parties_with_valid_mapping)
     if t0 > t1:
         mm = f"ATTITUDINAL EMBEDDINGS: dropped {t0 - t1} mps out of {t0} in "
-        mm += f"ideological embedding with no party in mapping, left {t1}."
+        mm += f"ideological embedding that are not associated to a party"
+        mm += f"having a mapping in {survey} survey. Left {t1}."
         logger.info(mm)
 
     parties_available_survey = set(parties_coord_att[SURVEYCOL].unique())
@@ -143,10 +144,9 @@ def create_attitudinal_embedding(
         m += f"{joinParties(parties_mps)}Dropping {parties_mps - parties_available_survey}."
         logger.info(m)
         if not ignore_errors:
-            logger.info(mssg)
             new_candidate_N_survey = len(parties_available_survey) - 1
             user_input = input(
-                f"Do you want to continuate by modifiying N_survey from {N_survey} to {new_candidate_N_survey} ? (yes/no):")
+                f"Do you want to continuate by modifiying N_survey from {N_survey} to {new_candidate_N_survey} (yes/no):")
             while user_input.lower() != 'yes':
                 if user_input.lower() == 'no':
                     exit()
@@ -157,6 +157,7 @@ def create_attitudinal_embedding(
         cond = ide_mps_in_parties_with_valid_mapping[SURVEYCOL].isin(
             parties_available_survey)
         ide_mps_in_parties_with_valid_mapping = ide_mps_in_parties_with_valid_mapping[cond]
+
 
     # Fit ridge regression
     estimated_parties_coord_ide = ide_mps_in_parties_with_valid_mapping \
