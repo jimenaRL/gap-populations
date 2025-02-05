@@ -64,6 +64,11 @@ def make_validation(
 
     att_sources, _ = INOUT.load_att_embeddings()
 
+    if not attdim in att_sources:
+        logger.info(
+            f"VALIDATION: skipping missing attitudinal dimension {attdim}.")
+        return {}
+
     # get A strategy labels
     keywords_labels = SQLITE.getKeywordsLabels()
     keywords_data = keywords_labels.merge(
