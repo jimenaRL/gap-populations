@@ -96,12 +96,13 @@ def create_attitudinal_embedding(
     survey,
     N_survey,
     logger,
+    missing_values_strategy='drop_dims',
     ignore_errors=False):
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
 
     # Load parties attitudinal coordinates
-    parties_coord_att = SQLITE.getPartiesAttitudes(survey, ATTDIMS)
+    parties_coord_att = SQLITE.getPartiesAttitudes(survey, ATTDIMS, missing_values_strategy)
 
     # removed repeated parties
     parties_coord_att = parties_coord_att.groupby(SURVEYCOL).first().reset_index()

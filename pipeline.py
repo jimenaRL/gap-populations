@@ -33,6 +33,7 @@ ap.add_argument('--survey', type=str, required=False, default=None, choices=SURV
 ap.add_argument('--ndimsviz', type=int, default=2)
 ap.add_argument('--ideN', type=int, default=20)
 ap.add_argument('--attdims', type=str, required=False)
+ap.add_argument('--att_missing_values_strategy', type=str, required=False, choices=['drop_dims', 'drop_parties'])
 ap.add_argument('--config', type=str, required=False, default=CONFIGDEFAULTPATH)
 ap.add_argument('--vizconfig', type=str, default=VIZCONFIGDEFAULTPATH)
 ap.add_argument('--output', type=str, required=False)
@@ -56,6 +57,7 @@ survey = args.survey
 ideN = args.ideN
 ndimsviz = args.ndimsviz
 attdims = args.attdims
+att_missing_values_strategy = args.att_missing_values_strategy
 ideological = args.ideological
 attitudinal = args.attitudinal
 labels = args.labels
@@ -171,7 +173,8 @@ if attitudinal and not no_recomputation:
         ATTDIMS,
         survey,
         N_survey,
-        logger)
+        logger,
+        att_missing_values_strategy)
 
 if attitudinal and plot:
         for attdimspair in  combinations(attdims, 2):

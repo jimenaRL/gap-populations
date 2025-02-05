@@ -147,56 +147,62 @@ class SQLite:
 
         return targets_groups[['mp_pseudo_id']+survey_columns]
 
-    def getPartiesAttitudes(self, survey, dims_names):
+    def getPartiesAttitudes(self, survey, dims_names, missing_values_strategy):
+
+
+        valid_strategies = {'drop_parties', 'drop_dims'}
+        if not missing_values_strategy in valid_strategies:
+            error = "Wrong value for parameter missing_values_strategy "
+            error += f"({missing_values_strategy}). "
+            error += f"Must be one of {valid_strategies}."
+            raise ValueError(error)
 
         survey_col = f'{survey.upper()}_party_acronym'
         columns = ['EPO_party_acronym', survey_col]+list(dims_names)
         table = Template(self.TABLES['attitude']['name']) \
             .substitute(attitude=survey)
         query = f"SELECT {','.join(columns)} FROM {table}"
-
         res = self.retrieve(query)
-        dtypes = {
-            'EPO_party_acronym': str,
-            survey_col: str
-        }
-
+        dtypes = {'EPO_party_acronym': str,survey_col: str}
         df = pd.DataFrame(res, columns=columns)
-
-        # HOT FIX : drop rows with blanck spaces values.
-        # This happens for some dimensions in GPS2019
-        attitudes_with_empty_entries = df.columns[((df == ' ').sum(axis=0) > 0)]
-        temp = df[['EPO_party_acronym'] + attitudes_with_empty_entries.tolist()]
         parties = set(df[survey_col].tolist())
-        if len(attitudes_with_empty_entries) > 0:
-            df = df[(df[dims_names] == ' ').sum(axis=1) == 0]
-            dropped_parties = parties - set(df[survey_col].tolist())
-            info =f"""
-                SQLITE: drop parties {dropped_parties} beacause
-                corresponding rows in survey have blanck spaces for values.
-                Left {df.shape[0]} parties.
-                This happens for some dimensions in GPS2019.
-                {temp}
-                """
-            self.logger.info(info)
 
-        # HOT FIX : drop columns with NAN values.
-        # This happens for some dimensions in GPS2019
-        attitudes_with_nan_values = df.columns[(df.isna().sum(axis=0) > 0)].tolist()
-        if len(attitudes_with_nan_values) > 0:
-            temp2 = df[['EPO_party_acronym'] + attitudes_with_nan_values]
-            df = df.drop(columns=attitudes_with_nan_values)
-            dims_names = set(dims_names) - set(attitudes_with_nan_values)
-            dtypes.update({d: np.float32 for d in dims_names})
-            info =f"""
-                SQLITE: drop attitudes {attitudes_with_nan_values} because
-                some rows in survey have NAN values.
-                Left {df.shape[1] - 2} attitudes.
-                This happens for some dimensions in CHES2019.
-                {temp2}
-                """
-            self.logger.info(info)
 
+        def remove_data(df, bad_map, missing_values_strategy):
+            bad_df = bad_map(df)
+            nb_bad_entries = bad_df.sum().sum()
+            if nb_bad_entries > 0:
+
+                dims_to_drop = df.columns[(bad_df.sum(axis=0) > 0)].tolist()
+                temp = df[['EPO_party_acronym'] + dims_to_drop]
+
+                # Drop rows with blanck spaces values.
+                if missing_values_strategy == 'drop_parties':
+                    df = df[bad_map(df[dims_names]).sum(axis=1) == 0]
+                    dropped_parties = parties - set(df[survey_col].tolist())
+                    info = f"SQLITE: dropping {len(dropped_parties)} parties "
+                    info += f"{dropped_parties}, because corresponding rows "
+
+                # Drop columns with blanck spaces values.
+                else: # missing_values_strategy == 'drop_dims'
+                    df = df.drop(dims_to_drop, axis=1)
+                    info = f"SQLITE: dropping {len(dims_to_drop)} atittudinal dimensions "
+                    info += f"{dims_to_drop}, because corresponding columns "
+
+                info += "in survey have blanck or empty spaces for values."
+                info += f"\n{temp}\n"
+                info += f"Left {df.shape[0]} parties and {df.shape[1] - 2} dims."
+                self.logger.info(info)
+
+            return df
+
+        # Deal with blanck values in survey
+        df = remove_data(df, lambda df: (df == ' '), missing_values_strategy)
+        # Deal with empty (NAN) values in survey
+        df = remove_data(df, lambda df: df.isna(), missing_values_strategy)
+
+        dims_names = set(df.columns) - {'EPO_party_acronym', survey_col}
+        dtypes.update({d: np.float32 for d in dims_names})
         return df \
             .astype(dtypes) \
             .dropna(axis=1)
