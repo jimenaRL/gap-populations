@@ -20,7 +20,7 @@ from gap.validations import make_validation
 from gap.labels import labels_stats
 
 
-SURVEYS = ['ches2023', 'ches2019', 'gps2019']
+SURVEYS = ['ches2023', 'ches2019', 'ches2020', 'gps2019']
 PARENTFOLDER = pathlib.Path(__file__).parent.resolve()
 CONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/embeddings_pseudonymized_alldata.yaml")
 VIZCONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/vizconfigs/template.yaml")

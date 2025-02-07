@@ -82,6 +82,56 @@ attitudinal_dimensions:
     - supportUA
     - antielite_salience
     - Kremlin_ties
+  ches2020:
+    - lrecon
+    - lrecon_blur
+    - lrecon_dissent
+    - lrecon_salience
+    - galtan
+    - galtan_blur
+    - galtan_dissent
+    - galtan_salience
+    - lrgen
+    - covid_ec
+    - covid_ex
+    - immigrate_policy
+    - immigrate_salience
+    - redistribution
+    - redist_salience
+    - environment
+    - enviro_salience
+    - spendvtax
+    - spendvtax_salience
+    - deregulation
+    - deregulation_salience
+    - sociallifestyle
+    - sociallifestyle_salience
+    - religious_principles
+    - religious_principles_salience
+    - protectionism
+    - protectionism_salience
+    - regions
+    - regions_salience
+    - crime
+    - crime_salience
+    - ethnic_minorities
+    - ethnic_minorities_salience
+    - int_org
+    - int_org_salience
+    - people_vs_elite
+    - antielite_salience
+    - corrupt_salience
+    - members_vs_leadership
+    - hor_accountability
+    - hor_acc_salience
+    - linkage_people
+    - linkage_manichean
+    - linkage_clientelism
+    - linkage_charisma
+    - patronage
+    - partisanship
+    - clientelism
+    - programmatism
 sources_min_followers: 25
 sources_min_outdegree: 3
 validation:

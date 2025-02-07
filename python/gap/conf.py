@@ -57,6 +57,18 @@ ATTDICT = {
         'refugees': 'refugees',
         'Kremlin_ties': 'Kremlin_ties'
     },
+    'ches2020': {
+        'lrgen': 'Left – Right',
+        'lrecon': 'Left – Right (economic)',
+        'people_vs_elite': 'Elite – People',
+        'antielite_salience': 'Anti-elite salience',
+        'corrupt_salience': 'Importance of corruption',
+        'sociallifestyle': 'Conservative',
+        'galtan': 'GAL – TAN',
+        'immigrate_policy': 'Opposition to immigration',
+        'environment': 'Economy over environment',
+        'enviro_salience': 'Environment (salience)',
+    },
     'ches2019': {
         'eu_position': 'EU',
         'eu_position_sd': 'EU (std)',
@@ -135,6 +147,7 @@ ATTDICT = {
 VALIDATIONCONFIG = [
     {
         'ches2019': ['lrgen', 'lrecon'],
+        'ches2020': ['lrgen', 'lrecon'],
         'gps2019': ['V4_Scale'],
         'ches2023': ['lrecon'],
         'group1': 'right',
@@ -143,12 +156,14 @@ VALIDATIONCONFIG = [
     {
         'ches2019': ['eu_position'],
         'gps2019': [],
+        'ches2020': [],
         'ches2023': ['eu_position'],
         'group1': 'eurosceptic',
         'group2': 'pro_european',
     },
     {
         'ches2019': ['antielite_salience', 'people_vs_elite', 'corrupt_salience'],
+        'ches2020': ['antielite_salience', 'people_vs_elite', 'corrupt_salience'],
         'gps2019': ['V8_Scale', 'V9', 'V18', 'V19', 'V20', 'V21'],
         'ches2023': ['antielite_salience'],
         'group1': 'populist',
@@ -156,6 +171,7 @@ VALIDATIONCONFIG = [
     },
     {
         'ches2019': ['sociallifestyle', 'galtan'],
+        'ches2020': ['sociallifestyle', 'galtan'],
         'gps2019': ['V6_Scale', 'V14'],
         'ches2023': ['galtan'],
         'group1': 'liberal',
@@ -163,6 +179,7 @@ VALIDATIONCONFIG = [
     },
     {
         'ches2019': ['immigrate_policy'],
+        'ches2020': ['immigrate_policy'],
         'gps2019': ['V10'],
         'ches2023': ['refugees'],
         'group1': 'liberal_immigration',
@@ -170,6 +187,7 @@ VALIDATIONCONFIG = [
     },
     {
         'ches2019': ['environment', 'enviro_salience'],
+        'ches2020': ['environment', 'enviro_salience'],
         'gps2019': ['V12'],
         'ches2023': [],
         'group1': 'pro_environment',
@@ -177,6 +195,7 @@ VALIDATIONCONFIG = [
     },
     {
         'ches2019': ['environment', 'enviro_salience'],
+        'ches2020': ['environment', 'enviro_salience'],
         'gps2019': ['V12'],
         'ches2023': [],
         'group1': 'pro_environment',
@@ -186,6 +205,7 @@ VALIDATIONCONFIG = [
         'ches2019': ['nationalism'],
         'gps2019': ['V13'],
         'ches2023': [],
+        'ches2020': [],
         'group1': 'cosmopolitan',
         'group2': 'nationalist',
     }

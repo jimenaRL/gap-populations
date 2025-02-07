@@ -33,6 +33,11 @@ function gn() {
         command="${command} --survey=ches2023 --attdims=antielite_salience,galtan,eu_position,lrecon,refugees"
     fi
 
+    if [[ "$SURVEY" = "ches2020" ]]
+    then
+        command="${command} --survey=ches2020 --attdims=lrgen,lrecon,people_vs_elite,antielite_salience,corrupt_salience,sociallifestyle,galtan,immigrate_policy,environment,enviro_salience"
+    fi
+
     echo "--------------------------------------------------"
     echo "[RUNNING] ${command}"
     echo "--------------------------------------------------"
@@ -50,6 +55,7 @@ function fn() {
     if [[ $COUNTRY = "argentina" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "australia" ]]
@@ -74,6 +80,7 @@ function fn() {
     if [[ $COUNTRY = "brazil" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "canada" ]]
@@ -84,11 +91,13 @@ function fn() {
     if [[ $COUNTRY = "chile" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "colombia" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "croatia" ]]
@@ -121,6 +130,7 @@ function fn() {
     if [[ $COUNTRY = "ecuador" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "estonia" ]]
@@ -239,6 +249,7 @@ function fn() {
     if [[ $COUNTRY = "mexico" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "netherlands" ]]
@@ -268,6 +279,7 @@ function fn() {
     if [[ $COUNTRY = "peru" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "poland" ]]
@@ -363,6 +375,7 @@ function fn() {
     if [[ $COUNTRY = "uruguay" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "us" ]]
@@ -373,6 +386,7 @@ function fn() {
     if [[ $COUNTRY = "venezuela" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 }
 
