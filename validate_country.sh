@@ -63,7 +63,7 @@ function fn() {
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
     fi
 
-    if [[ $COUNTRY = "austria" ]]
+    if [[ $COUNTRY = "austria" || $COUNTRY = "austriabis" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
@@ -147,14 +147,14 @@ function fn() {
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
     fi
 
-    if [[ $COUNTRY = "france" ]]
+    if [[ $COUNTRY = "france" || $COUNTRY = "francebis" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
     fi
 
-    if [[ $COUNTRY = "germany" ]]
+    if [[ $COUNTRY = "germany" || $COUNTRY = "germanybis" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
@@ -207,7 +207,7 @@ function fn() {
             --validation
     fi
 
-    if [[ $COUNTRY = "italy" ]]
+    if [[ $COUNTRY = "italy" || $COUNTRY = "italybis" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
@@ -360,7 +360,7 @@ function fn() {
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
     fi
 
-    if [[ $COUNTRY = "uk" ]]
+    if [[ $COUNTRY = "uk" || $COUNTRY = "ukbis" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
@@ -378,7 +378,7 @@ function fn() {
         gn $DBPATH $COUNTRY ches2020 $YEAR $OUTPUT_FOLDER
     fi
 
-    if [[ $COUNTRY = "us" ]]
+    if [[ $COUNTRY = "us" || $COUNTRY = "usbis" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
     fi
