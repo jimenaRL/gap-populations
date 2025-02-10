@@ -138,26 +138,27 @@ def create_attitudinal_embedding(
     parties_available_survey = set(parties_coord_att[SURVEYCOL].unique())
     parties_mps = set(ide_mps_in_parties_with_valid_mapping[SURVEYCOL].unique())
 
-    if len(parties_available_survey) < len(parties_mps):
-        m = f"ATTITUDINAL EMBEDDINGS: there are less effectively available "
-        m += f"parties in survey {survey}: "
-        m += f"{joinParties(parties_available_survey)}that parties present in mps affilations:"
-        m += f"{joinParties(parties_mps)}Dropping {parties_mps - parties_available_survey}."
+    if not set(parties_mps).issubset(parties_available_survey):
+        m = f"ATTITUDINAL EMBEDDINGS: there are parties in mps affilations "
+        m += f"{joinParties(parties_mps)} that are not present in survey "
+        m += f"{survey} {joinParties(parties_available_survey)}"
+        m += f"Dropping {parties_mps - parties_available_survey}."
         logger.info(m)
         if not ignore_errors:
             new_candidate_N_survey = len(parties_available_survey) - 1
             user_input = input(
-                f"Do you want to continuate by modifiying N_survey from {N_survey} to {new_candidate_N_survey} (yes/no):")
+                f"Do you want to continuate (yes/no):")
             while user_input.lower() != 'yes':
                 if user_input.lower() == 'no':
                     exit()
                 else:
                     user_input = input('Please type yes or no:')
-        N_survey = new_candidate_N_survey
-        logger.info(f"N_survey value vas modified to {N_survey}.")
         cond = ide_mps_in_parties_with_valid_mapping[SURVEYCOL].isin(
             parties_available_survey)
         ide_mps_in_parties_with_valid_mapping = ide_mps_in_parties_with_valid_mapping[cond]
+        if N_survey != new_candidate_N_survey:
+            N_survey = new_candidate_N_survey
+            logger.info(f"N_survey value vas modified to {N_survey}.")
 
 
     # Fit ridge regression
@@ -178,23 +179,12 @@ def create_attitudinal_embedding(
         mssg += f"doesn't match parties with attitudinal annotations.\n"
         mssg += f"IDE COORDINATES: {joinParties(partiesIde)}"
         mssg += f"ATT COORDINATES: {joinParties(partiesAtt)}"
-        if partiesAtt.issubset(partiesIde):
-            mssg += f"These parties will be ignored:"
-            mssg = mssg + f"{joinParties(partiesIde - partiesAtt)}"
-            logger.info(mssg)
-            if not ignore_errors:
-                logger.info(mssg)
-                user_input = input("Do you want to continuate (yes/no):")
-                while user_input.lower() != 'yes':
-                    if user_input.lower() == 'no':
-                        exit()
-                    else:
-                        user_input = input('Please type yes or no:')
-        else:
-            mssg += f"These parties are excedding:"
+        if not partiesAtt.issubset(partiesIde):
+            mssg += f"These parties are excedding and will be ignored:"
             mssg += f"{joinParties(partiesAtt - partiesIde)}"
             logger.info(mssg)
             if not ignore_errors:
+                new_candidate_N_survey = len(partiesIde) - 1
                 user_input = input("Do you want to continuate (yes/no):")
                 while user_input.lower() != 'yes':
                     if user_input.lower() == 'no':
@@ -202,14 +192,29 @@ def create_attitudinal_embedding(
                     else:
                         user_input = input('Please type yes or no:')
 
-    parties_coord_att = parties_coord_att[parties_coord_att[SURVEYCOL].isin(partiesIde)]
+                parties_coord_att = parties_coord_att[parties_coord_att[SURVEYCOL].isin(partiesIde)]
+                if N_survey != new_candidate_N_survey:
+                    N_survey = new_candidate_N_survey
+                    logger.info(f"N_survey value vas modified to {N_survey}.")
 
-    if not partiesIde == partiesAtt:
-        logger.info(mssg + f"Parties: {','.join(partiesAtt - partiesIde)} where ignored.")
+                if not partiesIde == partiesAtt:
+                    logger.info(f"Parties: {','.join(partiesAtt - partiesIde)} where ignored.")
+
+        else:  # not partiesIde.issubset(partiesAtt)
+            e = "Found unexpected condition "
+            e += "'not partiesIde.issubset(partiesAtt)' with"
+            e += f"partiesIde: {joinParties(partiesIde)}"
+            e += "and"
+            e += f"with partiesAtt: {joinParties(partiesAtt)}"
+            raise ValueError(e)
 
     v1 = estimated_parties_coord_ide[SURVEYCOL].values
     v2 = parties_coord_att[SURVEYCOL].values
-    assert (v1 != v2).sum() == 0
+    if not (v1 != v2).sum() == 0:
+        e = f"Parties attitudinal coordinates from survey {v2} and estimated "
+        e += f"parties attitudinal coordinates {v1} must coincide to proceed "
+        e += "to Ridge regression."
+        raise ValueError(e)
 
     X = estimated_parties_coord_ide.drop(columns=[SURVEYCOL]).values
     Y = parties_coord_att.drop(columns=[SURVEYCOL, 'EPO_party_acronym']).values
