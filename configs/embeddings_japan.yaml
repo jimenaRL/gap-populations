@@ -28,7 +28,7 @@ validation:
   seed: 666
 tables:
   preprocessed_graph:
-    name: 'mp_${entity}_graph_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    name: 'mp_${entity}_graph'
     columns:
       - mp_pseudo_id
       - ${entity}_pseudo_id
@@ -49,7 +49,7 @@ tables:
       - party
       - party_id
   keywords:
-    name: 'labels_keywords_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    name: 'labels_keywords'
     columns:
       - pseudo_id
       - left
@@ -57,7 +57,7 @@ tables:
       - conservative
       - liberal
   llm_labels:
-    name: 'labels_llm_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    name: 'labels_llm_minin'
     columns:
       - pseudo_id
       - climate_denialist
