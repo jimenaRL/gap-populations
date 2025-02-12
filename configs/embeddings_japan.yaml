@@ -36,12 +36,12 @@ tables:
     name: 'mp_party'
     columns:
       - mp_pseudo_id
-      - MMS_party_acronym
+      - EPO_party_acronym
       - GPS2019_party_acronym
   mapping:
     name: 'party_mapping'
     columns:
-      - MMS_party_acronym
+      - EPO_party_acronym
       - GPS2019_party_acronym
   attitude:
     name: 'party_${attitude}'
