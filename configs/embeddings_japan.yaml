@@ -57,7 +57,7 @@ tables:
       - conservative
       - liberal
   llm_labels:
-    name: 'labels_llm_minin'
+    name: 'labels_llm'
     columns:
       - pseudo_id
       - climate_denialist
