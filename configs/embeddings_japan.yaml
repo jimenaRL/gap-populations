@@ -1,0 +1,77 @@
+attitudinal_dimensions:
+  gps2019:
+    - 'V1'
+    - 'V2'
+    - 'V3'
+    - 'V4_Scale'
+    - 'V5'
+    - 'V6_Scale'
+    - 'V7'
+    - 'V8_Scale'
+    - 'V9'
+    - 'V10'
+    - 'V11'
+    - 'V12'
+    - 'V13'
+    - 'V14'
+    - 'V15'
+    - 'V16'
+    - 'V17'
+    - 'V18'
+    - 'V19'
+    - 'V20'
+    - 'V21'
+sqlite: '{country}.db'
+sources_min_followers: 25
+sources_min_outdegree: 3
+validation:
+  seed: 666
+tables:
+  preprocessed_graph:
+    name: 'mp_${entity}_graph_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    columns:
+      - mp_pseudo_id
+      - ${entity}_pseudo_id
+  party:
+    name: 'mp_party'
+    columns:
+      - mp_pseudo_id
+      - MMS_party_acronym
+      - GPS2019_party_acronym
+  mapping:
+    name: 'party_mapping'
+    columns:
+      - MMS_party_acronym
+      - GPS2019_party_acronym
+  attitude:
+    name: 'party_${attitude}'
+    partial_columns:
+      - party
+      - party_id
+  keywords:
+    name: 'labels_keywords_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    columns:
+      - pseudo_id
+      - left
+      - right
+      - conservative
+      - liberal
+  llm_labels:
+    name: 'labels_llm_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    columns:
+      - pseudo_id
+      - climate_denialist
+      - conservative
+      - cosmopolitan
+      - elite
+      - economic_focus
+      - eurosceptic
+      - left
+      - liberal
+      - liberal_immigration
+      - nationalist
+      - populist
+      - pro_environment
+      - pro_european
+      - restrictive_immigration
+      - right
