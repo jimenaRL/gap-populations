@@ -186,7 +186,8 @@ if attitudinal and plot:
                 survey,
                 vizparams,
                 show,
-                logger)
+                logger,
+                att_missing_values_strategy)
 
 # 3. Make validations
 if validation:

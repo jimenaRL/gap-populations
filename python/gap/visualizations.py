@@ -81,7 +81,8 @@ def plot_attitudinal_embedding(
     survey,
     vizparams,
     show,
-    logger):
+    logger,
+    missing_values_strategy):
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
 
@@ -112,8 +113,8 @@ def plot_attitudinal_embedding(
     _zip = zip(palette[SURVEYCOL], palette['color'])
     palette = {z[0]: z[1] for z in _zip}
 
-
-    parties_coord_att = SQLITE.getPartiesAttitudes(survey, dimspair)
+    # Load parties attitudinal coordinates
+    parties_coord_att = SQLITE.getPartiesAttitudes(survey, dimspair, missing_values_strategy)
 
     rename_cols = {SURVEYCOL: 'party'}
     att_targets.rename(columns=rename_cols, inplace=True)

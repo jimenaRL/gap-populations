@@ -60,7 +60,7 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
         .drop(columns=['pseudo_id'])
 
     strategy_data = {
-        'keywords': keywords_data,
+        # 'keywords': keywords_data,
         'llm': llm_data
     }
 
