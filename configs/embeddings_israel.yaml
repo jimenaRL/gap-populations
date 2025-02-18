@@ -28,7 +28,7 @@ validation:
   seed: 666
 tables:
   preprocessed_graph:
-    name: 'mp_${entity}_graph'
+    name: 'mp_${entity}_graph_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
     columns:
       - mp_pseudo_id
       - ${entity}_pseudo_id
@@ -37,25 +37,29 @@ tables:
     columns:
       - mp_pseudo_id
       - EPO_party_acronym
+      - CHES2019_party_acronym
       - GPS2019_party_acronym
+      - CHES2023_party_acronym
   mapping:
     name: 'party_mapping'
     columns:
       - EPO_party_acronym
+      - CHES2019_party_acronym
       - GPS2019_party_acronym
+      - CHES2023_party_acronym
   attitude:
     name: 'party_${attitude}'
     partial_columns:
       - party
       - party_id
   keywords:
-    name: 'labels_keywords'
+    name: 'labels_keywords_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
     columns:
       - pseudo_id
       - left
       - right
   llm_labels:
-    name: 'labels_llm'
+    name: 'labels_llm_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
     columns:
       - pseudo_id
       - climate_denialist
