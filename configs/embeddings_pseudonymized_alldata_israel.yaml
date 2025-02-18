@@ -21,7 +21,6 @@ attitudinal_dimensions:
     - 'V19'
     - 'V20'
     - 'V21'
-sqlite: '{country}.db'
 sources_min_followers: 25
 sources_min_outdegree: 3
 validation:
@@ -37,25 +36,29 @@ tables:
     columns:
       - mp_pseudo_id
       - EPO_party_acronym
+      - CHES2019_party_acronym
       - GPS2019_party_acronym
+      - CHES2023_party_acronym
   mapping:
     name: 'party_mapping'
     columns:
       - EPO_party_acronym
+      - CHES2019_party_acronym
       - GPS2019_party_acronym
+      - CHES2023_party_acronym
   attitude:
     name: 'party_${attitude}'
     partial_columns:
       - party
       - party_id
   keywords:
-    name: 'labels_keywords_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    name: 'labels_keywords'
     columns:
       - pseudo_id
       - left
       - right
   llm_labels:
-    name: 'labels_llm_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    name: 'labels_llm'
     columns:
       - pseudo_id
       - climate_denialist
