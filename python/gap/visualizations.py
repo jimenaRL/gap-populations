@@ -78,21 +78,37 @@ def plot_1d_attitudinal_distributions(
     SQLITE,
     INOUT,
     country,
+    year,
     survey,
+    attdims,
+    logger,
     show):
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
 
     att_sources, att_targets = INOUT.load_att_embeddings()
 
+    att_sources = att_sources[attdims]
+    att_targets = att_targets[attdims]
+
     mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=True)
 
-    # (0) show by dim distributions
+    valfolder = os.path.join(INOUT.att_folder, 'validations')
+
+    paths=[
+        os.path.join(INOUT.att_folder, 'figures', f"distributions.png"),
+        os.path.join(INOUT.att_folder, 'figures', f"distributions.pdf"),
+    ]
+
+    # show by dim distributions
     distributions(
         att_sources,
         att_targets,
         country,
+        year,
         survey,
+        paths,
+        logger,
         show)
 
 def plot_attitudinal_embedding(

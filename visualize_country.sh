@@ -32,7 +32,7 @@ function gn() {
     command="${command} --dbpath=$DBPATH --country=$COUNTRY --year=$YEAR"
     command="${command} --output=$OUTPUT_FOLDER --plot --no_recomputation"
     command="${command} --att_missing_values_strategy=$ATT_STRATEGY"
-    command="${command} --show"
+    # command="${command} --show"
 
     if [[ "$IDEOLOGICAL" = "ideological" ]]; then
         command="${command} --ideological --bivariate --distributions --ndimsviz=2"
@@ -40,21 +40,21 @@ function gn() {
         command="${command} --validation"
         if [[ "$SURVEY" = "ches2019" ]]
         then
-            command="${command} --attitudinal --bivariate --distributions --survey=ches2019 --attdims=lrecon,people_vs_elite"
+            command="${command} --attitudinal --bivariate --distributions --survey=ches2019 --attdims=lrgen,lrecon,eu_position,people_vs_elite,antielite_salience,corrupt_salience,sociallifestyle,galtan,immigrate_policy,environment,enviro_salience,nationalism"
         fi
 
         if [[ "$SURVEY" = "gps2019" ]]
         then
-            command="${command} --attitudinal --bivariate --distributions --survey=gps2019 --attdims=V4_Scale,V8_Scale"
+            command="${command} --attitudinal --bivariate --distributions --survey=gps2019 --attdims=V4_Scale,V6_Scale,V8_Scale,V9,V10,V12,V13,V14,V18,V19,V20,V21"
         fi
 
         if [[ "$SURVEY" = "ches2023" ]]
         then
-            command="${command} --attitudinal --bivariate --distributions --survey=ches2023 --attdims=antielite_salience,lrecon"
+            command="${command} --attitudinal --bivariate --distributions --survey=ches2023 --attdims=antielite_salience,galtan,eu_position,lrecon,refugees"
         fi
         if [[ "$SURVEY" = "ches2020" ]]
         then
-            command="${command} --attitudinal --bivariate --distributions --survey=ches2020 --attdims=lrgen,antielite_salience"
+            command="${command} --attitudinal --bivariate --distributions --survey=ches2020 --attdims=lrgen,lrecon,people_vs_elite,antielite_salience,corrupt_salience,sociallifestyle,galtan,immigrate_policy,environment,enviro_salience"
         fi
         if [[ "$LABELS" = "labels" ]]; then
             command="${command} --labels"
@@ -67,6 +67,8 @@ function gn() {
     eval "$command"
 
 }
+
+
 
 function fn() {
 

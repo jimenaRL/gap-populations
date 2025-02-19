@@ -188,7 +188,10 @@ if attitudinal:
             SQLITE,
             INOUT,
             country,
+            year,
             survey,
+            attdims,
+            logger,
             show)
 
     if bivariate and plot:
