@@ -95,6 +95,8 @@ def plot_1d_attitudinal_distributions(
 
     valfolder = os.path.join(INOUT.att_folder, 'validations')
 
+    os.makedirs(os.path.join(INOUT.att_folder, 'figures'), exist_ok=True)
+
     paths=[
         os.path.join(INOUT.att_folder, 'figures', f"distributions.png"),
         os.path.join(INOUT.att_folder, 'figures', f"distributions.pdf"),
