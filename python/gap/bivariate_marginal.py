@@ -16,9 +16,9 @@ from gap.conf import \
 mpl.set_loglevel('error')
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='sans-serif', size=12)
+plt.rc('font', family='sans-serif', size=16)
 
-fs = 12
+fs = 20
 dpi = 150
 
 legend_mps = Line2D(
@@ -56,6 +56,10 @@ X0 = 0
 X1 = 10
 Y0 = 0
 Y1 = 10
+
+FIGHEIGHT = 8
+FIGRATIO = 5
+FIGSPACE = 0.05
 
 def get_ordinal(n):
     if n < 0 or not isinstance(n, int):
@@ -139,8 +143,8 @@ def visualize_ide(
         'x': 'x',
         'y': 'y',
         'space': 0,
-        'ratio': 10,
-        'height': 5,
+        'ratio': FIGRATIO,
+        'height': FIGHEIGHT,
         'color': "deepskyblue",
         'gridsize': gridsize,
         'kind': 'hex',
@@ -207,22 +211,27 @@ def visualize_ide(
     ax.set_xlabel(xl, fontsize=fs)
     ax.set_ylabel(yl, fontsize=fs)
 
+    # Setting the number of ticks
+    plt.locator_params(axis='both', nbins=4)
+
     ax.legend(handles=custom_legend, loc=legend_loc, prop={'size': 14})
     ax.tick_params(axis='x', labelsize=fs)
-    ax.tick_params(axis='x', labelsize=fs)
+    ax.tick_params(axis='y', labelsize=fs)
 
     ax.set_xlim(xlims)
     ax.set_ylim(ylims)
 
     cbar_ax = g.fig.add_axes(cbar_rect)
     cbar = plt.colorbar(cax=cbar_ax)
+    cbar.ax.tick_params(labelsize=fs)
+    cbar.ax.locator_params(nbins=2)
 
     if output_folders:
         for output_folder in output_folders:
             figname = f"latent_dims_{latent_dim_x}_vs_{latent_dim_y}.png"
             path = os.path.join(output_folder, figname)
             plt.savefig(path, dpi=dpi)
-            logger.info(f"Figure saved at {path}.")
+            logger.info(f"Figure saved at {path}")
 
     if show:
         plt.show()
@@ -268,9 +277,9 @@ def visualize_att(
         'x': dims['x'],
         'y': dims['y'],
         'color': "deepskyblue",
-        'space': 2,
-        'ratio': 10,
-        'height': 5,
+        'space': FIGSPACE,
+        'ratio': FIGRATIO,
+        'height': FIGHEIGHT,
         'kind': 'hex',
         # 'bins': 'log',  # to debug or make appear hexbins with low density
         'data': plot_df,
@@ -282,7 +291,6 @@ def visualize_att(
     ax = g.ax_joint
 
     # plot square showing CHES limits
-
     lowlim_x = 0
     upperlim_x = 10
     lowlim_y = 0
@@ -291,7 +299,7 @@ def visualize_att(
     B = [lowlim_y, upperlim_y, upperlim_y, lowlim_y, lowlim_y]
     ax.plot(A, B, color='white', linestyle='-')
     ax.plot(A, B, color='black', linestyle='--')
-    txt = ax.text(2, 10.25, f'{survey.upper()} survey bounds', fontsize=12)
+    txt = ax.text(1.8, 10.25, f'{survey.upper()} survey bounds', fontsize=fs-2)
     txt.set_path_effects([PathEffects.withStroke(linewidth=2, foreground='w')])
 
     # plot colored by parties targets attitudinal embeddings
@@ -360,8 +368,11 @@ def visualize_att(
         framealpha=0.98
     )
 
+    # Setting the number of ticks
+    plt.locator_params(axis='both', nbins=4)
+
     ax.tick_params(axis='x', labelsize=fs)
-    ax.tick_params(axis='x', labelsize=fs)
+    ax.tick_params(axis='y', labelsize=fs)
 
     # setting lims
     ax.set_xlim(limits)
@@ -369,11 +380,13 @@ def visualize_att(
 
     cbar_ax = g.fig.add_axes(cbar_rect)
     cbar = plt.colorbar(cax=cbar_ax)
+    cbar.ax.tick_params(labelsize=fs)
+    cbar.ax.locator_params(nbins=2)
 
     if paths:
         for path in paths:
             plt.savefig(path, dpi=dpi)
-            logger.info(f"Figure saved at {path}.")
+            logger.info(f"Figure saved at {path}")
 
     if show:
         plt.show()

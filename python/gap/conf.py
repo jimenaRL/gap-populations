@@ -1,25 +1,15 @@
 VIZMAXDROP = 1
 
 CHES2023DEFAULTATTVIZ = {
-  'cbar_rect': [0.15, 0.6, 0.02, 0.3],
+  'cbar_rect': [0.21, 0.6, 0.02, 0.2],
   'legend_loc': 'lower center',
   'limits': [-2, 12],
   'nudges': []
 }
 
-CHES2019DEFAULTATTVIZ = {
-  'cbar_rect': [0.15, 0.6, 0.02, 0.3],
-  'legend_loc': 'lower center',
-  'limits': [-2, 12],
-  'nudges': []
-}
-
-GPS2019DEFAULTATTVIZ = {
-  'cbar_rect': [0.15, 0.6, 0.02, 0.3],
-  'legend_loc': 'lower center',
-  'limits': [-2, 12],
-  'nudges': []
-}
+CHES2019DEFAULTATTVIZ = CHES2023DEFAULTATTVIZ
+CHES2020DEFAULTATTVIZ = CHES2023DEFAULTATTVIZ
+GPS2019DEFAULTATTVIZ = CHES2023DEFAULTATTVIZ
 
 COLORS = [
  'tab:green',

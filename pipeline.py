@@ -15,7 +15,8 @@ from gap.embeddings import \
     create_attitudinal_embedding
 from gap.visualizations import \
     plot_ideological_embedding, \
-    plot_attitudinal_embedding
+    plot_attitudinal_embedding, \
+    plot_1d_attitudinal_distributions
 from gap.validations import make_validation
 from gap.labels import labels_stats
 
@@ -40,6 +41,8 @@ ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
 ap.add_argument('--attitudinal', action='store_true')
 ap.add_argument('--validation', action='store_true')
+ap.add_argument('--distributions', action='store_true')
+ap.add_argument('--bivariate', action='store_true')
 ap.add_argument('--no_recomputation', action='store_true')
 ap.add_argument('--nbsplits_validation', type=int, default=10)
 ap.add_argument('--seed_validation', type=int, default=42)
@@ -62,6 +65,8 @@ ideological = args.ideological
 attitudinal = args.attitudinal
 labels = args.labels
 validation = args.validation
+distributions = args.distributions
+bivariate = args.bivariate
 no_recomputation = args.no_recomputation
 seed = args.seed_validation
 nb_splits = args.nbsplits_validation
@@ -69,7 +74,7 @@ plot = args.plot
 show = args.show
 
 
-if not (ideological or attitudinal or validation or labels):
+if not (ideological or attitudinal or validation or labels or distributions or bivariate):
     e = "Please add at least one of the following actions as argument to run "
     e += "the script:\n--ideological\n--attitudinal\n--validation\n--labels."
     ap.error(e)
@@ -131,16 +136,17 @@ if survey:
 
 
 # 1. Create and plot ideological embedding
-if ideological and not no_recomputation:
-    create_ideological_embedding(
-        SQLITE,
-        INOUT,
-        NB_MIN_FOLLOWERS,
-        MIN_OUTDEGREE,
-        ideN,
-        logger)
+if ideological:
+    if not no_recomputation:
+        create_ideological_embedding(
+            SQLITE,
+            INOUT,
+            NB_MIN_FOLLOWERS,
+            MIN_OUTDEGREE,
+            ideN,
+            logger)
 
-if ideological and plot:
+    if bivariate and plot:
         plot_ideological_embedding(
             SQLITE,
             INOUT,
@@ -151,7 +157,7 @@ if ideological and plot:
             logger)
 
 # 2. Create and plot attitudinal embedding
-if attitudinal and not no_recomputation:
+if attitudinal:
 
     # Set the number of dimension for the mapping to the attitudinal space
     # 1. Get the number of unique survey parties corresponding with an available
@@ -167,16 +173,25 @@ if attitudinal and not no_recomputation:
     numberEPOPartiesWithMPsinPPGraph = res[0][0]
     N_survey = numberEPOPartiesWithMPsinPPGraph - 1
 
-    create_attitudinal_embedding(
-        SQLITE,
-        INOUT,
-        ATTDIMS,
-        survey,
-        N_survey,
-        logger,
-        att_missing_values_strategy)
+    if not no_recomputation:
+        create_attitudinal_embedding(
+            SQLITE,
+            INOUT,
+            ATTDIMS,
+            survey,
+            N_survey,
+            logger,
+            att_missing_values_strategy)
 
-if attitudinal and plot:
+    if distributions and plot:
+        plot_1d_attitudinal_distributions(
+            SQLITE,
+            INOUT,
+            country,
+            survey,
+            show)
+
+    if bivariate and plot:
         for attdimspair in  combinations(attdims, 2):
             plot_attitudinal_embedding(
                 SQLITE,

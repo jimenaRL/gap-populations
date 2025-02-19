@@ -8,7 +8,7 @@ from gap.bivariate_marginal import \
     visualize_ide, \
     visualize_att
 
-# from gap.distributions import distributions
+from gap.distributions import distributions
 
 from gap.conf import \
     CHES2019DEFAULTATTVIZ, \
@@ -73,6 +73,28 @@ def plot_ideological_embedding(
             **idevizparams
         )
 
+
+def plot_1d_attitudinal_distributions(
+    SQLITE,
+    INOUT,
+    country,
+    survey,
+    show):
+
+    SURVEYCOL = f'{survey.upper()}_party_acronym'
+
+    att_sources, att_targets = INOUT.load_att_embeddings()
+
+    mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=True)
+
+    # (0) show by dim distributions
+    distributions(
+        att_sources,
+        att_targets,
+        country,
+        survey,
+        show)
+
 def plot_attitudinal_embedding(
     SQLITE,
     INOUT,
@@ -82,21 +104,14 @@ def plot_attitudinal_embedding(
     vizparams,
     show,
     logger,
-    missing_values_strategy):
+    missing_values_strategy
+    ):
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
 
     att_sources, att_targets = INOUT.load_att_embeddings()
 
     mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=True)
-
-    # # (0) show by dim distributions
-    # distributions(
-    #     att_sources,
-    #     att_targets,
-    #     country,
-    #     survey,
-    #     show)
 
     # (1) show 2d figures
 
@@ -131,7 +146,6 @@ def plot_attitudinal_embedding(
         attvizparams = vizparams['attitudinal'][survey][dimpair_str]
     else:
         attvizparams = globals()[f"{survey.upper()}DEFAULTATTVIZ"]
-
 
     output_folder = os.path.join(INOUT.att_folder, 'figures')
     os.makedirs(output_folder, exist_ok=True)

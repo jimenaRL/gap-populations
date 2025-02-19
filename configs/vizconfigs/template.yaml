@@ -7,10 +7,10 @@ attitudinal:
     -
 ideological:
   cbar_rect:
-  - 0.15
-  - 0.35
-  - 0.03
-  - 0.45
+  - 0.21
+  - 0.6
+  - 0.02
+  - 0.2
   legend_loc: upper right
   limits:
     x:
