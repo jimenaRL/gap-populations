@@ -214,6 +214,7 @@ if validation:
             cv_seed=seed,
             nb_splits=nb_splits,
             country=country,
+            year=year,
             survey=survey,
             attdim=attdim,
             plot=plot,

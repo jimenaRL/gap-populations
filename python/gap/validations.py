@@ -39,6 +39,7 @@ mpl.rcParams['mathtext.fontset'] = 'cm'
 mpl.rcParams['mathtext.rm'] = 'serif'
 # mpl.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
 fs = 12
+figsize = (7.5,  5)
 # dpi = 150
 plt.rc('text', usetex=True)
 plt.rc('font', family='sans-serif', size=fs)
@@ -49,6 +50,7 @@ def make_validation(
     cv_seed,
     nb_splits,
     country,
+    year,
     survey,
     attdim,
     plot,
@@ -69,14 +71,14 @@ def make_validation(
             f"VALIDATION: skipping missing attitudinal dimension {attdim}.")
         return {}
 
-    # get A strategy labels
-    keywords_labels = SQLITE.getKeywordsLabels()
-    keywords_data = keywords_labels.merge(
-        att_sources,
-        left_on='pseudo_id',
-        right_on='entity',
-        how='inner') \
-        .drop(columns=['pseudo_id'])
+    # # get A strategy labels
+    # keywords_labels = SQLITE.getKeywordsLabels()
+    # keywords_data = keywords_labels.merge(
+    #     att_sources,
+    #     left_on='pseudo_id',
+    #     right_on='entity',
+    #     how='inner') \
+    #     .drop(columns=['pseudo_id'])
 
     # get C strategy labels
     llm_labels = SQLITE.getLLMLabels()
@@ -88,7 +90,7 @@ def make_validation(
         .drop(columns=['pseudo_id'])
 
     strategy_data = {
-        'keywords': keywords_data,
+        # 'keywords': keywords_data,
         'llm': llm_data
     }
 
@@ -277,7 +279,10 @@ def make_validation(
 
         # plot
         if plot:
-            Xplot = np.sort(X.flatten())
+            # Xplot = np.sort(X.flatten())
+            # f = expit(Xplot * clf_coef + clf_intercept).ravel()
+
+            Xplot = np.linspace(-1.8, 11.8, 1000, endpoint=True)
             f = expit(Xplot * clf_coef + clf_intercept).ravel()
 
             if clf_intercept < 0:
@@ -288,63 +293,83 @@ def make_validation(
             X_threshold = Xplot[above_threshold][0]
 
             custom_legend=[
-                #densities
-                Line2D([0], [0], color='white', lw=1, alpha=1, label='Users:'),
+                # densities
+                Line2D([0], [0], color='white', lw=1, alpha=1, label='Users'),
                 Line2D([0], [0], color='blue', marker='o', mew=0, lw=0, alpha=0.5,
                     label=f'Labeled {label1} ({l1})'),
                 Line2D([0], [0], color='red', marker='o', mew=0, lw=0, alpha=0.5,
                     label=f'Labeled {label2} ({l2})'),
                 #densities
-                Line2D([0], [0], color='white', lw=1, alpha=1, label='\nDensities:'),
+                Line2D([0], [0], color='white', lw=1, alpha=1, label='\nDensities'),
                 Line2D([0], [0], color='blue', alpha=1, label=f'Labeled {label1}'),
                 Line2D([0], [0], color='red', alpha=1, label=f'Labeled {label2}\n'),
-                Line2D([0], [0], color='white', lw=1, alpha=1, label='\nLogistic Reg.:'),
+                Line2D([0], [0], color='white', lw=1, alpha=1, label='\nLogistic regression'),
                 Line2D([0], [0], color='k',  alpha=1, label='Model'),
                 Line2D([0], [0], color='k',  linestyle=':', alpha=1,
                     label='Classification'),
                 Line2D([0], [0], color='white', lw=1, alpha=1, label='cuttof'),
+                # metrics
+                Line2D([0], [0], color='white', lw=1, alpha=1, label='\nMetrics'),
+                Line2D([0], [0], color='white', alpha=1, label=f'F1 = {f1:.3f}'),
+                Line2D([0], [0], color='white', alpha=1, label=f'precision = {precision:.3f}'),
+                Line2D([0], [0], color='white', alpha=1, label=f'recall = {recall:.3f}'),
+                Line2D([0], [0], color='white', alpha=1, label=f'AUC = {auc:.3f}'),
+                Line2D([0], [0], color='white', alpha=1, label=f'$\chi^{{{2}}}$ = {chi2_stat:.3f}'),
+                Line2D([0], [0], color='white', alpha=1, label=f'p = {chi2_pval:.3f}'),
             ]
 
-            fig = plt.figure(figsize=(5,  3.3))
+
+            fig = plt.figure(figsize=figsize)
 
             ax = fig.add_subplot(1,  1,  1)
 
             # left/blue
-            sns.kdeplot(data=attdata1.to_frame(), x=attdim, color='blue', ax=ax, common_norm=False)
-            ax.plot(X[y==0], np.zeros(X[y==0].size), 'o', color='blue', alpha=0.02, ms=5, mew=1)
+            sns.kdeplot(data=attdata1.to_frame(), x=attdim, color='blue', alpha=0.1, ax=ax, common_norm=False, fill=True)
+            ax.plot(X[y==0], np.zeros(X[y==0].size)-0.05, 'o', color='blue', alpha=0.02, ms=5, mew=1)
 
             # right/red
-            sns.kdeplot(data=attdata2.to_frame(), x=attdim, color='red', ax=ax, common_norm=False)
+            sns.kdeplot(data=attdata2.to_frame(), x=attdim, color='red', alpha=0.1, ax=ax, common_norm=False,  fill=True)
             ax.plot(X[y==1], np.ones(X[y==1].size),  'o', color='red',  alpha=0.02, ms=5, mew=1)
 
             # logistic
-            ax.plot(Xplot, f, color='k')
+            ax.plot(Xplot, f, color='black', linewidth=1)
             ax.axvline(X_threshold, linestyle=':', color='k')
             ax.axhline(0.5, linestyle=':', color='k')
-            ax.text(-2.3, 0.42, r'$0.5$', color='gray', fontsize=10)
-            ax.text(X_threshold+0.25, -0.18, r'$%.2f$' % (X_threshold), color='gray', fontsize=10)
+            ax.text(-1.8, 0.42, r'y=$0.5$', color='gray', fontsize=fs-3)
+            ax.text(X_threshold+0.25, 0.04, r'x=$%.2f$' % (X_threshold), color='gray', fontsize=fs-3)
 
             # positives & negatives
-            ax.text(X_threshold+0.2, 1.1, 'True pos.', color='r', fontsize=9)
-            ax.text(X_threshold-3.15, 1.1, 'False neg.', color='r', fontsize=9)
-            ax.text(X_threshold+0.2, -0.1, 'False pos.', color='b', fontsize=9)
-            ax.text(X_threshold-3.05, -0.1, 'True neg.', color='b', fontsize=9)
+            ax.text(X_threshold+0.3, 1.05, 'True pos.', color='r', fontsize=fs)
+            ax.text(X_threshold-2.5, 1.05, 'False neg.', color='r', fontsize=fs)
+            ax.text(X_threshold+0.35, -0.15, 'False pos.', color='b', fontsize=fs)
+            ax.text(X_threshold-2.5, -0.15, 'True neg.', color='b', fontsize=fs)
 
             # axis
-            ax.set_xlim((-2.5, 15))
+            ax.plot([-2, 12], [0, 0], color="black", linewidth=1) # base line
+            ax.set_xlim((-2, 12))
             ax.set_ylim((-0.2, 1.2))
-            s = ATTDICT[survey][attdim].replace(' ', '-')
-            ax.set_xlabel(f"$\delta_{{{s}}}$", fontsize=13)
+            s = ATTDICT[survey][attdim]
+            ax.set_xlabel(f"$\delta_{{{s}}}$", fontsize=fs*2)
             ax.set_ylabel('')
-            ax.legend(handles=custom_legend, loc='center left', fontsize=8.7, bbox_to_anchor=(1, 0.5))
+            ax.legend(handles=custom_legend, loc='center left', fontsize=fs-1, bbox_to_anchor=(1, 0.5))
+            # plt.locator_params(axis='x', nbins=5)
+            # plt.locator_params(axis='y', nbins=4)
             ax.set_xticks([0, 2.5, 5, 7.5, 10])
             ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1])
-            title = f
-            fig.suptitle(
-                t=f'{country.capitalize()}: precision=%.3f,  recall=%.3f,  F1=%.3f ' % (precision, recall, f1),
-                x=0.5,
-                y=0.94
-            )
+            ax.tick_params(axis='x', labelsize=fs*2)
+            ax.tick_params(axis='y', labelsize=fs*2)
+
+
+            # title
+            title = f'{country.capitalize()} {year}'
+            ax.set_title(title, loc='center', fontweight='normal', fontsize=fs*2)
+            # fig.suptitle(
+            #     t=title,
+            #     x=0.5,
+            #     y=0.9,
+            #     fontsize=fs
+            # )
+
             plt.tight_layout()
 
             #saving
