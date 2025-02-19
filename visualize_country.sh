@@ -32,29 +32,29 @@ function gn() {
     command="${command} --dbpath=$DBPATH --country=$COUNTRY --year=$YEAR"
     command="${command} --output=$OUTPUT_FOLDER --plot --no_recomputation"
     command="${command} --att_missing_values_strategy=$ATT_STRATEGY"
-    # command="${command} --show"
+    command="${command} --show"
 
     if [[ "$IDEOLOGICAL" = "ideological" ]]; then
-        command="${command} --ideological --ndimsviz=2"
+        command="${command} --ideological --bivariate --distributions --ndimsviz=2"
     else
         command="${command} --validation"
         if [[ "$SURVEY" = "ches2019" ]]
         then
-            command="${command} --attitudinal --survey=ches2019 --attdims=lrecon,people_vs_elite"
+            command="${command} --attitudinal --bivariate --distributions --survey=ches2019 --attdims=lrecon,people_vs_elite"
         fi
 
         if [[ "$SURVEY" = "gps2019" ]]
         then
-            command="${command} --attitudinal --survey=gps2019 --attdims=V4_Scale,V8_Scale"
+            command="${command} --attitudinal --bivariate --distributions --survey=gps2019 --attdims=V4_Scale,V8_Scale"
         fi
 
         if [[ "$SURVEY" = "ches2023" ]]
         then
-            command="${command} --attitudinal --survey=ches2023 --attdims=antielite_salience,lrecon"
+            command="${command} --attitudinal --bivariate --distributions --survey=ches2023 --attdims=antielite_salience,lrecon"
         fi
         if [[ "$SURVEY" = "ches2020" ]]
         then
-            command="${command} --attitudinal --survey=ches2020 --attdims=lrgen,antielite_salience"
+            command="${command} --attitudinal --bivariate --distributions --survey=ches2020 --attdims=lrgen,antielite_salience"
         fi
         if [[ "$LABELS" = "labels" ]]; then
             command="${command} --labels"
