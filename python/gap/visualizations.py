@@ -132,11 +132,16 @@ def plot_attitudinal_embedding(
 
     # (1) show 2d figures
 
+    # select parties to show
+    # these are the ones from EPO that have at least one mapping in an availbale survey
+    parties_to_show = SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys())[SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys()) \
+        .drop('EPO_party_acronym', axis=1).isna().sum(axis=1) != len(SQLITE.getAvailableSurveys())].EPO_party_acronym.tolist()
+
     party_mapping = SQLITE.getPartiesMapping(surveys=[survey])
     # use mapping to adapt palette to the party system survey
     if not vizparams['palette']:
         palette = make_palette(
-            vizparams['palette'], party_mapping.EPO_party_acronym.unique())
+            vizparams['palette'], parties_to_show)
 
     color_data = palette.items()
     palette = pd.DataFrame.from_dict(color_data) \
