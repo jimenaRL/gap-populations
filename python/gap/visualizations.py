@@ -48,10 +48,9 @@ def plot_ideological_embedding(
         .rename(columns={'EPO_party_acronym': 'party'})
 
     # select parties to show
-    # _parties_to_show = mp_parties[
-    #     ~mp_parties[f'{survey.upper()}_party_acronym'].isna()]
-    # parties_to_show = _parties_to_show['EPO_party_acronym'].unique().tolist()
-    parties_to_show = mp_parties['EPO_party_acronym'].unique().tolist()
+    # these are the ones from EPO that have at least one mapping in an availbale survey
+    parties_to_show = SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys())[SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys()) \
+        .drop('EPO_party_acronym', axis=1).isna().sum(axis=1) != len(SQLITE.getAvailableSurveys())].EPO_party_acronym.tolist()
 
     output_folder = os.path.join(INOUT.emb_folder, 'figures')
     os.makedirs(output_folder, exist_ok=True)
