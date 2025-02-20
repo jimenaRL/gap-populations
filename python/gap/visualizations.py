@@ -14,6 +14,7 @@ from gap.conf import \
     CHES2019DEFAULTATTVIZ, \
     GPS2019DEFAULTATTVIZ, \
     CHES2023DEFAULTATTVIZ, \
+    CHES2020DEFAULTATTVIZ, \
     COLORS
 
 def make_palette(palette, parties):
@@ -33,14 +34,6 @@ def plot_ideological_embedding(
 
     # Load data from ideological embedding
     ide_sources, ide_targets = INOUT.load_ide_embeddings()
-
-    # # show by dim distributions
-    # distributions(
-    #     ide_sources,
-    #     ide_targets,
-    #     "",
-    #     country,
-    #     show)
 
     idevizparams = vizparams['ideological']
     mp_parties = SQLITE.getMpParties(['EPO'])
@@ -132,16 +125,16 @@ def plot_attitudinal_embedding(
 
     # (1) show 2d figures
 
-    # select parties to show
+    # select parties create the color palette
     # these are the ones from EPO that have at least one mapping in an availbale survey
-    parties_to_show = SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys())[SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys()) \
+    parties_with_mapping = SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys())[SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys()) \
         .drop('EPO_party_acronym', axis=1).isna().sum(axis=1) != len(SQLITE.getAvailableSurveys())].EPO_party_acronym.tolist()
 
     party_mapping = SQLITE.getPartiesMapping(surveys=[survey])
     # use mapping to adapt palette to the party system survey
     if not vizparams['palette']:
         palette = make_palette(
-            vizparams['palette'], parties_to_show)
+            vizparams['palette'], parties_with_mapping)
 
     color_data = palette.items()
     palette = pd.DataFrame.from_dict(color_data) \
@@ -164,10 +157,7 @@ def plot_attitudinal_embedding(
     # visualize attitudinal espaces
     dimpair_str = '_vs_'.join(dimspair)
 
-    if dimpair_str in vizparams['attitudinal'][survey]:
-        attvizparams = vizparams['attitudinal'][survey][dimpair_str]
-    else:
-        attvizparams = globals()[f"{survey.upper()}DEFAULTATTVIZ"]
+    attvizparams = globals()[f"{survey.upper()}DEFAULTATTVIZ"]
 
     output_folder = os.path.join(INOUT.att_folder, 'figures')
     os.makedirs(output_folder, exist_ok=True)

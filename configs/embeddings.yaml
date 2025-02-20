@@ -150,6 +150,7 @@ tables:
       - CHES2019_party_acronym
       - GPS2019_party_acronym
       - CHES2023_party_acronym
+      - CHES2020_party_acronym
   mapping:
     name: 'party_mapping'
     columns:
@@ -157,6 +158,7 @@ tables:
       - CHES2019_party_acronym
       - GPS2019_party_acronym
       - CHES2023_party_acronym
+      - CHES2020_party_acronym
   attitude:
     name: 'party_${attitude}'
     partial_columns:
