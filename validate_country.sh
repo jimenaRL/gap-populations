@@ -398,4 +398,9 @@ function fn() {
     fi
 }
 
-fn $1 $2 $3 $4
+COUNTRY=$1
+YEAR=$2
+DBPATH=$3
+OUTPUT_FOLDER=$4
+
+fn $COUNTRY $YEAR $DBPATH $OUTPUT_FOLDER
