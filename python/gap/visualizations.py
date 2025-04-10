@@ -135,6 +135,8 @@ def plot_attitudinal_embedding(
     if not vizparams['palette']:
         palette = make_palette(
             vizparams['palette'], parties_with_mapping)
+    else:
+        palette = vizparams['palette']
 
     color_data = palette.items()
     palette = pd.DataFrame.from_dict(color_data) \
