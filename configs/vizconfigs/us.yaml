@@ -1,0 +1,28 @@
+attitudinal:
+  ches2019:
+    -
+  gps2019:
+    -
+  ches2023:
+    -
+ideological:
+  cbar_rect:
+  - 0.21
+  - 0.6
+  - 0.02
+  - 0.2
+  legend_loc: upper right
+  limits:
+    x:
+    - -2
+    - 4
+    y:
+    - -2
+    - 4
+  nudges:
+    party:
+    - 0
+    - 0
+palette:
+  D: blue
+  R: red
