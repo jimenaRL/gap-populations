@@ -30,7 +30,7 @@ function gn() {
 
     command="python /home/jimena/work/dev/gap-populations/pipeline.py"
     command="${command} --dbpath=$DBPATH --country=$COUNTRY --year=$YEAR"
-    command="${command} --output=$OUTPUT_FOLDER --plot --no_recomputation"
+    command="${command} --output=$OUTPUT_FOLDER --plot"
     command="${command} --att_missing_values_strategy=$ATT_STRATEGY"
     # command="${command} --show"
 
@@ -65,6 +65,7 @@ function gn() {
     echo "[RUNNING] ${command}"
     echo "--------------------------------------------------"
     # eval "$command"
+    echo "$command"
 
 }
 

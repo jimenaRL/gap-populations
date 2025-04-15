@@ -37,6 +37,11 @@ class SQLite:
             sources_min_outdegree=self.MIN_OUTDEGREE
         )
 
+    def getTableColumns(self, table):
+        res = self.retrieve(f"PRAGMA table_info({table});")
+        columns = [r[1] for r in res]
+        return columns
+
     def checkTableExists(self, name):
 
         query = f"""
@@ -136,8 +141,10 @@ class SQLite:
         if dropna:
             for survey_column in survey_columns:
                 g0 = len(targets_groups)
-                mps_with_party_annotation = ~targets_groups[survey_column].isna()
-                targets_groups = targets_groups[mps_with_party_annotation]
+                non_na_party_annotation = ~targets_groups[survey_column].isna()
+                targets_groups = targets_groups[non_na_party_annotation]
+                non_empty_party_annotation = targets_groups[survey_column] != ''
+                targets_groups = targets_groups[non_empty_party_annotation]
                 g1 = len(targets_groups)
                 if g0 > g1 and verbose:
                     mssg = f"SQLITE: Dropped {g0 - g1} mps with no "
@@ -263,3 +270,75 @@ class SQLite:
         m = f"SQLITE: Found {len(res)} descriptions in {table} table."
         warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)
+
+    def getMpsPseudoIds(self, verbose=False):
+        table = Template(self.TABLES['party']['name']).substitute(
+            sources_min_followers=self.NB_MIN_FOLLOWERS,
+            sources_min_outdegree=self.MIN_OUTDEGREE)
+        columns = ['mp_pseudo_id']
+        query = f"SELECT {','.join(columns)} FROM {table}"
+        res = self.retrieve(query)
+        if verbose:
+            m = f"SQLITE: Found {len(res)} entries in {table}."
+            warn_once(self.logger, m)
+        return pd.DataFrame(res, columns=columns)
+
+    def getIdeologicalEmbeddings(self, verbose=False):
+
+        mps_ids = self.getMpsPseudoIds()
+
+        name = self.TABLES['ideological']['name']
+        table = Template(name).substitute()
+        query = f"SELECT * FROM {table}"
+        res = self.retrieve(query)
+        if verbose:
+            m = f"SQLITE: Found {len(res)} entries in {table}."
+            warn_once(self.logger, m)
+
+        columns = self.getTableColumns(table)
+
+        embeddings = pd.DataFrame(res, columns=columns)
+        # convert manually since pandas fail to recognize float inputs ...
+        embeddings[columns[1:]] = embeddings[columns[1:]].astype(float)
+
+        ide_targets = embeddings.merge(
+            mps_ids,
+            left_on='pseudo_id',
+            right_on="mp_pseudo_id") \
+            .drop(columns=["mp_pseudo_id"])
+
+        ide_sources = embeddings[~embeddings.pseudo_id.isin(ide_targets.pseudo_id)]
+
+        assert len(ide_sources) + len(ide_targets) == len(embeddings)
+
+        return ide_sources, ide_targets
+
+    def getAttitudinalEmbeddings(self, survey, verbose=False):
+
+        mps_ids = self.getMpsPseudoIds()
+
+        name = self.TABLES['attitudinal']['name']
+        table = Template(name).substitute(survey=survey)
+        query = f"SELECT * FROM {table}"
+        res = self.retrieve(query)
+        if verbose:
+            m = f"SQLITE: Found {len(res)} entries in {table}."
+            warn_once(self.logger, m)
+
+        columns = self.getTableColumns(table)
+        embeddings = pd.DataFrame(res, columns=columns)
+        # convert manually since pandas fail to recognize float inputs ...
+        embeddings[columns[1:]] = embeddings[columns[1:]].astype(float)
+
+        ide_targets = embeddings.merge(
+            mps_ids,
+            left_on='pseudo_id',
+            right_on="mp_pseudo_id") \
+            .drop(columns=["mp_pseudo_id"])
+
+        ide_sources = embeddings[~embeddings.pseudo_id.isin(ide_targets.pseudo_id)]
+
+        assert len(ide_sources) + len(ide_targets) == len(embeddings)
+
+        return ide_sources, ide_targets
+
