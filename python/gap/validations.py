@@ -324,40 +324,40 @@ def make_validation(
             ax = fig.add_subplot(1,  1,  1)
 
             # left/blue
-            sns.kdeplot(data=attdata1.to_frame(), x=attdim, color='blue', alpha=0.1, ax=ax, common_norm=False, fill=True)
-            ax.plot(X[y==0], np.zeros(X[y==0].size)-0.05, 'o', color='blue', alpha=0.02, ms=5, mew=1)
+            kde_left = sns.kdeplot(data=attdata1.to_frame(), x=attdim, color='blue', alpha=0.05, ax=ax, common_norm=False, fill=True)
+            # ax.plot(X[y==0], np.zeros(X[y==0].size)-0.05, 'o', color='blue', alpha=0.02, ms=5, mew=1)
 
             # right/red
-            sns.kdeplot(data=attdata2.to_frame(), x=attdim, color='red', alpha=0.1, ax=ax, common_norm=False,  fill=True)
-            ax.plot(X[y==1], np.ones(X[y==1].size),  'o', color='red',  alpha=0.02, ms=5, mew=1)
+            kde_right = sns.kdeplot(data=attdata2.to_frame(), x=attdim, color='red', alpha=0.05, ax=ax, common_norm=False,  fill=True)
+            # ax.plot(X[y==1], np.ones(X[y==1].size),  'o', color='red',  alpha=0.02, ms=5, mew=1)
 
             # logistic
             ax.plot(Xplot, f, color='black', linewidth=1)
             ax.axvline(X_threshold, linestyle=':', color='k')
             ax.axhline(0.5, linestyle=':', color='k')
-            ax.text(-1.8, 0.42, r'y=$0.5$', color='gray', fontsize=fs-3)
-            ax.text(X_threshold+0.25, 0.04, r'x=$%.2f$' % (X_threshold), color='gray', fontsize=fs-3)
+            # ax.text(-1.8, 0.42, r'y=$0.5$', color='gray', fontsize=fs-3)
+            # ax.text(X_threshold+0.25, 0.04, r'x=$%.2f$' % (X_threshold), color='gray', fontsize=fs-3)
 
-            # positives & negatives
-            ax.text(X_threshold+0.3, 1.05, 'True pos.', color='r', fontsize=fs)
-            ax.text(X_threshold-2.5, 1.05, 'False neg.', color='r', fontsize=fs)
-            ax.text(X_threshold+0.35, -0.15, 'False pos.', color='b', fontsize=fs)
-            ax.text(X_threshold-2.5, -0.15, 'True neg.', color='b', fontsize=fs)
+            # # positives & negatives
+            # ax.text(X_threshold+0.3, 1.05, 'True pos.', color='r', fontsize=fs)
+            # ax.text(X_threshold-2.5, 1.05, 'False neg.', color='r', fontsize=fs)
+            # ax.text(X_threshold+0.35, -0.15, 'False pos.', color='b', fontsize=fs)
+            # ax.text(X_threshold-2.5, -0.15, 'True neg.', color='b', fontsize=fs)
 
             # axis
             ax.plot([-2, 12], [0, 0], color="black", linewidth=1) # base line
             ax.set_xlim((-2, 12))
-            ax.set_ylim((-0.2, 1.2))
+            # ax.set_ylim((-0.2, 1.2))
             s = ATTDICT[survey][attdim]
             ax.set_xlabel(f"$\delta_{{{s}}}$", fontsize=fs*2)
             ax.set_ylabel('')
             ax.legend(handles=custom_legend, loc='center left', fontsize=fs-1, bbox_to_anchor=(1, 0.5))
             # plt.locator_params(axis='x', nbins=5)
-            # plt.locator_params(axis='y', nbins=4)
-            ax.set_xticks([0, 2.5, 5, 7.5, 10])
-            ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1])
+            ax.set_xticks([0, 2, 4, 6, 8, 10])
+            # ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1])
             ax.tick_params(axis='x', labelsize=fs*2)
             ax.tick_params(axis='y', labelsize=fs*2)
+            plt.locator_params(axis='y', nbins=6)
 
 
             # title
