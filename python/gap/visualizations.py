@@ -33,7 +33,7 @@ def plot_ideological_embedding(
     logger):
 
     # Load data from ideological embedding
-    ide_sources, ide_targets = INOUT.load_ide_embeddings()
+    ide_sources, ide_targets = INOUT.load_ide_embeddings(source='db')
 
     idevizparams = vizparams['ideological']
     mp_parties = SQLITE.getMpParties(['EPO'])
@@ -78,12 +78,10 @@ def plot_1d_attitudinal_distributions(
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
 
-    att_sources, att_targets = INOUT.load_att_embeddings()
+    att_sources, att_targets = INOUT.load_att_embeddings(source='db')
 
     att_sources = att_sources[attdims]
     att_targets = att_targets[attdims]
-
-    mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=True)
 
     valfolder = os.path.join(INOUT.att_folder, 'validations')
 

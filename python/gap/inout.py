@@ -45,6 +45,7 @@ class InOut:
         self,
         params,
         country,
+        sqlite,
         n_latent_dimensions,
         output,
         survey,
@@ -53,6 +54,7 @@ class InOut:
 
         self.params = params
         self.country = country
+        self.SQLITE = sqlite
         self.survey = survey
         self.logger = logger
         self.setBasepath(output)
@@ -86,7 +88,7 @@ class InOut:
             os.makedirs(self.att_folder, exist_ok=True)
 
 
-    def load_ide_embeddings(self):
+    def load_ide_embeddings_csv(self):
 
         path_sources = os.path.join(self.emb_folder, 'ide_sources.csv')
         path_targets = os.path.join(self.emb_folder, 'ide_targets.csv')
@@ -211,7 +213,7 @@ class InOut:
         self.logger.info(mssg)
 
 
-    def load_att_embeddings(self):
+    def load_att_embeddings_csv(self):
 
         path_sources = os.path.join(self.att_folder, 'att_sources.csv')
         path_targets = os.path.join(self.att_folder, 'att_targets.csv')
@@ -234,3 +236,27 @@ class InOut:
 
         return att_source, att_targets
 
+
+    def load_ide_embeddings(self, source='db'):
+        if source == 'db':
+            ide_sources, ide_targets = self.SQLITE.getIdeologicalEmbeddings( verbose=True)
+            ide_sources.rename(columns={"pseudo_id": "entity"}, inplace=True)
+            ide_targets.rename(columns={"pseudo_id": "entity"}, inplace=True)
+            return ide_sources, ide_targets
+        elif source == 'csv':
+            return self.load_ide_embeddings_csv()
+        else:
+            raise ValueError(
+                f"Wrong source `{source}`. Must `csv` or `db`.")
+
+    def load_att_embeddings(self, source='db'):
+        if source=='db':
+            att_sources, att_targets = self.SQLITE.getAttitudinalEmbeddings(survey=self.survey, verbose=True)
+            att_sources.rename(columns={"pseudo_id": "entity"}, inplace=True)
+            att_targets.rename(columns={"pseudo_id": "entity"}, inplace=True)
+            return att_sources, att_targets
+        elif source == 'csv':
+            return self.load_att_embeddings_csv()
+        else:
+            raise ValueError(
+                f"Wrong source `{source}`. Must `csv` or `db`.")

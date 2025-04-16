@@ -23,7 +23,7 @@ from gap.labels import labels_stats
 
 SURVEYS = ['ches2023', 'ches2019', 'ches2020', 'gps2019']
 PARENTFOLDER = pathlib.Path(__file__).parent.resolve()
-CONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/embeddings_pseudonymized_alldata.yaml")
+CONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/embeddings_anonymized_reproducibility.yaml")
 VIZCONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/vizconfigs/template.yaml")
 # parse arguments and set paths
 ap = ArgumentParser()
@@ -43,7 +43,7 @@ ap.add_argument('--attitudinal', action='store_true')
 ap.add_argument('--validation', action='store_true')
 ap.add_argument('--distributions', action='store_true')
 ap.add_argument('--bivariate', action='store_true')
-ap.add_argument('--no_recomputation', action='store_true')
+ap.add_argument('--compute_embeddings', action='store_true')
 ap.add_argument('--nbsplits_validation', type=int, default=10)
 ap.add_argument('--seed_validation', type=int, default=42)
 ap.add_argument('--labels', action='store_true')
@@ -67,7 +67,7 @@ labels = args.labels
 validation = args.validation
 distributions = args.distributions
 bivariate = args.bivariate
-no_recomputation = args.no_recomputation
+compute_embeddings = args.compute_embeddings
 seed = args.seed_validation
 nb_splits = args.nbsplits_validation
 plot = args.plot
@@ -111,11 +111,37 @@ SQLITE = SQLite(
 INOUT = InOut(
     params=params,
     country=country,
+    sqlite=SQLITE,
     n_latent_dimensions=ideN,
     survey=survey,
     output=output,
     logger=logger
 )
+
+
+# ide_sources2, ide_targets2 = INOUT.load_ide_embeddings(source='db')
+# print(f"ide_sources from csv: {len(ide_sources2)}")
+# print(f"ide_targets from csv: {len(ide_targets2)}")
+
+# try:
+#     ide_sources2, ide_targets2 = INOUT.load_ide_embeddings(source='csv')
+#     print(f"ide_sources from csv: {len(ide_sources2)}")
+#     print(f"ide_targets from csv: {len(ide_targets2)}")
+# except:
+#     print('no csv')
+
+# if survey:
+#     att_sources2, att_targets2 = INOUT.load_att_embeddings(source='db')
+#     print(f"att_sources from csv: {len(att_sources2)}")
+#     print(f"att_targets from csv: {len(att_targets2)}")
+
+# try:
+#     att_sources2, att_targets2 = INOUT.load_att_embeddings(source='csv')
+#     print(f"att_sources from csv: {len(att_sources2)}")
+#     print(f"att_targets from csv: {len(att_targets2)}")
+# except:
+#     print('no csv')
+
 
 logfile = os.path.join(INOUT.basepath, f'{country}.log')
 logging.basicConfig(
@@ -137,7 +163,7 @@ if survey:
 
 # 1. Create and plot ideological embedding
 if ideological:
-    if not no_recomputation:
+    if compute_embeddings:
         create_ideological_embedding(
             SQLITE,
             INOUT,
@@ -159,21 +185,21 @@ if ideological:
 # 2. Create and plot attitudinal embedding
 if attitudinal:
 
-    # Set the number of dimension for the mapping to the attitudinal space
-    # 1. Get the number of unique survey parties corresponding with an available
-    # EPO party after follower>Mps graph preprocessing
-    survey_party_acronym = f"{survey.upper()}_party_acronym"
-    query = f"""
-        SELECT COUNT(DISTINCT(p.{survey_party_acronym}))
-        FROM mp_follower_graph_minin_25_minout_3 g
-        LEFT JOIN mp_annotation USING(mp_pseudo_id)
-        LEFT JOIN party_mapping p USING(EPO_party_acronym)
-        WHERE p.{survey_party_acronym} is NOT NULL"""
-    res = SQLITE.retrieve(query)
-    numberEPOPartiesWithMPsinPPGraph = res[0][0]
-    N_survey = numberEPOPartiesWithMPsinPPGraph - 1
+    if compute_embeddings:
 
-    if not no_recomputation:
+        # Set the number of dimension for the mapping to the attitudinal space
+        # 1. Get the number of unique survey parties corresponding with an available
+        # EPO party after follower>Mps graph preprocessing
+        survey_party_acronym = f"{survey.upper()}_party_acronym"
+        query = f"""
+            SELECT COUNT(DISTINCT(p.{survey_party_acronym}))
+            FROM mp_follower_graph_minin_25_minout_3 g
+            LEFT JOIN mp_annotation USING(mp_pseudo_id)
+            LEFT JOIN party_mapping p USING(EPO_party_acronym)
+            WHERE p.{survey_party_acronym} is NOT NULL"""
+        res = SQLITE.retrieve(query)
+        numberEPOPartiesWithMPsinPPGraph = res[0][0]
+        N_survey = numberEPOPartiesWithMPsinPPGraph - 1
         create_attitudinal_embedding(
             SQLITE,
             INOUT,
