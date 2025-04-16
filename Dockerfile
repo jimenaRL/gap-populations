@@ -87,24 +87,19 @@ RUN rustup default stable
 # installing minet and xan
 # COPY install_minet.sh install_minet.sh
 # RUN ./install_minet.sh
-RUN cargo install xan
+# RUN cargo install xan
 
 RUN pyenv global 3.10.10
 
-
 #install latex
-WORKDIR /tmp
+WORKDIR /tmp2
 RUN curl -L -o install-tl-unx.tar.gz https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
 RUN zcat < install-tl-unx.tar.gz | tar xf -
-WORKDIR /tmp/install-tl-20250219
+WORKDIR /tmp2/install-tl-20250409
 RUN perl ./install-tl --no-interaction
-ENV PATH="/usr/local/texlive/2024/bin/x86_64-linux:${PATH}"
+ENV PATH="/usr/local/texlive/2025/bin/x86_64-linux:${PATH}"
 
 RUN pip install latex
-
-
-ARG token
-ENV env_token=$token
 
 RUN mkdir -p -m 0600 ~/.ssh && \
     ssh-keyscan -H github.com >> ~/.ssh/known_hosts
@@ -123,12 +118,12 @@ RUN --mount=type=ssh git checkout main
 RUN --mount=type=ssh git pull
 RUN pip install -r python/requirements.txt
 
-# add python packages to PYTHONPATH
-ENV PYTHONPATH=/home/jimena/work/dev/some4demDB/python:/home/jimena/work/dev/gap-populations/python
-
 WORKDIR /home/jimena/work/dev/gap-populations
 RUN --mount=type=ssh git checkout main
 RUN --mount=type=ssh git pull
+
+# add python packages to PYTHONPATH
+ENV PYTHONPATH=/home/jimena/work/dev/some4demDB/python:/home/jimena/work/dev/gap-populations/python
 
 WORKDIR /home/jimena/work/dev/some4demDB
 
@@ -152,11 +147,6 @@ RUN mkdir -p tmp/final_folder/pseudonymized_reproducibility
 RUN mkdir -p tmp/final_folder/raw
 RUN mkdir -p tmp/final_folder/validations
 
-WORKDIR /home/jimena/work/dev/gap-populations
-RUN --mount=type=ssh git checkout main
-RUN --mount=type=ssh git pull
-
-
 RUN groupadd -g 1001 jimena
 RUN useradd jimena -u 1001 -g 1001
 RUN groupadd -g 1022 lut
@@ -167,8 +157,5 @@ RUN groupadd -g 1024 pseudonymized_exploitation
 RUN groupadd -g 1025 pseudonymized_reproducibility
 
 WORKDIR /home/jimena/work/dev/gap-populations
-
-
-WORKDIR /home/jimena/work/dev/gap-populations
-RUN --mount=type=ssh git checkout main
 RUN --mount=type=ssh git pull
+RUN --mount=type=ssh git checkout loadEmbeddingsFromSqlite
