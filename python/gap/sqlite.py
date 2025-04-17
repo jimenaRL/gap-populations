@@ -4,6 +4,7 @@ from copy import deepcopy
 from string import Template
 from functools import lru_cache
 
+from gap.conf import MISSING_VALUE_STRATEGY
 
 import numpy as np
 import pandas as pd
@@ -30,6 +31,12 @@ class SQLite:
         self.NB_MIN_FOLLOWERS =  sources_min_followers
         self.MIN_OUTDEGREE = sources_min_outdegree
         self.logger = logger
+
+        # parse missing values strategy to adapt to country
+        self.missing_values_strategy = MISSING_VALUE_STRATEGY
+        for survey, strategy in self.missing_values_strategy.items():
+            if isinstance(strategy, dict):
+                self.missing_values_strategy[survey] = strategy[self.country]
 
     def ppSubstitution(self, string_):
         return Template(string_).substitute(
@@ -154,15 +161,7 @@ class SQLite:
 
         return targets_groups[['mp_pseudo_id']+survey_columns]
 
-    def getPartiesAttitudes(self, survey, dims_names, missing_values_strategy):
-
-
-        valid_strategies = {'drop_parties', 'drop_dims'}
-        if not missing_values_strategy in valid_strategies:
-            error = "Wrong value for parameter missing_values_strategy "
-            error += f"({missing_values_strategy}). "
-            error += f"Must be one of {valid_strategies}."
-            raise ValueError(error)
+    def getPartiesAttitudes(self, survey, dims_names):
 
         survey_col = f'{survey.upper()}_party_acronym'
         columns = ['EPO_party_acronym', survey_col]+list(dims_names)
@@ -175,7 +174,7 @@ class SQLite:
         parties = set(df[survey_col].tolist())
 
 
-        def remove_data(df, bad_map, missing_values_strategy):
+        def remove_data(df, bad_map):
             bad_df = bad_map(df)
             nb_bad_entries = bad_df.sum().sum()
             if nb_bad_entries > 0:
@@ -184,14 +183,14 @@ class SQLite:
                 temp = df[['EPO_party_acronym'] + dims_to_drop]
 
                 # Drop rows with blanck spaces values.
-                if missing_values_strategy == 'drop_parties':
+                if self.missing_values_strategy == 'drop_parties':
                     df = df[bad_map(df[dims_names]).sum(axis=1) == 0]
                     dropped_parties = parties - set(df[survey_col].tolist())
                     info = f"SQLITE: dropping {len(dropped_parties)} parties "
                     info += f"{dropped_parties}, because corresponding rows "
 
                 # Drop columns with blanck spaces values.
-                else: # missing_values_strategy == 'drop_dims'
+                else: # self.missing_values_strategy == 'drop_dims'
                     df = df.drop(dims_to_drop, axis=1)
                     info = f"SQLITE: dropping {len(dims_to_drop)} atittudinal dimensions "
                     info += f"{dims_to_drop}, because corresponding columns "
@@ -204,9 +203,9 @@ class SQLite:
             return df
 
         # Deal with blanck values in survey
-        df = remove_data(df, lambda df: (df == ' '), missing_values_strategy)
+        df = remove_data(df, lambda df: (df == ' '))
         # Deal with empty (NAN) values in survey
-        df = remove_data(df, lambda df: df.isna(), missing_values_strategy)
+        df = remove_data(df, lambda df: df.isna())
 
         dims_names = set(df.columns) - {'EPO_party_acronym', survey_col}
         dtypes.update({d: np.float32 for d in dims_names})
