@@ -300,4 +300,4 @@ if validation:
 if labels:
     for attdim in attdims:
         labels_stats(
-            SQLITE, INOUT, survey, country, attdim, logger, plot, show)
+            SQLITE, INOUT, survey, country, year, attdim, logger, plot, show)

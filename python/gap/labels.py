@@ -8,6 +8,7 @@ import statsmodels.api as sm
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+from matplotlib.ticker import PercentFormatter
 
 from gap.conf import \
     VALIDATIONCONFIG, \
@@ -16,7 +17,7 @@ from gap.conf import \
 # Font & Latex definitions
 mpl.rcParams['mathtext.fontset'] = 'cm'
 mpl.rcParams['mathtext.rm'] = 'serif'
-fs = 32
+fs = 28
 dpi = 150
 plt.rc('text', usetex=True)
 plt.rc('font', family='sans-serif', size=fs)
@@ -26,9 +27,9 @@ KWARGS = {
     'range': [0, 10],
     'density': False
 }
+BACKGROUNDCOLOR = ['lightgrey', 'darkgrey']
 
-
-def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
+def labels_stats(SQLITE, INOUT, survey, country, year, attdim, logger, plot, show):
 
     statsfolder = os.path.join(INOUT.att_folder, 'stats')
     os.makedirs(os.path.join(statsfolder), exist_ok=True)
@@ -50,14 +51,14 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
         how='inner') \
         .drop(columns=['pseudo_id'])
 
-    # get A strategy labels
-    keywords_labels = SQLITE.getKeywordsLabels()
-    keywords_data = keywords_labels.merge(
-        att,
-        left_on='pseudo_id',
-        right_on='entity',
-        how='inner') \
-        .drop(columns=['pseudo_id'])
+    # # get A strategy labels
+    # keywords_labels = SQLITE.getKeywordsLabels()
+    # keywords_data = keywords_labels.merge(
+    #     att,
+    #     left_on='pseudo_id',
+    #     right_on='entity',
+    #     how='inner') \
+    #     .drop(columns=['pseudo_id'])
 
     strategy_data = {
         # 'keywords': keywords_data,
@@ -66,7 +67,7 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
 
     # set baseline for attitudinal dim
     baselineData = att.merge(
-        keywords_labels[['pseudo_id']],
+        llm_labels[['pseudo_id']],
         right_on='pseudo_id',
         left_on='entity')
     baseline_embeddings = baselineData[attdim]
@@ -139,9 +140,9 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
                     pos_labels_count,
                     baseline_count,
                     method='beta',
-                    alpha=0.01)
+                    alpha=0.05)
 
-                # scaling
+                # scalinf
                 proportions = 100 * rate
                 cis_low *= 100
                 cis_upp *= 100
@@ -151,8 +152,6 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
 
                 if plot:
                     country_name = country.split('2')[0].capitalize()
-                    char_end_country_name = len(country_name)
-                    year = country[char_end_country_name:]
                     title = f"{country_name} {year} collection"
 
                     figlabel = f"Labelled "
@@ -162,24 +161,26 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
 
                     fig = plt.figure(figsize=(18, 9))
                     ax = fig.add_subplot(1, 1, 1)
-                    legend_axes =[]
-
-                    a, = ax.plot(
-                        repr_xaxis,
-                        proportions,
-                        color='k',
-                        label=figlabel
-                    )
 
                     plt.errorbar(
                         repr_xaxis,
                         proportions,
                         yerr=[cis_low, cis_upp],
-                        linewidth=2,
-                        marker='s',
-                        color="black")
+                        fmt='s',
+                        markersize=9,
+                        capsize=0,
+                        color="black",
+                        label=figlabel)
 
-                    legend_axes.append(a)
+                    # fill background
+                    for i in range(len(bin_edges) - 1):
+                        plt.axvspan(
+                            xmin=bin_edges[i],
+                            xmax=bin_edges[i+1],
+                            facecolor=BACKGROUNDCOLOR[i%2],
+                            alpha=.35
+                        )
+
                     ax.set_xlim([0, 10])
                     ax.set_ylim((
                         0,
@@ -190,9 +191,12 @@ def labels_stats(SQLITE, INOUT, survey, country, attdim, logger, plot, show):
                     ax.set_xlabel(
                         f"{survey.upper()} {ATTDICT[survey][attdim]}",
                         fontsize=fs)
-                    fmt = '%.02f%%'
-                    pticks = ticker.FormatStrFormatter(fmt)
-                    ax.yaxis.set_major_formatter(pticks)
+                    ax.set_ylabel("Users annotated percentage", fontsize=fs)
+                    # fmt = '%.02f%%'
+                    # pticks = ticker.FormatStrFormatter(fmt)
+                    # ax.yaxis.set_major_formatter(pticks)
+                    plt.gca().yaxis.set_major_formatter(PercentFormatter(
+                        xmax=100, decimals=0))
                     plt.legend(fontsize=fs, loc='upper center')
 
                     plt.gca().xaxis.grid(True)
