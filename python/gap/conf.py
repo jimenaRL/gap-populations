@@ -198,6 +198,14 @@ VALIDATIONCONFIG = [
         'ches2020': [],
         'group1': 'cosmopolitan',
         'group2': 'nationalist',
+    },
+    {
+        'ches2019': ['redistribution', 'lrecon'],
+        'gps2019': ['V4_Scale', 'lrecon'],
+        'ches2023': ['lrecon'],
+        'ches2020': ['redistribution'],
+        'group1': 'redistribution',
+        'group2': 'anti_redistribution',
     }
 ]
 
