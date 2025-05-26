@@ -326,8 +326,9 @@ class SQLite:
 
         columns = self.getTableColumns(table)
         embeddings = pd.DataFrame(res, columns=columns)
-        # convert manually since pandas fail to recognize float inputs ...
-        embeddings[columns[1:]] = embeddings[columns[1:]].astype(float)
+        # convert manually since pandas fail to recognize multiple type inputs ...
+        numeric_columns = list(set(columns) - {'pseudo_id'})
+        embeddings[numeric_columns] = embeddings[numeric_columns].astype(float)
 
         ide_targets = embeddings.merge(
             mps_ids,
