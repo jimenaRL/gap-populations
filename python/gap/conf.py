@@ -207,6 +207,7 @@ VALIDATIONCONFIG = [
         'group1': 'redistribution',
         'group2': 'anti_redistribution',
     }
+
 ]
 
 MISSING_VALUE_STRATEGY = {
