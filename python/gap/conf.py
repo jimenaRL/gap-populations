@@ -204,8 +204,8 @@ VALIDATIONCONFIG = [
         'gps2019': ['V4_Scale', 'lrecon'],
         'ches2023': ['lrecon'],
         'ches2020': ['redistribution'],
-        'group1': 'redistribution',
-        'group2': 'anti_redistribution',
+        'group1': 'redistributionist',
+        'group2': 'anti_redistributionist',
     }
 
 ]
