@@ -96,6 +96,7 @@ def create_attitudinal_embedding(
     survey,
     N_survey,
     logger,
+    embeddings_source,
     ignore_errors=False):
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
@@ -107,7 +108,7 @@ def create_attitudinal_embedding(
     parties_coord_att = parties_coord_att.groupby(SURVEYCOL).first().reset_index()
 
     # Load data from ideological embedding
-    ide_followers, ide_mps =  INOUT.load_ide_embeddings()
+    ide_followers, ide_mps =  INOUT.load_ide_embeddings(source=embeddings_source)
     ide_followers_cp = ide_followers.copy()
     ide_mps_cp = ide_mps.copy()
     mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=False)
