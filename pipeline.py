@@ -25,6 +25,8 @@ SURVEYS = ['ches2023', 'ches2019', 'ches2020', 'gps2019']
 PARENTFOLDER = pathlib.Path(__file__).parent.resolve()
 CONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/embeddings_anonymized_reproducibility.yaml")
 VIZCONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/vizconfigs/template.yaml")
+DEFAULTIDEEMBEDDINGSSOURCE = 'csv'
+
 # parse arguments and set paths
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
@@ -36,6 +38,7 @@ ap.add_argument('--ideN', type=int, default=20)
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, required=False, default=CONFIGDEFAULTPATH)
 ap.add_argument('--vizconfig', type=str, default=VIZCONFIGDEFAULTPATH)
+ap.add_argument('--ide_embeddings_source', type=str, required=False, default=DEFAULTIDEEMBEDDINGSSOURCE)
 ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
 ap.add_argument('--attitudinal', action='store_true')
@@ -61,6 +64,7 @@ ndimsviz = args.ndimsviz
 attdims = args.attdims
 ideological = args.ideological
 attitudinal = args.attitudinal
+ide_embeddings_source = args.ide_embeddings_source
 labels = args.labels
 validation = args.validation
 distributions = args.distributions
@@ -204,6 +208,7 @@ if attitudinal:
             ATTDIMS,
             survey,
             N_survey,
+            ide_embeddings_source,
             logger)
 
     if distributions and plot:
