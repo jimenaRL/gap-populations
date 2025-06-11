@@ -270,13 +270,22 @@ rcols = [
     "chi2_pval",
     ]
 
+# 3. Make validations
 if validation:
+
+    parties_mapping = SQLITE.getPartiesMapping([survey])
+    llm_labels = SQLITE.getLLMLabels()
+
+    att_sources, _ = INOUT.load_att_embeddings()
+    valfolder = os.path.join(INOUT.att_folder, 'validations')
+
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
             executor.submit(
                 make_validation,
-                SQLITE,
-                INOUT,
+                parties_mapping,
+                llm_labels,
+                att_sources,
                 seed,
                 nb_splits,
                 country,
@@ -285,34 +294,45 @@ if validation:
                 attdim,
                 plot,
                 show,
-                logger)
+                valfolder,
+                logger
+                )
             for attdim in attdims
         ]
         records = [f.result() for f in futures]
 
-    if len(records) > 0:
+    # records = []
+    # for attdim in attdims:
+    #     record = make_validation(
+    #         parties_mapping=parties_mapping,
+    #         llm_labels=llm_labels,
+    #         att_sources=att_sources,
+    #         cv_seed=seed,
+    #         nb_splits=nb_splits,
+    #         country=country,
+    #         year=year,
+    #         survey=survey,
+    #         attdim=attdim,
+    #         plot=plot,
+    #         show=show,
+    #         valfolder=valfolder,
+    #         logger=logger)
 
+    #     if record:
+    #         records.extend(record)
+
+    if len(records) > 0:
         records = pd.concat([pd.DataFrame(r) for r in records]).sort_values(by='f1', ascending=False)
+        records = records.assign(path=SQLITE.DB)
         filename = f"{country}_{year}_{survey}_logistic_regression_cross_validate_f1_score"
         valfolder = os.path.join(INOUT.att_folder, 'validations')
         dfpath = os.path.join(valfolder, filename+'.csv')
         records.to_csv(dfpath, index=False)
         os.system(f"xan select {','.join(cols)} {dfpath} | xan rename {','.join(rcols)} | xan view -I")
-        # print(records[cols])
         logger.info(f"VALIDATION: scores saved at {dfpath}")
-
-
-
 
 # 4. Compute labels statistics
 if labels:
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [
-            executor.submit(labels_stats, SQLITE, INOUT, survey, country, year, attdim, logger, plot, show)
-            for attdim in attdims
-        ]
-        for f in futures:
-            f.result()
-
-
-
+    for attdim in attdims:
+        labels_stats(
+            SQLITE, INOUT, survey, country, year, attdim, logger, plot, show)

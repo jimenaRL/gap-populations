@@ -45,8 +45,9 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='sans-serif', size=fs)
 
 def make_validation(
-    SQLITE,
-    INOUT,
+    parties_mapping,
+    llm_labels,
+    att_sources,
     cv_seed,
     nb_splits,
     country,
@@ -55,16 +56,13 @@ def make_validation(
     attdim,
     plot,
     show,
+    valfolder,
     logger):
 
-    valfolder = os.path.join(INOUT.att_folder, 'validations')
-    parties_mapping = SQLITE.getPartiesMapping([survey])
 
     ################
     # Loading data #
     ################
-
-    att_sources, _ = INOUT.load_att_embeddings()
 
     if not attdim in att_sources:
         logger.info(
@@ -81,7 +79,6 @@ def make_validation(
     #     .drop(columns=['pseudo_id'])
 
     # get C strategy labels
-    llm_labels = SQLITE.getLLMLabels()
     llm_data = llm_labels.merge(
         att_sources,
         left_on='pseudo_id',
@@ -254,7 +251,6 @@ def make_validation(
             "test_recall_std": cv_results['test_recall'].std(),
             "test_f1_std":  cv_results['test_f1'].std(),
             "country": country,
-            "path": SQLITE.DB,
             "nb_splits": str(nb_splits),
             "train_precision_by_folds":  ' | '.join([f"{i:.3f}" for i in cv_results['train_precision'].tolist()]),
             "train_recall_by_folds": ' | '.join([f"{i:.3f}" for i in cv_results['train_recall'].tolist()]),
