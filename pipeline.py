@@ -3,6 +3,7 @@ import sys
 import yaml
 import pathlib
 import logging
+import concurrent.futures
 from itertools import combinations
 from argparse import ArgumentParser
 
@@ -235,70 +236,83 @@ if attitudinal:
                 logger)
 
 # 3. Make validations
-if validation:
-    records = []
-    for attdim in attdims:
-        record = make_validation(
-            SQLITE=SQLITE,
-            INOUT=INOUT,
-            cv_seed=seed,
-            nb_splits=nb_splits,
-            country=country,
-            year=year,
-            survey=survey,
-            attdim=attdim,
-            plot=plot,
-            show=show,
-            logger=logger)
 
-        if record:
-            records.extend(record)
+cols = [
+    "country",
+    "strategy",
+    "label1",
+    "nb_samples_label1",
+    "label2",
+    "nb_samples_label2",
+    "attitudinal_dimension",
+    "survey",
+    "f1",
+    # "recall",
+    # "precision",
+    "auc",
+    # "chi2_stat",
+    "chi2_pval",
+    ]
+rcols = [
+    "country",
+    "strategy",
+    "l1",
+    "#l1",
+    "l2",
+    "#l2",
+    "att_dim",
+    "survey",
+    "f1",
+    # "recall",
+    # "precision",
+    "auc",
+    # "chi2_stat",
+    "chi2_pval",
+    ]
+
+if validation:
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(
+                make_validation,
+                SQLITE,
+                INOUT,
+                seed,
+                nb_splits,
+                country,
+                year,
+                survey,
+                attdim,
+                plot,
+                show,
+                logger)
+            for attdim in attdims
+        ]
+        records = [f.result() for f in futures]
 
     if len(records) > 0:
-        records = pd.DataFrame(records).sort_values(by='f1', ascending=False)
+
+        records = pd.concat([pd.DataFrame(r) for r in records]).sort_values(by='f1', ascending=False)
         filename = f"{country}_{year}_{survey}_logistic_regression_cross_validate_f1_score"
         valfolder = os.path.join(INOUT.att_folder, 'validations')
         dfpath = os.path.join(valfolder, filename+'.csv')
         records.to_csv(dfpath, index=False)
-
-        cols = [
-            "country",
-            "strategy",
-            "label1",
-            "nb_samples_label1",
-            "label2",
-            "nb_samples_label2",
-            "attitudinal_dimension",
-            "survey",
-            "f1",
-            # "recall",
-            # "precision",
-            "auc",
-            # "chi2_stat",
-            "chi2_pval",
-            ]
-        rcols = [
-            "country",
-            "strategy",
-            "l1",
-            "#l1",
-            "l2",
-            "#l2",
-            "att_dim",
-            "survey",
-            "f1",
-            # "recall",
-            # "precision",
-            "auc",
-            # "chi2_stat",
-            "chi2_pval",
-            ]
         os.system(f"xan select {','.join(cols)} {dfpath} | xan rename {','.join(rcols)} | xan view -I")
         # print(records[cols])
         logger.info(f"VALIDATION: scores saved at {dfpath}")
 
+
+
+
 # 4. Compute labels statistics
 if labels:
-    for attdim in attdims:
-        labels_stats(
-            SQLITE, INOUT, survey, country, year, attdim, logger, plot, show)
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(labels_stats, SQLITE, INOUT, survey, country, year, attdim, logger, plot, show)
+            for attdim in attdims
+        ]
+        for f in futures:
+            f.result()
+
+
+
