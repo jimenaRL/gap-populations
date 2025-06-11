@@ -301,26 +301,6 @@ if validation:
         ]
         records = [f.result() for f in futures]
 
-    # records = []
-    # for attdim in attdims:
-    #     record = make_validation(
-    #         parties_mapping=parties_mapping,
-    #         llm_labels=llm_labels,
-    #         att_sources=att_sources,
-    #         cv_seed=seed,
-    #         nb_splits=nb_splits,
-    #         country=country,
-    #         year=year,
-    #         survey=survey,
-    #         attdim=attdim,
-    #         plot=plot,
-    #         show=show,
-    #         valfolder=valfolder,
-    #         logger=logger)
-
-    #     if record:
-    #         records.extend(record)
-
     if len(records) > 0:
         records = pd.concat([pd.DataFrame(r) for r in records]).sort_values(by='f1', ascending=False)
         records = records.assign(path=SQLITE.DB)
