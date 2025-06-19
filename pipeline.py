@@ -209,8 +209,8 @@ if attitudinal:
             ATTDIMS,
             survey,
             N_survey,
-            ide_embeddings_source,
-            logger)
+            logger,
+            ide_embeddings_source)
 
     if distributions and plot:
         plot_1d_attitudinal_distributions(
