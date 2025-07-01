@@ -3,6 +3,7 @@ import sys
 import yaml
 import pathlib
 import logging
+import concurrent.futures
 from itertools import combinations
 from argparse import ArgumentParser
 
@@ -25,6 +26,8 @@ SURVEYS = ['ches2023', 'ches2019', 'ches2020', 'gps2019']
 PARENTFOLDER = pathlib.Path(__file__).parent.resolve()
 CONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/embeddings_anonymized_reproducibility.yaml")
 VIZCONFIGDEFAULTPATH = os.path.join(PARENTFOLDER, "configs/vizconfigs/template.yaml")
+DEFAULTIDEEMBEDDINGSSOURCE = 'csv'
+
 # parse arguments and set paths
 ap = ArgumentParser()
 ap.add_argument('--country', type=str, required=True)
@@ -34,9 +37,9 @@ ap.add_argument('--survey', type=str, required=False, default=None, choices=SURV
 ap.add_argument('--ndimsviz', type=int, default=2)
 ap.add_argument('--ideN', type=int, default=20)
 ap.add_argument('--attdims', type=str, required=False)
-ap.add_argument('--att_missing_values_strategy', type=str, required=False, choices=['drop_dims', 'drop_parties'])
 ap.add_argument('--config', type=str, required=False, default=CONFIGDEFAULTPATH)
 ap.add_argument('--vizconfig', type=str, default=VIZCONFIGDEFAULTPATH)
+ap.add_argument('--ide_embeddings_source', type=str, required=False, default=DEFAULTIDEEMBEDDINGSSOURCE)
 ap.add_argument('--output', type=str, required=False)
 ap.add_argument('--ideological', action='store_true')
 ap.add_argument('--attitudinal', action='store_true')
@@ -60,9 +63,9 @@ survey = args.survey
 ideN = args.ideN
 ndimsviz = args.ndimsviz
 attdims = args.attdims
-att_missing_values_strategy = args.att_missing_values_strategy
 ideological = args.ideological
 attitudinal = args.attitudinal
+ide_embeddings_source = args.ide_embeddings_source
 labels = args.labels
 validation = args.validation
 distributions = args.distributions
@@ -207,7 +210,7 @@ if attitudinal:
             survey,
             N_survey,
             logger,
-            att_missing_values_strategy)
+            ide_embeddings_source)
 
     if distributions and plot:
         plot_1d_attitudinal_distributions(
@@ -230,70 +233,82 @@ if attitudinal:
                 survey,
                 vizparams,
                 show,
-                logger,
-                att_missing_values_strategy)
+                logger)
+
+# 3. Make validations
+
+cols = [
+    "country",
+    "strategy",
+    "label1",
+    "nb_samples_label1",
+    "label2",
+    "nb_samples_label2",
+    "attitudinal_dimension",
+    "survey",
+    "f1",
+    # "recall",
+    # "precision",
+    "auc",
+    # "chi2_stat",
+    "chi2_pval",
+    ]
+rcols = [
+    "country",
+    "strategy",
+    "l1",
+    "#l1",
+    "l2",
+    "#l2",
+    "att_dim",
+    "survey",
+    "f1",
+    # "recall",
+    # "precision",
+    "auc",
+    # "chi2_stat",
+    "chi2_pval",
+    ]
 
 # 3. Make validations
 if validation:
-    records = []
-    for attdim in attdims:
-        record = make_validation(
-            SQLITE=SQLITE,
-            INOUT=INOUT,
-            cv_seed=seed,
-            nb_splits=nb_splits,
-            country=country,
-            year=year,
-            survey=survey,
-            attdim=attdim,
-            plot=plot,
-            show=show,
-            logger=logger)
 
-        if record:
-            records.extend(record)
+    parties_mapping = SQLITE.getPartiesMapping([survey])
+    llm_labels = SQLITE.getLLMLabels()
+
+    att_sources, _ = INOUT.load_att_embeddings()
+    valfolder = os.path.join(INOUT.att_folder, 'validations')
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(
+                make_validation,
+                parties_mapping,
+                llm_labels,
+                att_sources,
+                seed,
+                nb_splits,
+                country,
+                year,
+                survey,
+                attdim,
+                plot,
+                show,
+                valfolder,
+                logger
+                )
+            for attdim in attdims
+        ]
+        records = [f.result() for f in futures]
 
     if len(records) > 0:
-        records = pd.DataFrame(records).sort_values(by='f1', ascending=False)
+        records = pd.concat([pd.DataFrame(r) for r in records]).sort_values(by='f1', ascending=False)
+        records = records.assign(path=SQLITE.DB)
         filename = f"{country}_{year}_{survey}_logistic_regression_cross_validate_f1_score"
         valfolder = os.path.join(INOUT.att_folder, 'validations')
         dfpath = os.path.join(valfolder, filename+'.csv')
         records.to_csv(dfpath, index=False)
-
-        cols = [
-            "country",
-            "strategy",
-            "label1",
-            "nb_samples_label1",
-            "label2",
-            "nb_samples_label2",
-            "attitudinal_dimension",
-            "survey",
-            "f1",
-            # "recall",
-            # "precision",
-            "auc",
-            # "chi2_stat",
-            "chi2_pval",
-            ]
-        rcols = [
-            "country",
-            "strategy",
-            "l1",
-            "#l1",
-            "l2",
-            "#l2",
-            "att_dim",
-            "survey",
-            "f1",
-            # "recall",
-            # "precision",
-            "auc",
-            # "chi2_stat",
-            "chi2_pval",
-            ]
         os.system(f"xan select {','.join(cols)} {dfpath} | xan rename {','.join(rcols)} | xan view -I")
-        # print(records[cols])
         logger.info(f"VALIDATION: scores saved at {dfpath}")
 
 # 4. Compute labels statistics
