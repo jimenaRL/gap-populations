@@ -144,8 +144,8 @@ def create_attitudinal_embedding(
         m += f"{survey} {joinParties(parties_available_survey)}"
         m += f"Dropping {parties_mps - parties_available_survey}."
         logger.info(m)
+        new_candidate_N_survey = len(parties_available_survey) - 1
         if not ignore_errors:
-            new_candidate_N_survey = len(parties_available_survey) - 1
             user_input = input(
                 f"Do you want to continuate (yes/no):")
             while user_input.lower() != 'yes':
