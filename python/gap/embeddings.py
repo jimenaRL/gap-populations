@@ -96,19 +96,19 @@ def create_attitudinal_embedding(
     survey,
     N_survey,
     logger,
-    missing_values_strategy='drop_dims',
-    ignore_errors=True):
+    embeddings_source,
+    ignore_errors=False):
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
 
     # Load parties attitudinal coordinates
-    parties_coord_att = SQLITE.getPartiesAttitudes(survey, ATTDIMS, missing_values_strategy)
+    parties_coord_att = SQLITE.getPartiesAttitudes(survey, ATTDIMS)
 
     # removed repeated parties
     parties_coord_att = parties_coord_att.groupby(SURVEYCOL).first().reset_index()
 
     # Load data from ideological embedding
-    ide_followers, ide_mps =  INOUT.load_ide_embeddings()
+    ide_mps, ide_followers =  INOUT.load_ide_embeddings(source=embeddings_source)
     ide_followers_cp = ide_followers.copy()
     ide_mps_cp = ide_mps.copy()
     mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=False)
