@@ -97,7 +97,7 @@ def create_attitudinal_embedding(
     N_survey,
     logger,
     missing_values_strategy='drop_dims',
-    ignore_errors=False):
+    ignore_errors=True):
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
 
