@@ -113,7 +113,7 @@ def create_attitudinal_embedding(
     ide_mps_cp = ide_mps.copy()
     mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=False)
 
-    # drop mps with parties withou mapping and add parties to ideological positions
+    # drop mps with parties without mapping
     mps_with_mapping = mps_parties[~mps_parties[SURVEYCOL].isna()]
     mps_without_mapping = mps_parties[mps_parties[SURVEYCOL].isna()]
     mssg = f"ATTITUDINAL EMBEDDINGS: found {len(mps_with_mapping)} mps that "
@@ -135,16 +135,16 @@ def create_attitudinal_embedding(
         mm += f"having a mapping in {survey} survey. Left {t1}."
         logger.info(mm)
 
-    parties_available_survey = set(parties_coord_att[SURVEYCOL].unique())
+    parties_availables_in_survey = set(parties_coord_att[SURVEYCOL].unique())
     parties_mps = set(ide_mps_in_parties_with_valid_mapping[SURVEYCOL].unique())
 
-    if not set(parties_mps).issubset(parties_available_survey):
+    if not set(parties_mps).issubset(parties_availables_in_survey):
         m = f"ATTITUDINAL EMBEDDINGS: there are parties in mps affilations "
         m += f"{joinParties(parties_mps)} that are not present in survey "
-        m += f"{survey} {joinParties(parties_available_survey)}"
-        m += f"Dropping {parties_mps - parties_available_survey}."
+        m += f"{survey} {joinParties(parties_availables_in_survey)}"
+        m += f"Dropping {parties_mps - parties_availables_in_survey}."
         logger.info(m)
-        new_candidate_N_survey = len(parties_available_survey) - 1
+        new_candidate_N_survey = len(parties_availables_in_survey) - 1
         if not ignore_errors:
             user_input = input(
                 f"Do you want to continuate (yes/no):")
@@ -154,7 +154,7 @@ def create_attitudinal_embedding(
                 else:
                     user_input = input('Please type yes or no:')
         cond = ide_mps_in_parties_with_valid_mapping[SURVEYCOL].isin(
-            parties_available_survey)
+            parties_availables_in_survey)
         ide_mps_in_parties_with_valid_mapping = ide_mps_in_parties_with_valid_mapping[cond]
         if N_survey != new_candidate_N_survey:
             N_survey = new_candidate_N_survey
@@ -180,11 +180,11 @@ def create_attitudinal_embedding(
         mssg += f"IDE COORDINATES: {joinParties(partiesIde)}"
         mssg += f"ATT COORDINATES: {joinParties(partiesAtt)}"
         if not partiesAtt.issubset(partiesIde):
-            mssg += f"These parties are excedding and will be ignored:"
+            mssg += f"These parties are excedding in the attitudinal space and will be ignored:"
             mssg += f"{joinParties(partiesAtt - partiesIde)}"
             logger.info(mssg)
+
             if not ignore_errors:
-                new_candidate_N_survey = len(partiesIde) - 1
                 user_input = input("Do you want to continuate (yes/no):")
                 while user_input.lower() != 'yes':
                     if user_input.lower() == 'no':
@@ -192,13 +192,14 @@ def create_attitudinal_embedding(
                     else:
                         user_input = input('Please type yes or no:')
 
-                parties_coord_att = parties_coord_att[parties_coord_att[SURVEYCOL].isin(partiesIde)]
-                if N_survey != new_candidate_N_survey:
-                    N_survey = new_candidate_N_survey
-                    logger.info(f"N_survey value vas modified to {N_survey}.")
+            new_candidate_N_survey = len(partiesIde) - 1
+            parties_coord_att = parties_coord_att[parties_coord_att[SURVEYCOL].isin(partiesIde)]
+            if N_survey != new_candidate_N_survey:
+                N_survey = new_candidate_N_survey
+                logger.info(f"N_survey value vas modified to {N_survey}.")
 
-                if not partiesIde == partiesAtt:
-                    logger.info(f"Parties: {','.join(partiesAtt - partiesIde)} where ignored.")
+            if not partiesIde == partiesAtt:
+                logger.info(f"Parties: {','.join(partiesAtt - partiesIde)} where ignored.")
 
         else:  # not partiesIde.issubset(partiesAtt)
             e = "Found unexpected condition "
