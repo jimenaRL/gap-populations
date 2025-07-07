@@ -183,14 +183,14 @@ class SQLite:
                 temp = df[['EPO_party_acronym'] + dims_to_drop]
 
                 # Drop rows with blanck spaces values.
-                if self.missing_values_strategy == 'drop_parties':
+                if self.missing_values_strategy[survey] == 'drop_parties':
                     df = df[bad_map(df[dims_names]).sum(axis=1) == 0]
                     dropped_parties = parties - set(df[survey_col].tolist())
                     info = f"SQLITE: dropping {len(dropped_parties)} parties "
                     info += f"{dropped_parties}, because corresponding rows "
 
                 # Drop columns with blanck spaces values.
-                else: # self.missing_values_strategy == 'drop_dims'
+                else: # self.missing_values_strategy[survey] == 'drop_dims'
                     df = df.drop(dims_to_drop, axis=1)
                     info = f"SQLITE: dropping {len(dims_to_drop)} atittudinal dimensions "
                     info += f"{dims_to_drop}, because corresponding columns "
