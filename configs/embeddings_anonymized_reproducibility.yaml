@@ -132,6 +132,52 @@ attitudinal_dimensions:
     - partisanship
     - clientelism
     - programmatism
+ches2024:
+    - eu_position
+    - eu_salience
+    - eu_dissent
+    - eu_blur
+    - lrecon
+    - lrecon_blur
+    - lrecon_dissent
+    - lrecon_salience
+    - galtan
+    - galtan_blur
+    - galtan_dissent
+    - galtan_salience
+    - lrgen
+    - immigrate_policy
+    - immigrate_salience
+    - immigrate_dissent
+    - multiculturalism
+    - multicult_salience
+    - redistribution
+    - redist_salience
+    - climate_change
+    - climate_change_salience
+    - environment
+    - environment_salience
+    - spendvtax
+    - deregulation
+    - civlib_laworder
+    - womens_rights
+    - lgbtq_rights
+    - samesex_marriage
+    - religious_principles
+    - ethnic_minorities
+    - nationalism
+    - urban_rural
+    - protectionism
+    - regions
+    - executive_power
+    - judicial_independence
+    - corrupt_salience
+    - anti_islam
+    - people_v_elite
+    - anti_elite_salience
+    - eu_foreign
+    - eu_intmark
+    - eu_russia
 sources_min_followers: 25
 sources_min_outdegree: 3
 validation:
