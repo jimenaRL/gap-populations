@@ -80,6 +80,7 @@ function fn() {
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2024 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "brazil" ]]
@@ -157,6 +158,7 @@ function fn() {
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2024 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "germany" || $COUNTRY = "germanybis" ]]
@@ -164,6 +166,7 @@ function fn() {
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2024 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "greece" ]]
@@ -201,15 +204,7 @@ function fn() {
 
     if [[ $COUNTRY = "israel" ]]
     then
-        python /home/jimena/work/dev/gap-populations/pipeline.py \
-            --country=$COUNTRY \
-            --year=$YEAR \
-            --dbpath=$DBPATH \
-            --output=$OUTPUT_FOLDER \
-            --config=/home/jimena/work/dev/gap-populations/configs/embeddings_pseudonymized_alldata_$COUNTRY.yaml \
-            --survey=gps2019 \
-            --attdims=V4_Scale,V6_Scale,V8_Scale,V9,V10,V12,V13,V14,V18,V19,V20,V21 \
-            --validation
+        gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "italy" || $COUNTRY = "italybis" ]]
@@ -217,19 +212,12 @@ function fn() {
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2024 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "japan" ]]
     then
-        python /home/jimena/work/dev/gap-populations/pipeline.py \
-            --country=$COUNTRY \
-            --year=$YEAR \
-            --dbpath=$DBPATH \
-            --output=$OUTPUT_FOLDER \
-            --config=/home/jimena/work/dev/gap-populations/configs/embeddings_pseudonymized_alldata_$COUNTRY.yaml \
-            --survey=gps2019 \
-            --attdims=V4_Scale,V6_Scale,V8_Scale,V9,V10,V12,V13,V14,V18,V19,V20,V21 \
-            --validation
+        gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "latvia" ]]
@@ -270,6 +258,7 @@ function fn() {
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2024 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "newzealand" ]]
@@ -300,6 +289,7 @@ function fn() {
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
+        gn $DBPATH $COUNTRY ches2024 $YEAR $OUTPUT_FOLDER
     fi
 
     if [[ $COUNTRY = "portugal" ]]
