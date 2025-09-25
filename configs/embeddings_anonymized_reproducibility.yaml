@@ -132,7 +132,7 @@ attitudinal_dimensions:
     - partisanship
     - clientelism
     - programmatism
-ches2024:
+  ches2024:
     - eu_position
     - eu_salience
     - eu_dissent
