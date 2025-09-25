@@ -38,6 +38,11 @@ function gn() {
         command="${command} --survey=ches2020 --attdims=lrgen,lrecon,people_vs_elite,antielite_salience,corrupt_salience,sociallifestyle,galtan,immigrate_policy,environment,enviro_salience"
     fi
 
+    if [[ "$SURVEY" = "ches2024" ]]
+    then
+        command="${command} --survey=ches2024 --attdims=lrgen,lrecon,eu_position,anti_elite_salience,people_vs_elite,corrupt_salience,galtan,immigrate_policy,environment,enviro_salience,environment,enviro_salience,nationalism,redistribution,lrecon"
+    fi
+
     echo "--------------------------------------------------"
     echo "[RUNNING] ${command}"
     echo "--------------------------------------------------"
