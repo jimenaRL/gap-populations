@@ -27,7 +27,7 @@ validation:
   seed: 666
 tables:
   preprocessed_graph:
-    name: 'mp_${entity}_graph_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    name: 'mp_${entity}_graph_minf_${sources_min_followers}_minod_${sources_min_outdegree}'
     columns:
       - mp_pseudo_id
       - ${entity}_pseudo_id

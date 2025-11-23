@@ -184,7 +184,7 @@ validation:
   seed: 666
 tables:
   preprocessed_graph:
-    name: 'mp_${entity}_graph_minin_${sources_min_followers}_minout_${sources_min_outdegree}'
+    name: 'mp_${entity}_graph_minf_${sources_min_followers}_minod_${sources_min_outdegree}'
     columns:
       - mp_pseudo_id
       - ${entity}_pseudo_id
@@ -253,17 +253,17 @@ tables:
         - mp_pseudo_id
         - follower_pseudo_id
   ideological:
-    name: 'ideological_embeddings'
+    name: 'ideological_embeddings_minf_${sources_min_followers}'
     partial_columns:
         - pseudo_id
         - 'latent_dimension_${number}'
   attitudinal:
-    name: 'attitudinal_embeddings_${survey}'
+    name: 'attitudinal_embeddings_${survey}_minf_${sources_min_followers}'
     partial_columns:
       - dimension
       - '${attitude}'
   affine_map:
-    name: 'affine_map_${attitude}'
+    name: 'affine_map_${attitude}_minf_${sources_min_followers}'
     partial_columns:
       - dimension
       - '${attitude}'

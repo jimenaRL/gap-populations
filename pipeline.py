@@ -36,6 +36,7 @@ ap.add_argument('--dbpath', type=str, required=True, help="Path to the dataset")
 ap.add_argument('--survey', type=str, required=False, default=None, choices=SURVEYS)
 ap.add_argument('--ndimsviz', type=int, default=2)
 ap.add_argument('--ideN', type=int, default=20)
+ap.add_argument('--nb_min_followers', type=str, default='0,25')
 ap.add_argument('--attdims', type=str, required=False)
 ap.add_argument('--config', type=str, required=False, default=CONFIGDEFAULTPATH)
 ap.add_argument('--vizconfig', type=str, default=VIZCONFIGDEFAULTPATH)
@@ -46,7 +47,6 @@ ap.add_argument('--attitudinal', action='store_true')
 ap.add_argument('--validation', action='store_true')
 ap.add_argument('--distributions', action='store_true')
 ap.add_argument('--bivariate', action='store_true')
-ap.add_argument('--compute_embeddings', action='store_true')
 ap.add_argument('--nbsplits_validation', type=int, default=10)
 ap.add_argument('--seed_validation', type=int, default=42)
 ap.add_argument('--labels', action='store_true')
@@ -61,6 +61,7 @@ config = args.config
 vizconfig = args.vizconfig
 survey = args.survey
 ideN = args.ideN
+nb_min_followers = args.nb_min_followers.split(',')
 ndimsviz = args.ndimsviz
 attdims = args.attdims
 ideological = args.ideological
@@ -70,7 +71,6 @@ labels = args.labels
 validation = args.validation
 distributions = args.distributions
 bivariate = args.bivariate
-compute_embeddings = args.compute_embeddings
 seed = args.seed_validation
 nb_splits = args.nbsplits_validation
 plot = args.plot
@@ -121,31 +121,6 @@ INOUT = InOut(
     logger=logger
 )
 
-
-# ide_sources2, ide_targets2 = INOUT.load_ide_embeddings(source='db')
-# print(f"ide_sources from csv: {len(ide_sources2)}")
-# print(f"ide_targets from csv: {len(ide_targets2)}")
-
-# try:
-#     ide_sources2, ide_targets2 = INOUT.load_ide_embeddings(source='csv')
-#     print(f"ide_sources from csv: {len(ide_sources2)}")
-#     print(f"ide_targets from csv: {len(ide_targets2)}")
-# except:
-#     print('no csv')
-
-# if survey:
-#     att_sources2, att_targets2 = INOUT.load_att_embeddings(source='db')
-#     print(f"att_sources from csv: {len(att_sources2)}")
-#     print(f"att_targets from csv: {len(att_targets2)}")
-
-# try:
-#     att_sources2, att_targets2 = INOUT.load_att_embeddings(source='csv')
-#     print(f"att_sources from csv: {len(att_sources2)}")
-#     print(f"att_targets from csv: {len(att_targets2)}")
-# except:
-#     print('no csv')
-
-
 logfile = os.path.join(INOUT.basepath, f'{country}.log')
 logging.basicConfig(
     level=logging.INFO,
@@ -166,15 +141,6 @@ if survey:
 
 # 1. Create and plot ideological embedding
 if ideological:
-    if compute_embeddings:
-        create_ideological_embedding(
-            SQLITE,
-            INOUT,
-            NB_MIN_FOLLOWERS,
-            MIN_OUTDEGREE,
-            ideN,
-            logger)
-
     if bivariate and plot:
         plot_ideological_embedding(
             SQLITE,
@@ -187,31 +153,6 @@ if ideological:
 
 # 2. Create and plot attitudinal embedding
 if attitudinal:
-
-    if compute_embeddings:
-
-        # Set the number of dimension for the mapping to the attitudinal space
-        # 1. Get the number of unique survey parties corresponding with an available
-        # EPO party after follower>Mps graph preprocessing
-        survey_party_acronym = f"{survey.upper()}_party_acronym"
-        query = f"""
-            SELECT COUNT(DISTINCT(p.{survey_party_acronym}))
-            FROM mp_follower_graph_minin_25_minout_3 g
-            LEFT JOIN mp_annotation USING(mp_pseudo_id)
-            LEFT JOIN party_mapping p USING(EPO_party_acronym)
-            WHERE p.{survey_party_acronym} is NOT NULL"""
-        res = SQLITE.retrieve(query)
-        numberEPOPartiesWithMPsinPPGraph = res[0][0]
-        N_survey = numberEPOPartiesWithMPsinPPGraph - 1
-        create_attitudinal_embedding(
-            SQLITE,
-            INOUT,
-            ATTDIMS,
-            survey,
-            N_survey,
-            logger,
-            ide_embeddings_source)
-
     if distributions and plot:
         plot_1d_attitudinal_distributions(
             SQLITE,
@@ -276,40 +217,44 @@ if validation:
     parties_mapping = SQLITE.getPartiesMapping([survey])
     llm_labels = SQLITE.getLLMLabels()
 
-    att_sources, _ = INOUT.load_att_embeddings()
-    valfolder = os.path.join(INOUT.att_folder, 'validations')
+    for minf in nb_min_followers:
+        att_sources, _ = INOUT.load_att_embeddings(nb_min_followers=minf)
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [
-            executor.submit(
-                make_validation,
-                parties_mapping,
-                llm_labels,
-                att_sources,
-                seed,
-                nb_splits,
-                country,
-                year,
-                survey,
-                attdim,
-                plot,
-                show,
-                valfolder,
-                logger
-                )
-            for attdim in attdims
-        ]
-        records = [f.result() for f in futures]
+        valfolder = os.path.join(INOUT.att_folder, f'validations_minf_{minf}')
+        os.makedirs(valfolder, exist_ok=True)
 
-    if len(records) > 0:
-        records = pd.concat([pd.DataFrame(r) for r in records]).sort_values(by='f1', ascending=False)
-        records = records.assign(path=SQLITE.DB)
-        filename = f"{country}_{year}_{survey}_logistic_regression_cross_validate_f1_score"
-        valfolder = os.path.join(INOUT.att_folder, 'validations')
-        dfpath = os.path.join(valfolder, filename+'.csv')
-        records.to_csv(dfpath, index=False)
-        os.system(f"xan select {','.join(cols)} {dfpath} | xan rename {','.join(rcols)} | xan view -I")
-        logger.info(f"VALIDATION: scores saved at {dfpath}")
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [
+                executor.submit(
+                    make_validation,
+                    parties_mapping,
+                    llm_labels,
+                    att_sources,
+                    seed,
+                    nb_splits,
+                    country,
+                    year,
+                    survey,
+                    attdim,
+                    plot,
+                    show,
+                    valfolder,
+                    logger
+                    )
+                for attdim in attdims
+            ]
+            records = [f.result() for f in futures]
+
+        if len(records) > 0:
+            records = pd.concat([pd.DataFrame(r) for r in records]).sort_values(by='f1', ascending=False)
+            records = records.assign(path=SQLITE.DB)
+            filename = f"{country}_{year}_{survey}_minf_{minf}_logistic_regression_cross_validate_f1_score"
+            valfolder = os.path.join(INOUT.att_folder, f'validations_minf_{minf}')
+            os.makedirs(valfolder, exist_ok=True)
+            dfpath = os.path.join(valfolder, filename+'.csv')
+            records.to_csv(dfpath, index=False)
+            os.system(f"xan select {','.join(cols)} {dfpath} | xan rename {','.join(rcols)} | xan view -I")
+            logger.info(f"VALIDATION: scores saved at {dfpath}")
 
 # 4. Compute labels statistics
 if labels:

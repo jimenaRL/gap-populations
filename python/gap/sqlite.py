@@ -282,12 +282,12 @@ class SQLite:
             warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)
 
-    def getIdeologicalEmbeddings(self, verbose=False):
+    def getIdeologicalEmbeddings(self, nb_min_followers, verbose=False):
 
         mps_ids = self.getMpsPseudoIds()
-
         name = self.TABLES['ideological']['name']
-        table = Template(name).substitute()
+        table = Template(name).substitute(
+            sources_min_followers=nb_min_followers)
         query = f"SELECT * FROM {table}"
         res = self.retrieve(query)
         if verbose:
@@ -312,12 +312,14 @@ class SQLite:
 
         return ide_sources, ide_targets
 
-    def getAttitudinalEmbeddings(self, survey, verbose=False):
+    def getAttitudinalEmbeddings(self, survey, nb_min_followers, verbose=False):
 
         mps_ids = self.getMpsPseudoIds()
 
         name = self.TABLES['attitudinal']['name']
-        table = Template(name).substitute(survey=survey)
+        table = Template(name).substitute(
+            survey=survey,
+            sources_min_followers=nb_min_followers)
         query = f"SELECT * FROM {table}"
         res = self.retrieve(query)
         if verbose:

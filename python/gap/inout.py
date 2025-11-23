@@ -63,19 +63,15 @@ class InOut:
 
     def setBasepath(self, output):
 
-        emb_folder = f"min_followers_{self.params['sources_min_followers']}"
-        emb_folder += f"_min_outdegree_{self.params['sources_min_outdegree']}"
-
-        self.basepath = os.path.join(output, emb_folder)
+        self.basepath = output
 
         os.makedirs(self.basepath, exist_ok=True)
 
         config_file = os.path.join(self.basepath, 'config.yaml')
 
-        if not os.path.exists(config_file):
-            with open(config_file, 'w') as file:
-                yaml.dump(self.params, file)
-            self.logger.info(f"INOUT: YAML config saved at {self.basepath}.")
+        with open(config_file, 'w') as file:
+            yaml.dump(self.params, file)
+        self.logger.info(f"INOUT: YAML config saved at {self.basepath}.")
 
     def setEmbFolder(self, n_latent_dimensions):
         self.emb_folder = os.path.join(
@@ -86,7 +82,6 @@ class InOut:
         if survey is not None:
             self.att_folder = os.path.join(self.emb_folder, survey)
             os.makedirs(self.att_folder, exist_ok=True)
-
 
     def load_ide_embeddings_csv(self):
 
@@ -237,9 +232,10 @@ class InOut:
         return att_source, att_targets
 
 
-    def load_ide_embeddings(self, source='db'):
+    def load_ide_embeddings(self, nb_min_followers, source='db'):
         if source == 'db':
-            ide_sources, ide_targets = self.SQLITE.getIdeologicalEmbeddings( verbose=True)
+            ide_sources, ide_targets = self.SQLITE.getIdeologicalEmbeddings(
+                nb_min_followers=nb_min_followers, verbose=True)
             ide_sources.rename(columns={"pseudo_id": "entity"}, inplace=True)
             ide_targets.rename(columns={"pseudo_id": "entity"}, inplace=True)
             return ide_sources, ide_targets
@@ -249,9 +245,12 @@ class InOut:
             raise ValueError(
                 f"Wrong source `{source}`. Must `csv` or `db`.")
 
-    def load_att_embeddings(self, source='db'):
+    def load_att_embeddings(self, nb_min_followers, source='db'):
         if source=='db':
-            att_sources, att_targets = self.SQLITE.getAttitudinalEmbeddings(survey=self.survey, verbose=True)
+            att_sources, att_targets = self.SQLITE.getAttitudinalEmbeddings(
+                survey=self.survey,
+                nb_min_followers=nb_min_followers,
+                verbose=True)
             att_sources.rename(columns={"pseudo_id": "entity"}, inplace=True)
             att_targets.rename(columns={"pseudo_id": "entity"}, inplace=True)
             return att_sources, att_targets
