@@ -80,7 +80,7 @@ function fn() {
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
-        if [[ $COUNTRY = "belgium" ]]
+        if [[ $YEAR = "2025" ]]
         then
             gn $DBPATH $COUNTRY ches2024 $YEAR $OUTPUT_FOLDER
         fi
@@ -317,7 +317,7 @@ function fn() {
         gn $DBPATH $COUNTRY ches2023 $YEAR $OUTPUT_FOLDER
     fi
 
-    if [[ $COUNTRY = "romania2020.db" || $COUNTRY = "romania" ]]
+    if [[ $COUNTRY = "romania" ]]
     then
         gn $DBPATH $COUNTRY gps2019 $YEAR $OUTPUT_FOLDER
         gn $DBPATH $COUNTRY ches2019 $YEAR $OUTPUT_FOLDER
