@@ -46,11 +46,9 @@ ap.add_argument('--ideological', action='store_true')
 ap.add_argument('--attitudinal', action='store_true')
 ap.add_argument('--validation', action='store_true')
 ap.add_argument('--distributions', action='store_true')
-ap.add_argument('--bivariate', action='store_true')
 ap.add_argument('--nbsplits_validation', type=int, default=10)
 ap.add_argument('--seed_validation', type=int, default=42)
 ap.add_argument('--labels', action='store_true')
-ap.add_argument('--plot', action='store_true')
 ap.add_argument('--show', action='store_true')
 args = ap.parse_args()
 country = args.country
@@ -70,10 +68,8 @@ ide_embeddings_source = args.ide_embeddings_source
 labels = args.labels
 validation = args.validation
 distributions = args.distributions
-bivariate = args.bivariate
 seed = args.seed_validation
 nb_splits = args.nbsplits_validation
-plot = args.plot
 show = args.show
 
 
@@ -96,17 +92,15 @@ logger = logging.getLogger(__name__)
 with open(config, "r", encoding='utf-8') as fh:
     params = yaml.load(fh, Loader=yaml.SafeLoader)
 
-if plot or show:
+if ideological or attitudinal:
     with open(vizconfig, "r", encoding='utf-8') as fh:
         vizparams = yaml.load(fh, Loader=yaml.SafeLoader)
 
-NB_MIN_FOLLOWERS = params['sources_min_followers']
 MIN_OUTDEGREE = params['sources_min_outdegree']
 
 SQLITE = SQLite(
     db_path=dbpath,
     tables=params['tables'],
-    sources_min_followers=NB_MIN_FOLLOWERS,
     sources_min_outdegree=MIN_OUTDEGREE,
     logger=logger,
     country=country)
@@ -139,13 +133,14 @@ if survey:
         attdims = attdims.split(',')
 
 
-# 1. Create and plot ideological embedding
+# 1. Plot ideological embedding
 if ideological:
-    if bivariate and plot:
+    for minf in map(int, nb_min_followers):
         plot_ideological_embedding(
             SQLITE,
             INOUT,
             country,
+            minf,
             ndimsviz,
             vizparams,
             show,
@@ -153,24 +148,14 @@ if ideological:
 
 # 2. Create and plot attitudinal embedding
 if attitudinal:
-    if distributions and plot:
-        plot_1d_attitudinal_distributions(
-            SQLITE,
-            INOUT,
-            country,
-            year,
-            survey,
-            attdims,
-            logger,
-            show)
-
-    if bivariate and plot:
+    for minf in map(int, nb_min_followers):
         for attdimspair in  combinations(attdims, 2):
             plot_attitudinal_embedding(
                 SQLITE,
                 INOUT,
                 list(attdimspair),
                 country,
+                minf,
                 survey,
                 vizparams,
                 show,
@@ -236,7 +221,7 @@ if validation:
                     year,
                     survey,
                     attdim,
-                    plot,
+                    False,
                     show,
                     valfolder,
                     logger

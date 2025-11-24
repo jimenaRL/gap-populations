@@ -69,16 +69,6 @@ def make_validation(
             f"VALIDATION: skipping missing attitudinal dimension {attdim}.")
         return {}
 
-    # # get A strategy labels
-    # keywords_labels = SQLITE.getKeywordsLabels()
-    # keywords_data = keywords_labels.merge(
-    #     att_sources,
-    #     left_on='pseudo_id',
-    #     right_on='entity',
-    #     how='inner') \
-    #     .drop(columns=['pseudo_id'])
-
-    # get C strategy labels
     llm_data = llm_labels.merge(
         att_sources,
         left_on='pseudo_id',
@@ -87,7 +77,6 @@ def make_validation(
         .drop(columns=['pseudo_id'])
 
     strategy_data = {
-        # 'keywords': keywords_data,
         'llm': llm_data
     }
 
@@ -102,15 +91,6 @@ def make_validation(
             1:  f"{lrdata['group1']}",
             2:  f"{lrdata['group2']}",
         }
-
-        # check that label is present for estrategy
-        # for instance there is no 'climate denialist' for the A strategy
-        if not egroups[1] in strategy_data[strategy]:
-            logger.info(f"VALIDATION: {egroups[1]} is missing from {strategy} strategy data.")
-            continue
-        if not egroups[2] in strategy_data[strategy]:
-            logger.info(f"VALIDATION: {egroups[2]} is missing from {strategy} strategy data.")
-            continue
 
         data = {
             1: strategy_data[strategy].query(f"{egroups[1]}=='1' & {egroups[2]}!='1'"),

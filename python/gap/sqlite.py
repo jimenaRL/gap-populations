@@ -20,7 +20,6 @@ class SQLite:
         self,
         db_path,
         tables,
-        sources_min_followers,
         sources_min_outdegree,
         logger,
         country):
@@ -28,7 +27,6 @@ class SQLite:
         self.country = country
         self.DB = os.path.abspath(db_path)
         self.TABLES = tables
-        self.NB_MIN_FOLLOWERS =  sources_min_followers
         self.MIN_OUTDEGREE = sources_min_outdegree
         self.logger = logger
 
@@ -40,7 +38,6 @@ class SQLite:
 
     def ppSubstitution(self, string_):
         return Template(string_).substitute(
-            sources_min_followers=self.NB_MIN_FOLLOWERS,
             sources_min_outdegree=self.MIN_OUTDEGREE
         )
 
@@ -238,24 +235,8 @@ class SQLite:
             warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)
 
-    def getKeywordsLabels(self, limit=-1):
-
-        table = Template(self.TABLES['keywords']['name']).substitute(
-            sources_min_followers=self.NB_MIN_FOLLOWERS,
-            sources_min_outdegree=self.MIN_OUTDEGREE)
-        columns = self.TABLES['keywords']['columns']
-        query = f"SELECT {','.join(columns)} FROM {table}"
-        if limit > 0:
-            query += f" LIMIT {limit}"
-        res = self.retrieve(query)
-        m = f"SQLITE: Found {len(res)} entries in {table}."
-        warn_once(self.logger, m)
-        return pd.DataFrame(res, columns=columns)
-
     def getLLMLabels(self, limit=-1, allow_missing=True):
-        table = Template(self.TABLES['llm_labels']['name']).substitute(
-            sources_min_followers=self.NB_MIN_FOLLOWERS,
-            sources_min_outdegree=self.MIN_OUTDEGREE)
+        table = Template(self.TABLES['llm_labels']['name']).substitute()
         # check available llm labels
         table_info = self.retrieve(f"PRAGMA table_info({table});")
         available_cols = [i[1] for i in table_info]
@@ -270,9 +251,9 @@ class SQLite:
         warn_once(self.logger, m)
         return pd.DataFrame(res, columns=columns)
 
-    def getMpsPseudoIds(self, verbose=False):
+    def getMpsPseudoIds(self, nb_min_followers, verbose=False):
         table = Template(self.TABLES['party']['name']).substitute(
-            sources_min_followers=self.NB_MIN_FOLLOWERS,
+            sources_min_followers=nb_min_followers,
             sources_min_outdegree=self.MIN_OUTDEGREE)
         columns = ['mp_pseudo_id']
         query = f"SELECT {','.join(columns)} FROM {table}"
@@ -284,7 +265,7 @@ class SQLite:
 
     def getIdeologicalEmbeddings(self, nb_min_followers, verbose=False):
 
-        mps_ids = self.getMpsPseudoIds()
+        mps_ids = self.getMpsPseudoIds(nb_min_followers=nb_min_followers)
         name = self.TABLES['ideological']['name']
         table = Template(name).substitute(
             sources_min_followers=nb_min_followers)
@@ -314,7 +295,7 @@ class SQLite:
 
     def getAttitudinalEmbeddings(self, survey, nb_min_followers, verbose=False):
 
-        mps_ids = self.getMpsPseudoIds()
+        mps_ids = self.getMpsPseudoIds(nb_min_followers=nb_min_followers)
 
         name = self.TABLES['attitudinal']['name']
         table = Template(name).substitute(

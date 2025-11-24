@@ -27,13 +27,15 @@ def plot_ideological_embedding(
     SQLITE,
     INOUT,
     country,
+    nb_min_followers,
     n_dims_to_viz,
     vizparams,
     show,
     logger):
 
     # Load data from ideological embedding
-    ide_sources, ide_targets = INOUT.load_ide_embeddings(source='db')
+    ide_sources, ide_targets = INOUT.load_ide_embeddings(
+        source='db', nb_min_followers=nb_min_followers)
 
     idevizparams = vizparams['ideological']
     mp_parties = SQLITE.getMpParties(['EPO'])
@@ -45,7 +47,7 @@ def plot_ideological_embedding(
     parties_to_show = SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys())[SQLITE.getPartiesMapping(SQLITE.getAvailableSurveys()) \
         .drop('EPO_party_acronym', axis=1).isna().sum(axis=1) != len(SQLITE.getAvailableSurveys())].EPO_party_acronym.tolist()
 
-    output_folder = os.path.join(INOUT.emb_folder, 'figures')
+    output_folder = os.path.join(INOUT.emb_folder, f'figures_minf_{nb_min_followers}')
     os.makedirs(output_folder, exist_ok=True)
 
     palette = make_palette(vizparams['palette'], parties_to_show)
@@ -85,11 +87,11 @@ def plot_1d_attitudinal_distributions(
 
     valfolder = os.path.join(INOUT.att_folder, 'validations')
 
-    os.makedirs(os.path.join(INOUT.att_folder, 'figures'), exist_ok=True)
+    os.makedirs(os.path.join(INOUT.att_folder, f'figures_minf_{nb_min_followers}'), exist_ok=True)
 
     paths=[
-        os.path.join(INOUT.att_folder, 'figures', f"distributions.png"),
-        os.path.join(INOUT.att_folder, 'figures', f"distributions.pdf"),
+        os.path.join(INOUT.att_folder, f'figures_minf_{nb_min_followers}', f"distributions.png"),
+        os.path.join(INOUT.att_folder, f'figures_minf_{nb_min_followers}', f"distributions.pdf"),
     ]
 
     # show by dim distributions
@@ -108,6 +110,7 @@ def plot_attitudinal_embedding(
     INOUT,
     dimspair,
     country,
+    nb_min_followers,
     survey,
     vizparams,
     show,
@@ -116,7 +119,7 @@ def plot_attitudinal_embedding(
 
     SURVEYCOL = f'{survey.upper()}_party_acronym'
 
-    att_sources, att_targets = INOUT.load_att_embeddings()
+    att_sources, att_targets = INOUT.load_att_embeddings(nb_min_followers=nb_min_followers)
 
     mps_parties = SQLITE.getMpParties(['EPO', survey], dropna=True)
 
@@ -158,7 +161,7 @@ def plot_attitudinal_embedding(
 
     attvizparams = globals()[f"{survey.upper()}DEFAULTATTVIZ"]
 
-    output_folder = os.path.join(INOUT.att_folder, 'figures')
+    output_folder = os.path.join(INOUT.att_folder, f'figures_minf_{nb_min_followers}')
     os.makedirs(output_folder, exist_ok=True)
     visualize_att(
         sources_coord_att=att_sources,
@@ -166,7 +169,7 @@ def plot_attitudinal_embedding(
         parties_coord_att=parties_coord_att,
         target_groups=mps_parties,
         dims=dict(zip(['x', 'y'], dimspair)),
-        paths=[os.path.join(INOUT.att_folder, 'figures', f"{dimpair_str}.png")],
+        paths=[os.path.join(output_folder, f"{dimpair_str}.png")],
         show=show,
         palette=palette,
         survey=survey,
